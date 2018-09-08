@@ -12,6 +12,7 @@ COMMAND_SEP_CHAR = ';'
 class TextController(object):
 
     def __init__(self, **kwargs):
+        self.app = kwargs['app']
         self.QUIT_VALS = kwargs.get('QUIT_VALS', ['q:'])
         self.PROMPT = kwargs.get('PROMPT', PROMPT)
 
@@ -34,10 +35,13 @@ class TextController(object):
 
     def input_mapper(self, input):
 
+        # print input
+
         if input in self.QUIT_VALS: 
-            return self.quit
+            return self.quit, {}
         else: 
-            return self.unrecognized
+            print 'input', input, {'input_value':input}
+            return self.unrecognized, {'input_value':input}
 
 
     def quit(self, **kwargs): 
@@ -45,7 +49,7 @@ class TextController(object):
 
 
     def unrecognized(self, **kwargs):
-        print 'Unrecognized input: {0}'.format(kwargs['input_value'])
+        print 'Unrecognized input: "{0}"'.format(kwargs['input_value'])
 
     def update(self, parsed_input_list):
         if len(parsed_input_list) == 0:
@@ -60,7 +64,8 @@ class TextControllerNonInteractive(TextController):
 class Model(object):
 
     def __init__(self, **kwargs):
-
+        
+        self.app = kwargs['app']
         self.graph = nx.DiGraph()
 
 
@@ -69,17 +74,17 @@ class DataFrameBrowser(object):
     def __init__(self, **kwargs):
 
         model_kwargs = kwargs.get('model_kwargs', {})
-        self.model = Model(**model_kwargs)
+        self.model = Model(app=self, **model_kwargs)
 
         controller_kwargs = kwargs.get('controller_kwargs', {})
-        self.controller = kwargs.get('controller_class', TextController)(**controller_kwargs)
+        self.controller = kwargs.get('controller_class', TextController)(app=self, **controller_kwargs)
 
     def run(self, input=['']):
 
         parsed_input_list = self.controller.parse_input(input)
         while len(parsed_input_list) > 0:
-            curr_input = parsed_input_list.pop(0)
-            curr_input()
+            curr_input, curr_input_kwargs = parsed_input_list.pop(0)
+            curr_input(**curr_input_kwargs)
             raise
 
 
