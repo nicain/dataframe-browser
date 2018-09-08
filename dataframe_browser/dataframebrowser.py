@@ -34,17 +34,25 @@ class TextController(object):
         self.app = kwargs['app']
         self.QUIT_VALS = kwargs.get('QUIT_VALS', ['q:', 'exit()'])
         self.PROMPT = kwargs.get('PROMPT', PROMPT)
+        self.sep = COMMAND_SEP_CHAR
 
-    def parse_text_input(self, text_input):
-        return [input.strip() for input in text_input.split(COMMAND_SEP_CHAR)]
+    def parse_text_input(self, text_input, sep=None):
+        if sep is None: sep = self.sep
+        text_input_list = [input.strip() for input in text_input.split(sep)]
+        if len(text_input_list) > 1:
+            text_input_list = [x for x in text_input_list if len(x)>0]
 
+        return text_input_list
 
     def parse_input(self, input):
         if isinstance(input, (str,)):
             input_list = self.parse_text_input(input)
 
         elif isinstance(input, (list, tuple)):
-            input_list = input
+            input_list = []
+            for x in input:
+                input_list += self.parse_input(x)
+            return input_list
         
         else:
             raise NotImplementedError
@@ -118,18 +126,9 @@ class DataFrameBrowser(object):
             self.controller.update(parsed_input_list)
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":    
 
-    controller_stream = None
-    app_stream = None
-    formatter = None
-
-    import pytest
-    pytest.main(['-q', '-x', '/home/nicholasc/projects/dataframe-browser'])
-    
-
-    controller_kwargs = {'logging_settings':{'handler':logging.StreamHandler(stream=controller_stream),
-                                             'formatter': formatter}}
+    controller_kwargs = {}
     DataFrameBrowser(controller_class=TextController, 
                      controller_kwargs=controller_kwargs, 
-                     logging_settings={'handler':logging.StreamHandler(stream=app_stream)}).run(input='"";""')
+                     logging_settings={'handler':logging.StreamHandler()}).run(input=['"";q:'])

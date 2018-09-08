@@ -52,5 +52,20 @@ def test_logging(input, dataframe_browser_fixture):
         assert log_dict[2]['unrecognized']['input_value'] == input_value
 
 
+@pytest.mark.parametrize('input, expected', [
+                                            #  ('blah  ;  blah; blah', 3), 
+                                            #  ('blah;blah', 2), 
+                                            #  ('blah;', 1), ('blah', 1), 
+                                            #  (['blah', 'blah'], 2),
+                                             (['blah;blah', 'blah'], 3),
+                                             ])
+def test_parsing_splitting(input, expected, dataframe_browser_fixture):
+
+    dataframe_browser_fixture['dataframe_browser'].run(input=input)
+    log_lines = dataframe_browser_fixture['controller_stream'].getvalue().splitlines()
+    assert len(log_lines) == expected
+
+
+
 
 
