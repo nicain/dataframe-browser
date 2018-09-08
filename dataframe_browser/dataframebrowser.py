@@ -1,18 +1,36 @@
 import pandas as pd
 import networkx as nx
 import sys
-
+import logging
+from collections import OrderedDict
+import json
 
 
 PROMPT = 'df> '
 COMMAND_SEP_CHAR = ';'
 UNRECOGNIZED_INPUT_FORMAT = 'Unrecognized input: "{0}"\n'
 
+def create_class_logger(cls, **kwargs):
+
+    level = kwargs.get('level', logging.INFO)
+    name = kwargs.get('name', cls.__name__)
+    handler = kwargs.get('handler', logging.StreamHandler())
+    formatter = kwargs.get('formatter', logging.Formatter(logging.BASIC_FORMAT))
+
+    handler.setFormatter(formatter)
+    logger = logging.getLogger(name)
+    logger.addHandler(handler)
+    logger.setLevel(level) 
+
+    return logger
 
 
 class TextController(object):
 
     def __init__(self, **kwargs):
+
+        self.logger = create_class_logger(self.__class__, **kwargs.get('logging_settings', {}))
+
         self.app = kwargs['app']
         self.QUIT_VALS = kwargs.get('QUIT_VALS', ['q:', 'exit()'])
         self.PROMPT = kwargs.get('PROMPT', PROMPT)
@@ -36,12 +54,14 @@ class TextController(object):
 
     def input_mapper(self, input):
 
-        # print input
-
         if input in self.QUIT_VALS: 
-            return self.quit, {}
+            fcn, kwargs = self.quit, {}
         else: 
-            return self.unrecognized, {'input_value':input}
+            fcn, kwargs = self.unrecognized, {'input_value':input}
+
+        self.logger.info(json.dumps({fcn.__name__:kwargs}))
+
+        return fcn, kwargs
 
 
     def quit(self, **kwargs): 
@@ -69,6 +89,8 @@ class TextControllerNonInteractive(TextController):
 class Model(object):
 
     def __init__(self, **kwargs):
+
+        self.logger = create_class_logger(self.__class__, **kwargs.get('logging_settings', {}))
         
         self.app = kwargs['app']
         self.graph = nx.DiGraph()
@@ -77,6 +99,8 @@ class Model(object):
 class DataFrameBrowser(object):
 
     def __init__(self, **kwargs):
+
+        self.logger = create_class_logger(self.__class__, **kwargs.get('logging_settings', {}))
 
         model_kwargs = kwargs.get('model_kwargs', {})
         self.model = Model(app=self, **model_kwargs)
@@ -88,17 +112,25 @@ class DataFrameBrowser(object):
 
         parsed_input_list = self.controller.parse_input(input)
         while len(parsed_input_list) > 0:
+
             curr_input, curr_input_kwargs = parsed_input_list.pop(0)
-            curr_input(**curr_input_kwargs)
-            
+            curr_input(**curr_input_kwargs)            
             self.controller.update(parsed_input_list)
 
 
 if __name__ == "__main__":
 
+    controller_stream = None
+    app_stream = None
+    formatter = None
+
     import pytest
     pytest.main(['-q', '-x', '/home/nicholasc/projects/dataframe-browser'])
-
-    DataFrameBrowser(controller_class=TextController).run(input='blah blah')
-
-    # DataFrameBrowser().run(input=['', 'q:'])
+    
+    
+    
+    controller_kwargs = {'logging_settings':{'handler':logging.StreamHandler(stream=controller_stream),
+                                             'formatter': formatter}}
+    DataFrameBrowser(controller_class=TextController, 
+                     controller_kwargs=controller_kwargs, 
+                     logging_settings={'handler':logging.StreamHandler(stream=app_stream)}).run(input='blah blah; q:')
