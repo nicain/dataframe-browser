@@ -93,4 +93,6 @@ if __name__ == "__main__":
     import pytest
     pytest.main(['-q', '-x', '/home/nicholasc/projects/dataframe-browser'])
 
-    DataFrameBrowser().run(input=['', 'q:'])
+    DataFrameBrowser(controller_class=TextController).run(input='blah blah')
+
+    # DataFrameBrowser().run(input=['', 'q:'])
