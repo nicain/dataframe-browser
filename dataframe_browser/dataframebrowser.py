@@ -86,6 +86,6 @@ class DataFrameBrowser(object):
 if __name__ == "__main__":
 
     import pytest
-    pytest.main(['-s', '-x', '-v', '/home/nicholasc/projects/dataframe-browser'])
+    pytest.main(['-q', '-x', '/home/nicholasc/projects/dataframe-browser'])
 
     DataFrameBrowser().run(input=['', 'q:'])
