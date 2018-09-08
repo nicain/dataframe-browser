@@ -14,7 +14,7 @@ class TextController(object):
 
     def __init__(self, **kwargs):
         self.app = kwargs['app']
-        self.QUIT_VALS = kwargs.get('QUIT_VALS', ['q:'])
+        self.QUIT_VALS = kwargs.get('QUIT_VALS', ['q:', 'exit()'])
         self.PROMPT = kwargs.get('PROMPT', PROMPT)
 
     def parse_text_input(self, text_input):
