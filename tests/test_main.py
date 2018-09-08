@@ -1,4 +1,4 @@
-from dataframe_browser.dataframebrowser import DataFrameBrowser
+from dataframe_browser.dataframebrowser import DataFrameBrowser, UNRECOGNIZED_INPUT_FORMAT
 from dataframe_browser.dataframebrowser import TextControllerNonInteractive as TextController
 import pandas as pd
 import pytest
@@ -12,6 +12,14 @@ def test_quit(input):
         DataFrameBrowser(controller_class=TextController).run(input=input)
     assert pytest_wrapped_exception.type == SystemExit
     assert pytest_wrapped_exception.value.code == 0
+
+@pytest.mark.parametrize('input', ['blah blah'])
+def test_debug(capsys, input):
+
+    DataFrameBrowser(controller_class=TextController).run(input=input)
+    out, err = capsys.readouterr()
+    stdout_lines = out.splitlines()
+    assert '\n'.join(stdout_lines[-2:])==UNRECOGNIZED_INPUT_FORMAT.format(input)
 
 
 

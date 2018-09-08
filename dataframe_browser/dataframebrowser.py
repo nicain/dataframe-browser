@@ -6,6 +6,7 @@ import sys
 
 PROMPT = '>>>'
 COMMAND_SEP_CHAR = ';'
+UNRECOGNIZED_INPUT_FORMAT = 'Unrecognized input: "{0}"\n'
 
 
 
@@ -40,7 +41,6 @@ class TextController(object):
         if input in self.QUIT_VALS: 
             return self.quit, {}
         else: 
-            print 'input', input, {'input_value':input}
             return self.unrecognized, {'input_value':input}
 
 
@@ -49,7 +49,7 @@ class TextController(object):
 
 
     def unrecognized(self, **kwargs):
-        print 'Unrecognized input: "{0}"'.format(kwargs['input_value'])
+        print UNRECOGNIZED_INPUT_FORMAT.format(kwargs['input_value'])
 
     def update(self, parsed_input_list):
         if len(parsed_input_list) == 0:
@@ -85,7 +85,8 @@ class DataFrameBrowser(object):
         while len(parsed_input_list) > 0:
             curr_input, curr_input_kwargs = parsed_input_list.pop(0)
             curr_input(**curr_input_kwargs)
-            raise
+            
+            self.controller.update(parsed_input_list)
 
 
 if __name__ == "__main__":
