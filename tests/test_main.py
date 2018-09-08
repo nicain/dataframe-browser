@@ -6,7 +6,23 @@ import StringIO
 import logging
 import json
 
-df = pd.DataFrame({'a':[1,2,3,1,2,2,2], 'b':[.1,.2,.3,.4, .5,.4,.1], 'c':['a', 'b', 'c', 'b', 'a', 'a', 'b']})
+@pytest.fixture
+def df(scope='function'):
+    return pd.DataFrame({'a':[1,2,3,1,2,2,2], 'b':[.1,.2,.3,.4, .5,.4,.1], 'c':['a', 'b', 'c', 'b', 'a', 'a', 'b']})
+
+@pytest.fixture
+def dataframe_browser_fixture(scope='function'):
+
+    fixture = {}
+    fixture['controller_stream'], fixture['app_stream'] = StringIO.StringIO(), StringIO.StringIO()
+    
+    formatter = logging.Formatter('["%(levelname)s","%(name)s",%(message)s]')
+    controller_kwargs = {'logging_settings':{'handler':logging.StreamHandler(stream=fixture['controller_stream']),
+                                             'formatter': formatter}}
+    fixture['dataframe_browser'] = DataFrameBrowser(controller_class=TextController, 
+                                                    controller_kwargs=controller_kwargs)
+
+    return fixture
 
 @pytest.mark.parametrize('input', [('q:'), ['q:'], 'q:'] )
 def test_quit(input):
@@ -24,18 +40,12 @@ def test_stdout(capsys, input):
     stdout_lines = out.splitlines()
     assert '\n'.join(stdout_lines[-2:])==UNRECOGNIZED_INPUT_FORMAT.format(input)
 
+
 @pytest.mark.parametrize('input', [('blah blah',), ('blah', 'blah')])
-def test_logging(input):
-    controller_stream = StringIO.StringIO()
-    app_stream = StringIO.StringIO()
-    formatter = logging.Formatter('["%(levelname)s","%(name)s",%(message)s]')
+def test_logging(input, dataframe_browser_fixture):
 
-    controller_kwargs = {'logging_settings':{'handler':logging.StreamHandler(stream=controller_stream),
-                                             'formatter': formatter}}
-    DataFrameBrowser(controller_class=TextController, 
-                     controller_kwargs=controller_kwargs).run(input=input)
-
-    log_lines = controller_stream.getvalue().splitlines()
+    dataframe_browser_fixture['dataframe_browser'].run(input=input)
+    log_lines = dataframe_browser_fixture['controller_stream'].getvalue().splitlines()
     assert len(log_lines) == len(input)
     for log_line, input_value in zip(log_lines, input):
         log_dict = json.loads(log_line)

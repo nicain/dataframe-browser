@@ -127,10 +127,9 @@ if __name__ == "__main__":
     import pytest
     pytest.main(['-q', '-x', '/home/nicholasc/projects/dataframe-browser'])
     
-    
-    
+
     controller_kwargs = {'logging_settings':{'handler':logging.StreamHandler(stream=controller_stream),
                                              'formatter': formatter}}
     DataFrameBrowser(controller_class=TextController, 
                      controller_kwargs=controller_kwargs, 
-                     logging_settings={'handler':logging.StreamHandler(stream=app_stream)}).run(input='blah blah; q:')
+                     logging_settings={'handler':logging.StreamHandler(stream=app_stream)}).run(input='"";""')
