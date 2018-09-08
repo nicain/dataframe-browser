@@ -4,7 +4,7 @@ import sys
 
 
 
-PROMPT = '>>>'
+PROMPT = 'df> '
 COMMAND_SEP_CHAR = ';'
 UNRECOGNIZED_INPUT_FORMAT = 'Unrecognized input: "{0}"\n'
 
