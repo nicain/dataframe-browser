@@ -1,6 +1,10 @@
+import pandas as pd
 import networkx as nx
 import sys
 
+
+
+PROMPT = '>>>'
 COMMAND_SEP_CHAR = ';'
 
 
@@ -9,6 +13,7 @@ class TextController(object):
 
     def __init__(self, **kwargs):
         self.QUIT_VALS = kwargs.get('QUIT_VALS', ['q:'])
+        self.PROMPT = kwargs.get('PROMPT', PROMPT)
 
     def parse_text_input(self, text_input):
         return [input.strip() for input in text_input.split(COMMAND_SEP_CHAR)]
@@ -42,12 +47,14 @@ class TextController(object):
     def unrecognized(self, **kwargs):
         print 'Unrecognized input: {0}'.format(kwargs['input_value'])
 
-    def update():
-        pass
+    def update(self, parsed_input_list):
+        if len(parsed_input_list) == 0:
+            raw_input_string = raw_input(self.PROMPT)
+            parsed_input_list += self.parse_input(raw_input_string)
 
 class TextControllerNonInteractive(TextController):
 
-    def update(self):
+    def update(self, parsed_input_list):
         pass
 
 class Model(object):
@@ -71,7 +78,7 @@ class DataFrameBrowser(object):
 
         parsed_input_list = self.controller.parse_input(input)
         while len(parsed_input_list) > 0:
-            curr_input = input.pop(0)
+            curr_input = parsed_input_list.pop(0)
             curr_input()
             raise
 
