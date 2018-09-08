@@ -53,8 +53,13 @@ class TextController(object):
 
     def update(self, parsed_input_list):
         if len(parsed_input_list) == 0:
-            raw_input_string = raw_input(self.PROMPT)
-            parsed_input_list += self.parse_input(raw_input_string)
+
+            try:
+                raw_input_string = raw_input(self.PROMPT)
+                parsed_input_list += self.parse_input(raw_input_string)
+            except EOFError:
+                sys.exit(0)
+
 
 class TextControllerNonInteractive(TextController):
 
