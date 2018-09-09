@@ -8,7 +8,7 @@ import os
 import uuid
 
 
-PROMPT = 'df> '
+DEFAULT_PROMPT = 'df> '
 COMMAND_SEP_CHAR = ';'
 UNRECOGNIZED_INPUT_FORMAT = 'Unrecognized input: "{0}"\n'
 UUID_LENGTH = 32
@@ -42,7 +42,7 @@ class TextController(object):
 
         self.app = kwargs['app']
         self.QUIT_VALS = kwargs.get('QUIT_VALS', ['q:', 'exit()'])
-        self.PROMPT = kwargs.get('PROMPT', PROMPT)
+        self.DEFAULT_PROMPT = kwargs.get('DEFAULT_PROMPT', DEFAULT_PROMPT)
         self.NEW_DF_NODE = kwargs.get('NEW_DF_NODE', 'o:')
         self.ADD_BOOKMARK = kwargs.get('ADD_BOOKMARK', 'b:')
         self.sep = COMMAND_SEP_CHAR
@@ -135,11 +135,12 @@ class TextController(object):
     def unrecognized(self, **kwargs):
         print UNRECOGNIZED_INPUT_FORMAT.format(kwargs['input_value'])
 
-    def update(self, parsed_input_list):
+    def update(self, parsed_input_list, prompt=None):
+        if prompt is None: prompt = self.DEFAULT_PROMPT
         if len(parsed_input_list) == 0:
 
             try:
-                raw_input_string = raw_input(self.PROMPT)
+                raw_input_string = raw_input(prompt)
                 parsed_input_list += self.parse_input(raw_input_string)
             except EOFError:
                 sys.exit(0)
@@ -147,7 +148,7 @@ class TextController(object):
 
 class TextControllerNonInteractive(TextController):
 
-    def update(self, parsed_input_list):
+    def update(self, parsed_input_list, **kwargs):
         pass
 
 class Model(object):
@@ -195,5 +196,5 @@ if __name__ == "__main__":
     
 
     dataframe_browser_fixture = get_dfbd()
-    dataframe_browser_fixture['dataframe_browser'].run(input=['o: {0}; b: TEST ;q:'.format(df_file_name)])
+    dataframe_browser_fixture['dataframe_browser'].run(input=['o: {0}; b: TEST; b: TEST ;q:'.format(df_file_name)])
     assert len(dataframe_browser_fixture['dataframe_browser'].model.bookmarks) == 1
