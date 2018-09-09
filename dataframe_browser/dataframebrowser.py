@@ -4,11 +4,20 @@ import sys
 import logging
 from collections import OrderedDict
 import json
+import os
+import uuid
 
 
 PROMPT = 'df> '
 COMMAND_SEP_CHAR = ';'
 UNRECOGNIZED_INPUT_FORMAT = 'Unrecognized input: "{0}"\n'
+UUID_LENGTH = 32
+
+def generate_uuid(length=UUID_LENGTH):
+    '''https://gist.github.com/admiralobvious/d2dcc76a63df866be17f'''
+
+    u = uuid.uuid4()
+    return u.hex[:length]
 
 def create_class_logger(cls, **kwargs):
 
@@ -34,6 +43,7 @@ class TextController(object):
         self.app = kwargs['app']
         self.QUIT_VALS = kwargs.get('QUIT_VALS', ['q:', 'exit()'])
         self.PROMPT = kwargs.get('PROMPT', PROMPT)
+        self.NEW_DF_NODE = kwargs.get('NEW_DF_NODE', 'o:')
         self.sep = COMMAND_SEP_CHAR
 
     def parse_text_input(self, text_input, sep=None):
@@ -55,7 +65,7 @@ class TextController(object):
             return input_list
         
         else:
-            raise NotImplementedError
+            raise NotImplementedError('Input not parsed: {0}'.format(input))
 
         return [self.input_mapper(input) for input in input_list]
 
@@ -64,13 +74,45 @@ class TextController(object):
 
         if input in self.QUIT_VALS: 
             fcn, kwargs = self.quit, {}
+        elif input[:2] == self.NEW_DF_NODE: 
+            fcn, kwargs = self.load_new_df, {'source': input[2:].strip()}
         else: 
-            fcn, kwargs = self.unrecognized, {'input_value':input}
+            fcn, kwargs = self.unrecognized, {'input_value':input.strip()}
 
         self.logger.info(json.dumps({fcn.__name__:kwargs}))
 
         return fcn, kwargs
 
+    def load_new_df(self, **kwargs):
+
+        file_name = kwargs['source']
+
+        if not os.path.exists(file_name):
+            print 'Source not found: {0}\n'.format(file_name)
+            return
+
+        if file_name[-4:] == '.csv':
+            df = pd.read_csv(file_name)
+        elif file_name[-2:] == '.p':
+            df = pd.read_pickle(file_name)
+        else:
+            print 'File extension not in (csv/p): {0}\n'.format(file_name)
+            return
+
+        self.add_node(df, source=file_name)
+        
+    def add_node(self, df, **kwargs):
+
+        uuid = generate_uuid()
+        self.app.model.graph.add_node(uuid, df=df, **kwargs)
+        self.app.model.active = df
+        self.display_active()
+        return uuid
+
+    def display_active(self):
+        print self.app.model.active
+
+        
 
     def quit(self, **kwargs): 
         sys.exit(0)
@@ -102,7 +144,7 @@ class Model(object):
         
         self.app = kwargs['app']
         self.graph = nx.DiGraph()
-
+        self.active = None
 
 class DataFrameBrowser(object):
 
@@ -125,10 +167,13 @@ class DataFrameBrowser(object):
             curr_input(**curr_input_kwargs)            
             self.controller.update(parsed_input_list)
 
+        return self
+
 
 if __name__ == "__main__":    
 
+    example_file_name = os.path.join(os.path.dirname(__file__),'..', 'tests', 'example.csv')
     controller_kwargs = {}
     DataFrameBrowser(controller_class=TextController, 
                      controller_kwargs=controller_kwargs, 
-                     logging_settings={'handler':logging.StreamHandler()}).run(input=['"";q:'])
+                     logging_settings={'handler':logging.StreamHandler()}).run(input=['o: {0};q:'.format(example_file_name)])
