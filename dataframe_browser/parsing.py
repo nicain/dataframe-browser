@@ -7,5 +7,12 @@ from .exceptions import CommandParsingException
 class ArgumentParser(argparse.ArgumentParser):
     
     def error(self, message):
-        self.print_help(sys.stderr)
-        raise CommandParsingException()
+        raise CommandParsingException(message, parser=self)
+
+
+
+class HelpAction(argparse._HelpAction):
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        parser.print_help()
+        setattr(namespace, self.dest, True)

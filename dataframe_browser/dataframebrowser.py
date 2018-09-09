@@ -15,16 +15,27 @@ UNRECOGNIZED_INPUT_FORMAT = 'Unrecognized input: "{0}"\n'
 UUID_LENGTH = 32
 
 from dataframe_browser.exceptions import CommandParsingException, BookmarkAlreadyExists
-from dataframe_browser.parsing import ArgumentParser
+from dataframe_browser.parsing import ArgumentParser, HelpAction
 from utilities import generate_uuid
 
-
+# import argparse
+OPEN = 'open'
+COMMAND = 'cmd'
 main_parser = ArgumentParser(description='main_parser description', prog=DEFAULT_PROMPT.strip(), add_help=False)
-main_parser.add_argument('--help', '-h', action='help', help='show this help message')
-# subparsers = main_parser.add_subparsers(description='subparser descritption', help='subparsers help str')
-main_parser.add_argument("cmd", choices=['open', 'blah'])
+main_parser.add_argument('--help', '-h', action=HelpAction, help='show this help message')
+main_parser.add_argument(COMMAND, choices=[OPEN], nargs='?')
 
-working_example = 'blah2;exit()'
+open_parser = ArgumentParser(description='open description', prog=DEFAULT_PROMPT.strip(), add_help=False)
+open_parser.add_argument('--help', '-h', action=HelpAction, help='show this help message')
+open_parser.add_argument("-f", nargs='*', default=[])
+
+command_parser_dict = {OPEN:open_parser}
+
+# subparsers = main_parser.add_subparsers(description='subparser descritption', help='subparsers help str', dest='cmd')
+# a_parser = subparsers.add_parser("open", add_help=False)
+# a_parser.add_argument("something", nargs='?')
+# a_parser.add_argument('--help', action=HelpAction, help='OTHER HELP')
+working_example = 'open -f '
 
 
 
@@ -72,29 +83,59 @@ class TextController(object):
 
         self.input_list = None
 
-    def parse(self, input_string):
+    def parse_single_command(self, command, parser=main_parser):
+        split_command = shlex.split(command)
         try:
-            args = main_parser.parse_args(shlex.split(input_string))
-            return args
-        except CommandParsingException:
-            pass
+            arg_res, rem = parser.parse_known_args(split_command)
+            arg_dict = vars(arg_res)
 
-    def parse_text_input(self, text_input, sep=None):
+            if 'help' in arg_dict and arg_dict['help'] == True:
+
+                if arg_dict[COMMAND] is not None:
+                    # Unusual corner case:
+                    raise CommandParsingException(command, parser)
+
+                # recognized request for help:
+                self.logger.info(json.dumps({command:arg_dict}))
+                return (command, arg_dict)
+
+            else:
+                curr_command = arg_dict[COMMAND]
+                if curr_command in command_parser_dict:
+                    new_command = [x for x in split_command if x != curr_command]
+                    arg_dict = {curr_command:vars(command_parser_dict[curr_command].parse_args(new_command))}
+                    self.logger.info(json.dumps({command:arg_dict}))
+                    return (command, arg_dict)
+
+                else:
+                    raise CommandParsingException(command, parser)
+
+            self.logger.info(json.dumps({command:arg_dict}))
+            return (command, arg_dict)
+        except CommandParsingException as e:
+
+            # Unrecognized command
+            print 'Parsing Error: {0}'.format(str(e))
+            e.parser.print_help(sys.stderr)
+            self.logger.info(json.dumps({command:'Unrecognized'}))
+            return (command,)
+
+    def parse_text_clean_split(self, text_input, sep=None):
         if sep is None: sep = self.sep
         text_input_list = [input.strip() for input in text_input.split(sep)]
         if len(text_input_list) > 1:
             text_input_list = [x for x in text_input_list if len(x)>0]
 
-        return text_input_list
+        return [self.parse_single_command(single_command) for single_command in text_input_list]
 
-    def parse_input(self, input):
+    def parse_input_recursive(self, input):
         if isinstance(input, (str,)):
-            input_list = self.parse_text_input(input)
+            input_list = self.parse_text_clean_split(input)
 
         elif isinstance(input, (list, tuple)):
             input_list = []
             for x in input:
-                input_list += self.parse_input(x)
+                input_list += self.parse_input_recursive(x)
             return input_list
         
         else:
@@ -104,31 +145,37 @@ class TextController(object):
 
     def initialize_input(self, input=''):
 
-        self.input_list = self.parse_input(input)
+        self.input_list = self.parse_input_recursive(input)
 
 
     def input_mapper(self, input):
 
+        # No-op for this command; either requested help, or unrecognized
+        if len(input) == 1 or (len(input) == 1 and input[1]['help'] == True):
+            return (lambda : None, {})
+
         if input in self.QUIT_VALS: 
             fcn, kwargs = self.quit, {}
-        elif input[:2] == self.NEW_DF_NODE: 
-            fcn, kwargs = self.load_new_df, {'source': input[2:].strip()}
-        elif input[:2] == self.ADD_BOOKMARK: 
-            fcn, kwargs = self.add_bookmark, {'input_value': input[2:].strip()}
-        elif len(input) == 0: 
-            fcn, kwargs = self.app.view.display_active, {}
-        elif input[:2] == self.QUERY: 
-            fcn, kwargs = self.query, {'query': input[2:].strip()}
-        elif input in self.DISPLAY_ACTIVE_DF_INFO: 
-            fcn, kwargs = self.display_active_df_info, {}
-        elif input in self.LS: 
-            fcn, kwargs = self.ls, {}
-        else: 
-            fcn, kwargs = self.unrecognized, {'input_value':input.strip()}
+        else:
+            raise NotImplementedError(str(input))
+        # elif input[:2] == self.NEW_DF_NODE: 
+        #     fcn, kwargs = self.load_new_df, {'source': input[2:].strip()}
+        # elif input[:2] == self.ADD_BOOKMARK: 
+        #     fcn, kwargs = self.add_bookmark, {'input_value': input[2:].strip()}
+        # elif len(input) == 0: 
+        #     fcn, kwargs = self.app.view.display_active, {}
+        # elif input[:2] == self.QUERY: 
+        #     fcn, kwargs = self.query, {'query': input[2:].strip()}
+        # elif input in self.DISPLAY_ACTIVE_DF_INFO: 
+        #     fcn, kwargs = self.display_active_df_info, {}
+        # elif input in self.LS: 
+        #     fcn, kwargs = self.ls, {}
+        # else: 
+        #     fcn, kwargs = self.unrecognized, {'input_value':input.strip()}
 
-        self.logger.info(json.dumps({fcn.__name__:kwargs}))
+        # self.logger.info(json.dumps({fcn.__name__:kwargs}))
 
-        return fcn, kwargs
+        # return fcn, kwargs
 
     def ls(self, **kwargs):
         pass
@@ -162,11 +209,6 @@ class TextController(object):
         self.app.view.display_message('Bookmark added: {0}'.format(bookmark_name), type='info')
 
             
-            
-            
-
-        
-
     def load_new_df(self, **kwargs):
 
         file_name = kwargs['source']
@@ -201,10 +243,6 @@ class TextController(object):
         sys.exit(0)
 
 
-    def unrecognized(self, **kwargs):
-        self.parse(kwargs['input_value'])
-
-
     def get_input(self, prompt=None):
         if prompt is None: prompt = self.DEFAULT_PROMPT
         try:
@@ -219,7 +257,7 @@ class TextController(object):
         
         if len(self.input_list) == 0:
             raw_input_string = self.get_input(prompt=prompt)
-            self.input_list += self.parse_input(raw_input_string)
+            self.input_list += self.parse_input_recursive(raw_input_string)
 
 
 class TextControllerNonInteractive(TextController):
