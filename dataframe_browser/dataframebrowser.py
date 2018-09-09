@@ -41,7 +41,7 @@ class TextController(object):
         self.logger = create_class_logger(self.__class__, **kwargs.get('logging_settings', {}))
 
         self.app = kwargs['app']
-        self.QUIT_VALS = kwargs.get('QUIT_VALS', ['q:', 'exit()'])
+        self.QUIT_VALS = kwargs.get('QUIT_VALS', ['exit()'])
         self.DEFAULT_PROMPT = kwargs.get('DEFAULT_PROMPT', DEFAULT_PROMPT)
         self.NEW_DF_NODE = kwargs.get('NEW_DF_NODE', 'o:')
         self.ADD_BOOKMARK = kwargs.get('ADD_BOOKMARK', 'b:')

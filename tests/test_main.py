@@ -29,8 +29,8 @@ def dataframe_browser_fixture():
 
     return fixture
 
-@pytest.mark.parametrize('input', [('q:',), ['q:'], 'q:'] )
-def test_quit(input):
+@pytest.mark.parametrize('input', [('exit()',), ['exit()'], 'exit()'] )
+def test_exit(input):
 
     with pytest.raises(SystemExit) as pytest_wrapped_exception:
         DataFrameBrowser(controller_class=TextController).run(input=input)
