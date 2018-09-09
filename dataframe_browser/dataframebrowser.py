@@ -28,8 +28,9 @@ main_parser.add_argument(COMMAND, choices=[OPEN], nargs='?')
 open_parser = ArgumentParser(description='open description', prog=DEFAULT_PROMPT.strip(), add_help=False)
 open_parser.add_argument('--help', '-h', action=HelpAction, help='show this help message')
 open_parser.add_argument("-f", "--file", nargs='+', dest='file_list', type=str, default=[])
-open_parser.add_argument("--url", nargs='+', dest='url_list', type=str, default=[])
+open_parser.add_argument("--uri", nargs=1, dest='uri', type=str)
 open_parser.add_argument("-q", "--quiet", dest='quiet', action='store_true')
+open_parser.add_argument("--table", nargs='+', dest='table_list', type=str, default=[])
 
 command_parser_dict = {OPEN:open_parser}
 
@@ -37,8 +38,8 @@ command_parser_dict = {OPEN:open_parser}
 # a_parser = subparsers.add_parser("open", add_help=False)
 # a_parser.add_argument("something", nargs='?')
 # a_parser.add_argument('--help', action=HelpAction, help='OTHER HELP')
-# working_example = 'open -f '
-working_example = 'open -q -f %s' % os.path.join(os.path.dirname(__file__),'..', 'tests', 'example.csv')
+working_example = 'open --uri {0} --table {1}'.format('postgresql://mtrainreader:mtrainro@mtrain:5432/mtrain', 'subjects'  )
+# working_example = 'open -q -f %s' % os.path.join(os.path.dirname(__file__),'..', 'tests', 'example.csv')
 
 
 
@@ -154,7 +155,7 @@ class TextController(object):
     def input_mapper(self, input):
 
         # No-op for this command; either requested help, or unrecognized
-        if len(input) == 1 or (len(input) == 1 and input[1]['help'] == True):
+        if len(input) == 1 or (len(input) == 2 and input[1].get('help', None) == True):
             return (lambda : None, {})
 
         if input in self.QUIT_VALS: 
@@ -185,8 +186,25 @@ class TextController(object):
 
 
     def open(self, **kwargs):
+
+        quiet = kwargs.get('quiet', False)
+
         for file_name in kwargs.get('file_list', []):
-            self.load_new_df_from_file(file_name=file_name, quiet=kwargs.get('quiet', False))
+            self.load_new_df_from_file(file_name=file_name, quiet=quiet)
+
+
+        for table in kwargs.get('table_list', []):
+            uri = kwargs['uri'][0]
+            self.load_new_df_from_uri(table=table, uri=uri, quiet=quiet)
+            
+
+    def load_new_df_from_uri(self, **kwargs):
+        uri = kwargs['uri']
+        table = kwargs['table']
+        quiet = kwargs.get('quiet', False)
+        df = pd.read_sql_table(table, uri)
+        self.add_node(df, source=(uri, table), quiet=quiet)
+
 
     def ls(self, **kwargs):
         pass
@@ -345,7 +363,7 @@ class DataFrameBrowser(object):
         self.controller = kwargs.get('controller_class', TextController)(app=self, **controller_kwargs)
 
 
-    def run(self, input=['']):
+    def run_hard_exit(self, input=['']):
 
         self.controller.initialize_input(input)
         while len(self.controller.input_list) > 0:
@@ -355,6 +373,12 @@ class DataFrameBrowser(object):
             self.controller.update()
 
         return self
+
+    def run(self, *args, **kwargs):
+        try:
+            self.run_hard_exit(*args, **kwargs)
+        except SystemExit as e:
+            pass
 
 
 if __name__ == "__main__":    
@@ -367,9 +391,8 @@ if __name__ == "__main__":
     
 
     dataframe_browser_fixture = get_dfbd()
-    try:
-        dataframe_browser_fixture['dataframe_browser'].run(input=working_example)
-        # dataframe_browser_fixture['dataframe_browser'].run(input=['o: {0}; b: TEST'.format(df_file_name), 'i:;ls;exit()'])
-    except SystemExit:
-        pass
+    dataframe_browser_fixture['dataframe_browser'].run(input=working_example)
+    # # dataframe_browser_fixture['dataframe_browser'].run(input=['o: {0}; b: TEST'.format(df_file_name), 'i:;ls;exit()'])
     print len(dataframe_browser_fixture['dataframe_browser'].model.graph.nodes())
+
+    # dataframe_browser_fixture['dataframe_browser'].run(input='--h')
