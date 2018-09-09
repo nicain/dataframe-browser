@@ -8,11 +8,34 @@ import os
 import io
 import uuid
 import warnings
+import argparse
+import shlex
 
 DEFAULT_PROMPT = 'df> '
 COMMAND_SEP_CHAR = ';'
 UNRECOGNIZED_INPUT_FORMAT = 'Unrecognized input: "{0}"\n'
 UUID_LENGTH = 32
+
+main_parser = argparse.ArgumentParser(description='main_parser description', prog='df>')
+subparsers = main_parser.add_subparsers(description='subparser descritption', help='subparsers help str')
+main_parser.add_argument("cmd", choices=['open'])
+
+working_example = 'blah2'
+
+def parse(input_string):
+    try:
+        print main_parser.parse_args(shlex.split(input_string))
+    except argparse.ArgumentError as e:
+        print 'CAUGHT'
+        print e
+    print 'DONE'
+
+# a_parser = subparsers.add_parser("A")
+# b_parser = subparsers.add_parser("B")
+
+# a_parser.add_argument("something", )
+
+
 
 class BookmarkAlreadyExists(Exception):
     pass
@@ -179,7 +202,8 @@ class TextController(object):
 
 
     def unrecognized(self, **kwargs):
-        print UNRECOGNIZED_INPUT_FORMAT.format(kwargs['input_value'])
+        parse(kwargs['input_value'])
+
 
     def get_input(self, prompt=None):
         if prompt is None: prompt = self.DEFAULT_PROMPT
@@ -292,8 +316,10 @@ if __name__ == "__main__":
     
 
     dataframe_browser_fixture = get_dfbd()
-    try:
-        dataframe_browser_fixture['dataframe_browser'].run(input=['o: {0}; b: TEST'.format(df_file_name), 'i:;ls;exit()'])
-    except SystemExit:
-        pass
-    print dataframe_browser_fixture['dataframe_browser'].model.bookmarks
+    dataframe_browser_fixture['dataframe_browser'].run(input=working_example)
+    print 'OK'
+    # try:
+    #     dataframe_browser_fixture['dataframe_browser'].run(input=['o: {0}; b: TEST'.format(df_file_name), 'i:;ls;exit()'])
+    # except SystemExit:
+    #     pass
+    # print dataframe_browser_fixture['dataframe_browser'].model.bookmarks
