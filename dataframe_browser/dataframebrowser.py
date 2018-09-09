@@ -14,6 +14,9 @@ COMMAND_SEP_CHAR = ';'
 UNRECOGNIZED_INPUT_FORMAT = 'Unrecognized input: "{0}"\n'
 UUID_LENGTH = 32
 
+class BookmarkAlreadyExists(Exception):
+    pass
+
 def generate_uuid(length=UUID_LENGTH):
     '''https://gist.github.com/admiralobvious/d2dcc76a63df866be17f'''
 
@@ -47,7 +50,7 @@ class TextController(object):
         self.NEW_DF_NODE = kwargs.get('NEW_DF_NODE', 'o:')
         self.ADD_BOOKMARK = kwargs.get('ADD_BOOKMARK', 'b:')
         self.QUERY = kwargs.get('QUERY', 'q:')
-        self.INFO = kwargs.get('INFO', ['i:', 'i'])
+        self.DISPLAY_ACTIVE_DF_INFO = kwargs.get('DISPLAY_ACTIVE_DF_INFO', ['i:', 'i'])
         self.LS = kwargs.get('LS', 'ls')
         self.sep = COMMAND_SEP_CHAR
 
@@ -93,8 +96,8 @@ class TextController(object):
             fcn, kwargs = self.app.view.display_active, {}
         elif input[:2] == self.QUERY: 
             fcn, kwargs = self.query, {'query': input[2:].strip()}
-        elif input in self.INFO: 
-            fcn, kwargs = self.info, {}
+        elif input in self.DISPLAY_ACTIVE_DF_INFO: 
+            fcn, kwargs = self.display_active_df_info, {}
         elif input in self.LS: 
             fcn, kwargs = self.ls, {}
         else: 
@@ -105,12 +108,12 @@ class TextController(object):
         return fcn, kwargs
 
     def ls(self, **kwargs):
-        raise
+        pass
 
-    def info(self, **kwargs):
+    def display_active_df_info(self, **kwargs):
         buffer = io.StringIO()
         self.app.model.active.info(buf=buffer, **kwargs)
-        self.user_message(buffer.getvalue())
+        self.app.view.display_active_df_info(buffer)
 
 
     def query(self, **kwargs):
@@ -125,18 +128,18 @@ class TextController(object):
         self.app.model.graph.add_edge(source, target, **kwargs)
 
 
-    def user_message(self, message):
-        print message
-
     def add_bookmark(self, **kwargs):
         
         bookmark_name = kwargs['input_value']
-        if bookmark_name in self.app.model.bookmarks:
-            self.user_message('Bookmark name {0} already in use'.format(bookmark_name))
+        try:
+            self.app.model.add_bookmark(bookmark_name, self.app.model.active_node)
+        except BookmarkAlreadyExists as e:
+            self.app.view.display_message(str(e), type='error')
 
-        else:
-            self.app.model.bookmarks[bookmark_name] = self.app.model.active_node
-            self.user_message('Bookmark added: {0}'.format(bookmark_name))
+        self.app.view.display_message('Bookmark added: {0}'.format(bookmark_name), type='info')
+
+            
+            
             
 
         
@@ -208,8 +211,28 @@ class Model(object):
         
         self.app = kwargs['app']
         self.graph = nx.DiGraph()
-        self.bookmarks = {}
+        self._bookmarks = {}
         self.active_node = None
+
+    @property
+    def bookmarks(self):
+        self.prune_bookmarks()
+        return self._bookmarks
+
+    def prune_bookmarks(self):
+
+        drop_set = set(self.graph.nodes())-set(self._bookmarks.values())
+        for key, val in self._bookmarks.items():
+            if val in drop_set:
+                del self._bookmarks[key]
+
+    def add_bookmark(self, name, val):
+
+        if name in self._bookmarks:
+            raise BookmarkAlreadyExists('Bookmark name {0} already in use'.format(name))
+        else:
+            self._bookmarks[name] = val
+
 
     @property
     def active(self):
@@ -223,7 +246,13 @@ class ConsoleView(object):
         self.app = kwargs['app']
 
     def display_active(self, **kwargs):
-        print self.app.model.active
+        self.display_message(self.app.model.active, **kwargs)
+
+    def display_active_df_info(self, buffer):
+        self.display_message(buffer.getvalue())
+
+    def display_message(self, msg, type=None):
+        print msg
 
 class DataFrameBrowser(object):
 
@@ -264,7 +293,7 @@ if __name__ == "__main__":
 
     dataframe_browser_fixture = get_dfbd()
     try:
-        dataframe_browser_fixture['dataframe_browser'].run(input=['o: {0}; b: TEST'.format(df_file_name), 'i:;ls'])
+        dataframe_browser_fixture['dataframe_browser'].run(input=['o: {0}; b: TEST'.format(df_file_name), 'i:;ls;exit()'])
     except SystemExit:
         pass
     print dataframe_browser_fixture['dataframe_browser'].model.bookmarks
