@@ -47,7 +47,8 @@ class TextController(object):
         self.NEW_DF_NODE = kwargs.get('NEW_DF_NODE', 'o:')
         self.ADD_BOOKMARK = kwargs.get('ADD_BOOKMARK', 'b:')
         self.QUERY = kwargs.get('QUERY', 'q:')
-        self.INFO = kwargs.get('INFO', 'i:')
+        self.INFO = kwargs.get('INFO', ['i:', 'i'])
+        self.LS = kwargs.get('LS', 'ls')
         self.sep = COMMAND_SEP_CHAR
 
     def parse_text_input(self, text_input, sep=None):
@@ -83,17 +84,22 @@ class TextController(object):
         elif input[:2] == self.ADD_BOOKMARK: 
             fcn, kwargs = self.add_bookmark, {'input_value': input[2:].strip()}
         elif len(input) == 0: 
-            fcn, kwargs = self.display_active, {}
+            fcn, kwargs = self.app.view.display_active, {}
         elif input[:2] == self.QUERY: 
             fcn, kwargs = self.query, {'query': input[2:].strip()}
-        elif input == self.INFO: 
+        elif input in self.INFO: 
             fcn, kwargs = self.info, {}
+        elif input in self.LS: 
+            fcn, kwargs = self.ls, {}
         else: 
             fcn, kwargs = self.unrecognized, {'input_value':input.strip()}
 
         self.logger.info(json.dumps({fcn.__name__:kwargs}))
 
         return fcn, kwargs
+
+    def ls(self, **kwargs):
+        raise
 
     def info(self, **kwargs):
         buffer = io.StringIO()
@@ -123,7 +129,7 @@ class TextController(object):
             self.user_message('Bookmark name {0} already in use'.format(bookmark_name))
 
         else:
-            self.app.model.bookmarks[bookmark_name] = self.app.model.active
+            self.app.model.bookmarks[bookmark_name] = self.app.model.active_node
             self.user_message('Bookmark added: {0}'.format(bookmark_name))
             
 
@@ -152,15 +158,11 @@ class TextController(object):
         uuid = generate_uuid()
         self.app.model.graph.add_node(uuid, df=df, **kwargs)
         self.set_active(uuid)
-        self.display_active()
+        self.app.view.display_active()
         return uuid
 
     def set_active(self, uuid):
         self.app.model.active_node = uuid
-
-    def display_active(self, **kwargs):
-        print self.app.model.active
-
         
 
     def quit(self, **kwargs): 
@@ -207,6 +209,16 @@ class Model(object):
     def active(self):
         return self.graph.nodes[self.active_node]['df']
 
+class ConsoleView(object):
+
+    def __init__(self, **kwargs):
+        self.logger = create_class_logger(self.__class__, **kwargs.get('logging_settings', {}))
+
+        self.app = kwargs['app']
+
+    def display_active(self, **kwargs):
+        print self.app.model.active
+
 class DataFrameBrowser(object):
 
     def __init__(self, **kwargs):
@@ -215,9 +227,13 @@ class DataFrameBrowser(object):
 
         model_kwargs = kwargs.get('model_kwargs', {})
         self.model = Model(app=self, **model_kwargs)
+        
+        view_kwargs = kwargs.get('view_kwargs', {})
+        self.view = kwargs.get('view_class', ConsoleView)(app=self, **view_kwargs)
 
         controller_kwargs = kwargs.get('controller_kwargs', {})
         self.controller = kwargs.get('controller_class', TextController)(app=self, **controller_kwargs)
+
 
     def run(self, input=['']):
 
@@ -241,4 +257,8 @@ if __name__ == "__main__":
     
 
     dataframe_browser_fixture = get_dfbd()
-    dataframe_browser_fixture['dataframe_browser'].run(input=['o: {0}; b: TEST'.format(df_file_name), 'i:','exit()'])
+    try:
+        dataframe_browser_fixture['dataframe_browser'].run(input=['o: {0}; b: TEST'.format(df_file_name), 'i:;ls'])
+    except SystemExit:
+        pass
+    print dataframe_browser_fixture['dataframe_browser'].model.bookmarks
