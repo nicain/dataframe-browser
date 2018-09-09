@@ -86,14 +86,19 @@ class TextController(object):
 
         return fcn, kwargs
 
+    def user_message(self, message):
+        print message
+
     def add_bookmark(self, **kwargs):
         
         bookmark_name = kwargs['input_value']
         if bookmark_name in self.app.model.bookmarks:
-            print 'Bookmark name {0} already used\n'.format(bookmark_name)
+            self.user_message('Bookmark name {0} already in use'.format(bookmark_name))
+
         else:
             self.app.model.bookmarks[bookmark_name] = self.app.model.active
-            print 'Bookmark added: {0}'.format(bookmark_name)
+            self.user_message('Bookmark added: {0}'.format(bookmark_name))
+            
 
         
 
@@ -135,15 +140,21 @@ class TextController(object):
     def unrecognized(self, **kwargs):
         print UNRECOGNIZED_INPUT_FORMAT.format(kwargs['input_value'])
 
+    def get_input(self, prompt=None):
+        if prompt is None: prompt = self.DEFAULT_PROMPT
+        try:
+            raw_input_string = raw_input(prompt)
+        except EOFError:
+            sys.exit(0)
+        return raw_input_string
+
+
     def update(self, parsed_input_list, prompt=None):
         if prompt is None: prompt = self.DEFAULT_PROMPT
+        
         if len(parsed_input_list) == 0:
-
-            try:
-                raw_input_string = raw_input(prompt)
-                parsed_input_list += self.parse_input(raw_input_string)
-            except EOFError:
-                sys.exit(0)
+            raw_input_string = self.get_input(prompt=prompt)
+            parsed_input_list += self.parse_input(raw_input_string)
 
 
 class TextControllerNonInteractive(TextController):
