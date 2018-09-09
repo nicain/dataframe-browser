@@ -27,7 +27,9 @@ main_parser.add_argument(COMMAND, choices=[OPEN], nargs='?')
 
 open_parser = ArgumentParser(description='open description', prog=DEFAULT_PROMPT.strip(), add_help=False)
 open_parser.add_argument('--help', '-h', action=HelpAction, help='show this help message')
-open_parser.add_argument("-f", nargs='*', default=[])
+open_parser.add_argument("-f", "--file", nargs='+', dest='file_list', type=str, default=[])
+open_parser.add_argument("--url", nargs='+', dest='url_list', type=str, default=[])
+open_parser.add_argument("-q", "--quiet", dest='quiet', action='store_true')
 
 command_parser_dict = {OPEN:open_parser}
 
@@ -35,7 +37,8 @@ command_parser_dict = {OPEN:open_parser}
 # a_parser = subparsers.add_parser("open", add_help=False)
 # a_parser.add_argument("something", nargs='?')
 # a_parser.add_argument('--help', action=HelpAction, help='OTHER HELP')
-working_example = 'open -f '
+# working_example = 'open -f '
+working_example = 'open -q -f %s' % os.path.join(os.path.dirname(__file__),'..', 'tests', 'example.csv')
 
 
 
@@ -156,8 +159,11 @@ class TextController(object):
 
         if input in self.QUIT_VALS: 
             fcn, kwargs = self.quit, {}
+        elif OPEN in input[1]:
+            return self.open, input[1][OPEN]
+
         else:
-            raise NotImplementedError(str(input))
+            raise NotImplementedError(input)
         # elif input[:2] == self.NEW_DF_NODE: 
         #     fcn, kwargs = self.load_new_df, {'source': input[2:].strip()}
         # elif input[:2] == self.ADD_BOOKMARK: 
@@ -176,6 +182,11 @@ class TextController(object):
         # self.logger.info(json.dumps({fcn.__name__:kwargs}))
 
         # return fcn, kwargs
+
+
+    def open(self, **kwargs):
+        for file_name in kwargs.get('file_list', []):
+            self.load_new_df_from_file(file_name=file_name, quiet=kwargs.get('quiet', False))
 
     def ls(self, **kwargs):
         pass
@@ -209,9 +220,10 @@ class TextController(object):
         self.app.view.display_message('Bookmark added: {0}'.format(bookmark_name), type='info')
 
             
-    def load_new_df(self, **kwargs):
+    def load_new_df_from_file(self, **kwargs):
 
-        file_name = kwargs['source']
+        file_name = kwargs['file_name']
+        quiet = kwargs.get('quiet', False)
 
         if not os.path.exists(file_name):
             print 'Source not found: {0}\n'.format(file_name)
@@ -225,14 +237,15 @@ class TextController(object):
             print 'File extension not in (csv/p): {0}\n'.format(file_name)
             return
 
-        self.add_node(df, source=file_name)
+        self.add_node(df, source=file_name, quiet=quiet)
         
-    def add_node(self, df, **kwargs):
+    def add_node(self, df, quiet=False, **kwargs):
 
         uuid = generate_uuid(UUID_LENGTH)
         self.app.model.graph.add_node(uuid, df=df, **kwargs)
         self.set_active(uuid)
-        self.app.view.display_active()
+        if not quiet:
+            self.app.view.display_active()
         return uuid
 
     def set_active(self, uuid):
@@ -354,9 +367,9 @@ if __name__ == "__main__":
     
 
     dataframe_browser_fixture = get_dfbd()
-    dataframe_browser_fixture['dataframe_browser'].run(input=working_example)
-    # try:
-    #     dataframe_browser_fixture['dataframe_browser'].run(input=['o: {0}; b: TEST'.format(df_file_name), 'i:;ls;exit()'])
-    # except SystemExit:
-    #     pass
-    # print dataframe_browser_fixture['dataframe_browser'].model.bookmarks
+    try:
+        dataframe_browser_fixture['dataframe_browser'].run(input=working_example)
+        # dataframe_browser_fixture['dataframe_browser'].run(input=['o: {0}; b: TEST'.format(df_file_name), 'i:;ls;exit()'])
+    except SystemExit:
+        pass
+    print len(dataframe_browser_fixture['dataframe_browser'].model.graph.nodes())
