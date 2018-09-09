@@ -7,16 +7,16 @@ import logging
 import json
 import os
 
-@pytest.fixture
-def df(scope='function'):
+@pytest.fixture(scope='function')
+def df():
     return pd.DataFrame({'a':[1,2,3,1,2,2,2], 'b':[.1,.2,.3,.4, .5,.4,.1], 'c':['a', 'b', 'c', 'b', 'a', 'a', 'b']})
 
-@pytest.fixture
-def df_file_name(scope='module'):
+@pytest.fixture(scope='module')
+def df_file_name():
     return os.path.join(os.path.dirname(__file__), 'example.csv')
 
-@pytest.fixture
-def dataframe_browser_fixture(scope='function'):
+@pytest.fixture(scope='function')
+def dataframe_browser_fixture():
 
     fixture = {}
     fixture['controller_stream'], fixture['app_stream'] = StringIO.StringIO(), StringIO.StringIO()
