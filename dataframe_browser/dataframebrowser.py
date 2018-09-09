@@ -5,6 +5,7 @@ import logging
 from collections import OrderedDict
 import json
 import os
+import io
 import uuid
 import warnings
 
@@ -46,6 +47,7 @@ class TextController(object):
         self.NEW_DF_NODE = kwargs.get('NEW_DF_NODE', 'o:')
         self.ADD_BOOKMARK = kwargs.get('ADD_BOOKMARK', 'b:')
         self.QUERY = kwargs.get('QUERY', 'q:')
+        self.INFO = kwargs.get('INFO', 'i:')
         self.sep = COMMAND_SEP_CHAR
 
     def parse_text_input(self, text_input, sep=None):
@@ -84,12 +86,20 @@ class TextController(object):
             fcn, kwargs = self.display_active, {}
         elif input[:2] == self.QUERY: 
             fcn, kwargs = self.query, {'query': input[2:].strip()}
+        elif input == self.INFO: 
+            fcn, kwargs = self.info, {}
         else: 
             fcn, kwargs = self.unrecognized, {'input_value':input.strip()}
 
         self.logger.info(json.dumps({fcn.__name__:kwargs}))
 
         return fcn, kwargs
+
+    def info(self, **kwargs):
+        buffer = io.StringIO()
+        self.app.model.active.info(buf=buffer, **kwargs)
+        self.user_message(buffer.getvalue())
+
 
     def query(self, **kwargs):
 
@@ -105,7 +115,6 @@ class TextController(object):
 
     def user_message(self, message):
         print message
-
 
     def add_bookmark(self, **kwargs):
         
@@ -232,10 +241,4 @@ if __name__ == "__main__":
     
 
     dataframe_browser_fixture = get_dfbd()
-    dataframe_browser_fixture['dataframe_browser'].run(input=['o: {0}; b: TEST'.format(df_file_name), 'q: a>1'])
-    G = dataframe_browser_fixture['dataframe_browser'].model.graph
-    assert len(dataframe_browser_fixture['dataframe_browser'].model.active) == 7
-    assert len(G.nodes) == 2
-    assert len(G.edges) == 1
-    assert len(dataframe_browser_fixture['dataframe_browser'].model.active) == 5
-
+    dataframe_browser_fixture['dataframe_browser'].run(input=['o: {0}; b: TEST'.format(df_file_name), 'i:','exit()'])

@@ -123,3 +123,7 @@ def test_query_compound(dataframe_browser_fixture, df_file_name):
     assert len(dataframe_browser_fixture['dataframe_browser'].model.graph.nodes) == 2
     assert len(dataframe_browser_fixture['dataframe_browser'].model.graph.edges) == 1
     assert len(dataframe_browser_fixture['dataframe_browser'].model.active) == 3
+
+def test_info(dataframe_browser_fixture, df_file_name):
+
+    dataframe_browser_fixture['dataframe_browser'].run(input='o: {0}; i:'.format(df_file_name))
