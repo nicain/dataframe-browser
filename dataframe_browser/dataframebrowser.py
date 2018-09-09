@@ -6,7 +6,7 @@ from collections import OrderedDict
 import json
 import os
 import uuid
-
+import warnings
 
 DEFAULT_PROMPT = 'df> '
 COMMAND_SEP_CHAR = ';'
@@ -45,6 +45,7 @@ class TextController(object):
         self.DEFAULT_PROMPT = kwargs.get('DEFAULT_PROMPT', DEFAULT_PROMPT)
         self.NEW_DF_NODE = kwargs.get('NEW_DF_NODE', 'o:')
         self.ADD_BOOKMARK = kwargs.get('ADD_BOOKMARK', 'b:')
+        self.QUERY = kwargs.get('QUERY', 'q:')
         self.sep = COMMAND_SEP_CHAR
 
     def parse_text_input(self, text_input, sep=None):
@@ -79,6 +80,10 @@ class TextController(object):
             fcn, kwargs = self.load_new_df, {'source': input[2:].strip()}
         elif input[:2] == self.ADD_BOOKMARK: 
             fcn, kwargs = self.add_bookmark, {'input_value': input[2:].strip()}
+        elif len(input) == 0: 
+            fcn, kwargs = self.display_active, {}
+        elif input[:2] == self.QUERY: 
+            fcn, kwargs = self.query, {'query': input[2:].strip()}
         else: 
             fcn, kwargs = self.unrecognized, {'input_value':input.strip()}
 
@@ -86,8 +91,21 @@ class TextController(object):
 
         return fcn, kwargs
 
+    def query(self, **kwargs):
+
+        query_string = kwargs['query']
+        parent_node = self.app.model.active_node
+        result_df = self.app.model.active.query(query_string)
+        active_node = self.add_node(result_df)
+        self.add_edge(parent_node, active_node, query=query_string)
+
+    def add_edge(self, source, target, **kwargs):
+        self.app.model.graph.add_edge(source, target, **kwargs)
+
+
     def user_message(self, message):
         print message
+
 
     def add_bookmark(self, **kwargs):
         
@@ -124,11 +142,14 @@ class TextController(object):
 
         uuid = generate_uuid()
         self.app.model.graph.add_node(uuid, df=df, **kwargs)
-        self.app.model.active = df
+        self.set_active(uuid)
         self.display_active()
         return uuid
 
-    def display_active(self):
+    def set_active(self, uuid):
+        self.app.model.active_node = uuid
+
+    def display_active(self, **kwargs):
         print self.app.model.active
 
         
@@ -171,7 +192,11 @@ class Model(object):
         self.app = kwargs['app']
         self.graph = nx.DiGraph()
         self.bookmarks = {}
-        self.active = None
+        self.active_node = None
+
+    @property
+    def active(self):
+        return self.graph.nodes[self.active_node]['df']
 
 class DataFrameBrowser(object):
 
@@ -207,5 +232,10 @@ if __name__ == "__main__":
     
 
     dataframe_browser_fixture = get_dfbd()
-    dataframe_browser_fixture['dataframe_browser'].run(input=['o: {0}; b: TEST; b: TEST ;q:'.format(df_file_name)])
-    assert len(dataframe_browser_fixture['dataframe_browser'].model.bookmarks) == 1
+    dataframe_browser_fixture['dataframe_browser'].run(input=['o: {0}; b: TEST'.format(df_file_name), 'q: a>1'])
+    G = dataframe_browser_fixture['dataframe_browser'].model.graph
+    assert len(dataframe_browser_fixture['dataframe_browser'].model.active) == 7
+    assert len(G.nodes) == 2
+    assert len(G.edges) == 1
+    assert len(dataframe_browser_fixture['dataframe_browser'].model.active) == 5
+
