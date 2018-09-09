@@ -51,6 +51,8 @@ class TextController(object):
         self.LS = kwargs.get('LS', 'ls')
         self.sep = COMMAND_SEP_CHAR
 
+        self.input_list = None
+
     def parse_text_input(self, text_input, sep=None):
         if sep is None: sep = self.sep
         text_input_list = [input.strip() for input in text_input.split(sep)]
@@ -73,6 +75,10 @@ class TextController(object):
             raise NotImplementedError('Input not parsed: {0}'.format(input))
 
         return [self.input_mapper(input) for input in input_list]
+
+    def initialize_input(self, input=''):
+
+        self.input_list = self.parse_input(input)
 
 
     def input_mapper(self, input):
@@ -181,17 +187,17 @@ class TextController(object):
         return raw_input_string
 
 
-    def update(self, parsed_input_list, prompt=None):
+    def update(self, prompt=None):
         if prompt is None: prompt = self.DEFAULT_PROMPT
         
-        if len(parsed_input_list) == 0:
+        if len(self.input_list) == 0:
             raw_input_string = self.get_input(prompt=prompt)
-            parsed_input_list += self.parse_input(raw_input_string)
+            self.input_list += self.parse_input(raw_input_string)
 
 
 class TextControllerNonInteractive(TextController):
 
-    def update(self, parsed_input_list, **kwargs):
+    def update(self, **kwargs):
         pass
 
 class Model(object):
@@ -237,12 +243,12 @@ class DataFrameBrowser(object):
 
     def run(self, input=['']):
 
-        parsed_input_list = self.controller.parse_input(input)
-        while len(parsed_input_list) > 0:
+        self.controller.initialize_input(input)
+        while len(self.controller.input_list) > 0:
 
-            curr_input, curr_input_kwargs = parsed_input_list.pop(0)
+            curr_input, curr_input_kwargs = self.controller.input_list.pop(0)
             curr_input(**curr_input_kwargs)            
-            self.controller.update(parsed_input_list)
+            self.controller.update()
 
         return self
 
