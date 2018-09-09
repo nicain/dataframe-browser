@@ -6,9 +6,7 @@ from collections import OrderedDict
 import json
 import os
 import io
-import uuid
 import warnings
-import argparse
 import shlex
 
 DEFAULT_PROMPT = 'df> '
@@ -21,7 +19,8 @@ from dataframe_browser.parsing import ArgumentParser
 from utilities import generate_uuid
 
 
-main_parser = ArgumentParser(description='main_parser description', prog=DEFAULT_PROMPT.strip())
+main_parser = ArgumentParser(description='main_parser description', prog=DEFAULT_PROMPT.strip(), add_help=False)
+main_parser.add_argument('--help', '-h', action='help', help='show this help message')
 # subparsers = main_parser.add_subparsers(description='subparser descritption', help='subparsers help str')
 main_parser.add_argument("cmd", choices=['open', 'blah'])
 
