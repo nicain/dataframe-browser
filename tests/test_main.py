@@ -83,3 +83,9 @@ def test_chain_run(df_file_name, dataframe_browser_fixture):
     dataframe_browser_fixture['dataframe_browser'].run(input=['o: {0}'.format(df_file_name)]).run(input=['o: {0}'.format(df_file_name)])
 
     assert len(dataframe_browser_fixture['dataframe_browser'].model.graph) == 2
+
+def test_add_bookmark(df_file_name, dataframe_browser_fixture):
+
+    assert len(dataframe_browser_fixture['dataframe_browser'].model.bookmarks) == 0
+    dataframe_browser_fixture['dataframe_browser'].run(input=['o: {0}; b: TEST'.format(df_file_name)])
+    assert len(dataframe_browser_fixture['dataframe_browser'].model.bookmarks) == 1

@@ -44,6 +44,7 @@ class TextController(object):
         self.QUIT_VALS = kwargs.get('QUIT_VALS', ['q:', 'exit()'])
         self.PROMPT = kwargs.get('PROMPT', PROMPT)
         self.NEW_DF_NODE = kwargs.get('NEW_DF_NODE', 'o:')
+        self.ADD_BOOKMARK = kwargs.get('ADD_BOOKMARK', 'b:')
         self.sep = COMMAND_SEP_CHAR
 
     def parse_text_input(self, text_input, sep=None):
@@ -76,12 +77,25 @@ class TextController(object):
             fcn, kwargs = self.quit, {}
         elif input[:2] == self.NEW_DF_NODE: 
             fcn, kwargs = self.load_new_df, {'source': input[2:].strip()}
+        elif input[:2] == self.ADD_BOOKMARK: 
+            fcn, kwargs = self.add_bookmark, {'input_value': input[2:].strip()}
         else: 
             fcn, kwargs = self.unrecognized, {'input_value':input.strip()}
 
         self.logger.info(json.dumps({fcn.__name__:kwargs}))
 
         return fcn, kwargs
+
+    def add_bookmark(self, **kwargs):
+        
+        bookmark_name = kwargs['input_value']
+        if bookmark_name in self.app.model.bookmarks:
+            print 'Bookmark name {0} already used\n'.format(bookmark_name)
+        else:
+            self.app.model.bookmarks[bookmark_name] = self.app.model.active
+            print 'Bookmark added: {0}'.format(bookmark_name)
+
+        
 
     def load_new_df(self, **kwargs):
 
@@ -144,6 +158,7 @@ class Model(object):
         
         self.app = kwargs['app']
         self.graph = nx.DiGraph()
+        self.bookmarks = {}
         self.active = None
 
 class DataFrameBrowser(object):
@@ -171,9 +186,14 @@ class DataFrameBrowser(object):
 
 
 if __name__ == "__main__":    
+    df_file_name = os.path.join(os.path.dirname(__file__),'..', 'tests', 'example.csv')
 
-    example_file_name = os.path.join(os.path.dirname(__file__),'..', 'tests', 'example.csv')
-    controller_kwargs = {}
-    DataFrameBrowser(controller_class=TextController, 
-                     controller_kwargs=controller_kwargs, 
-                     logging_settings={'handler':logging.StreamHandler()}).run(input=['o: {0};q:'.format(example_file_name)])
+    def get_dfbd():
+        dfb = DataFrameBrowser(logging_settings={'handler':logging.StreamHandler()})
+        return {'dataframe_browser':dfb}
+
+    
+
+    dataframe_browser_fixture = get_dfbd()
+    dataframe_browser_fixture['dataframe_browser'].run(input=['o: {0}; b: TEST ;q:'.format(df_file_name)])
+    assert len(dataframe_browser_fixture['dataframe_browser'].model.bookmarks) == 1
