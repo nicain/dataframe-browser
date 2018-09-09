@@ -16,19 +16,18 @@ COMMAND_SEP_CHAR = ';'
 UNRECOGNIZED_INPUT_FORMAT = 'Unrecognized input: "{0}"\n'
 UUID_LENGTH = 32
 
-main_parser = argparse.ArgumentParser(description='main_parser description', prog='df>')
-subparsers = main_parser.add_subparsers(description='subparser descritption', help='subparsers help str')
-main_parser.add_argument("cmd", choices=['open'])
+from dataframe_browser.exceptions import CommandParsingException, BookmarkAlreadyExists
+from dataframe_browser.parsing import ArgumentParser
+from utilities import generate_uuid
 
-working_example = 'blah2'
 
-def parse(input_string):
-    try:
-        print main_parser.parse_args(shlex.split(input_string))
-    except argparse.ArgumentError as e:
-        print 'CAUGHT'
-        print e
-    print 'DONE'
+main_parser = ArgumentParser(description='main_parser description', prog=DEFAULT_PROMPT.strip())
+# subparsers = main_parser.add_subparsers(description='subparser descritption', help='subparsers help str')
+main_parser.add_argument("cmd", choices=['open', 'blah'])
+
+working_example = 'blah2;exit()'
+
+
 
 # a_parser = subparsers.add_parser("A")
 # b_parser = subparsers.add_parser("B")
@@ -37,14 +36,9 @@ def parse(input_string):
 
 
 
-class BookmarkAlreadyExists(Exception):
-    pass
 
-def generate_uuid(length=UUID_LENGTH):
-    '''https://gist.github.com/admiralobvious/d2dcc76a63df866be17f'''
 
-    u = uuid.uuid4()
-    return u.hex[:length]
+
 
 def create_class_logger(cls, **kwargs):
 
@@ -78,6 +72,13 @@ class TextController(object):
         self.sep = COMMAND_SEP_CHAR
 
         self.input_list = None
+
+    def parse(self, input_string):
+        try:
+            args = main_parser.parse_args(shlex.split(input_string))
+            return args
+        except CommandParsingException:
+            pass
 
     def parse_text_input(self, text_input, sep=None):
         if sep is None: sep = self.sep
@@ -187,7 +188,7 @@ class TextController(object):
         
     def add_node(self, df, **kwargs):
 
-        uuid = generate_uuid()
+        uuid = generate_uuid(UUID_LENGTH)
         self.app.model.graph.add_node(uuid, df=df, **kwargs)
         self.set_active(uuid)
         self.app.view.display_active()
@@ -202,7 +203,7 @@ class TextController(object):
 
 
     def unrecognized(self, **kwargs):
-        parse(kwargs['input_value'])
+        self.parse(kwargs['input_value'])
 
 
     def get_input(self, prompt=None):
@@ -317,7 +318,6 @@ if __name__ == "__main__":
 
     dataframe_browser_fixture = get_dfbd()
     dataframe_browser_fixture['dataframe_browser'].run(input=working_example)
-    print 'OK'
     # try:
     #     dataframe_browser_fixture['dataframe_browser'].run(input=['o: {0}; b: TEST'.format(df_file_name), 'i:;ls;exit()'])
     # except SystemExit:
