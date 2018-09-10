@@ -100,7 +100,16 @@ class CompletionFinder(object):
         self.completion_finder_dict = {key:argcomplete.CompletionFinder(val) for key, val in self.subparser_dict.items()}
         self.main_completion_finder = argcomplete.CompletionFinder(self.main_parser)
 
-    def initialize(self, histfile=None):
+    def initialize(self, **kwargs):
+
+        self.set_history_file(kwargs.get('histfile', None))
+
+        readline.set_completer(self.completer)
+        readline.set_completer_delims("")
+        readline.parse_and_bind("tab: complete")
+
+    def set_history_file(self, histfile):
+
         if histfile is None:
             histfile = os.path.join(os.path.expanduser("~"), ".dataframe-browser", 'default.history')
         history_file_dir = os.path.dirname(histfile)
@@ -117,9 +126,6 @@ class CompletionFinder(object):
         atexit.register(readline.write_history_file, histfile)
         del histfile
 
-        readline.set_completer(self.completer)
-        readline.set_completer_delims("")
-        readline.parse_and_bind("tab: complete")
 
     
     def get_options(self, startswith_text):
@@ -174,7 +180,7 @@ class TextController(object):
         self.main_parser = main_parser
 
         self.completion_finder = CompletionFinder(controller=self)
-        self.completion_finder.initialize()
+        self.completion_finder.initialize(histfile=kwargs.get('histfile', None))
         
 
     def parse_single_command(self, command, parser=main_parser):
