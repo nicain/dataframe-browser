@@ -21,10 +21,11 @@ from utilities import generate_uuid
 
 # import argparse
 OPEN = 'open'
+QUERY = 'query'
 COMMAND = 'cmd'
 main_parser = ArgumentParser(description='main_parser description', prog=DEFAULT_PROMPT.strip(), add_help=False)
 main_parser.add_argument('--help', '-h', action=HelpAction, help='show this help message')
-main_parser.add_argument(COMMAND, choices=[OPEN], nargs='?')
+main_parser.add_argument(COMMAND, choices=[OPEN, QUERY], nargs='?')
 
 open_parser = ArgumentParser(description='open description', prog=DEFAULT_PROMPT.strip(), add_help=False)
 open_parser.add_argument('--help', '-h', action=HelpAction, help='show this help message')
@@ -33,14 +34,18 @@ open_parser.add_argument("--uri", nargs=1, dest='uri', type=str)
 open_parser.add_argument("-q", "--quiet", dest='quiet', action='store_true')
 open_parser.add_argument("--table", nargs='+', dest='table_list', type=str, default=[])
 
-command_parser_dict = {OPEN:open_parser}
+import argparse
+query_parser = ArgumentParser(description='query description', prog=DEFAULT_PROMPT.strip(), add_help=False)
+query_parser.add_argument(nargs=argparse.REMAINDER, dest='remainder_list', type=str)
+
+command_parser_dict = {OPEN:open_parser, QUERY:query_parser}
 
 # subparsers = main_parser.add_subparsers(description='subparser descritption', help='subparsers help str', dest='cmd')
 # a_parser = subparsers.add_parser("open", add_help=False)
 # a_parser.add_argument("something", nargs='?')
 # a_parser.add_argument('--help', action=HelpAction, help='OTHER HELP')
-working_example = 'open --uri {0} --table {1}'.format('postgresql://mtrainreader:mtrainro@mtrain:5432/mtrain', 'subjects'  )
-# working_example = 'open -q -f %s' % os.path.join(os.path.dirname(__file__),'..', 'tests', 'example.csv')
+# working_example = 'open --uri {0} --table {1}'.format('postgresql://mtrainreader:mtrainro@mtrain:5432/mtrain', 'subjects'  )
+working_example = ['open -q -f {0}'.format(os.path.join(os.path.dirname(__file__),'..', 'tests', 'example.csv')), 'query a>0']
 
 
 
@@ -163,6 +168,9 @@ class TextController(object):
             fcn, kwargs = self.quit, {}
         elif OPEN in input[1]:
             return self.open, input[1][OPEN]
+        elif QUERY in input[1]:
+            query = ' '.join(input[1][QUERY]['remainder_list'])
+            return self.query, {'query':query}
 
         else:
             raise NotImplementedError(input)
