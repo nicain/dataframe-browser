@@ -6,6 +6,7 @@ from collections import OrderedDict
 import json
 import os
 import io
+import requests
 import warnings
 import shlex
 
@@ -339,6 +340,7 @@ class ConsoleView(object):
         self.app = kwargs['app']
 
     def display_active(self, **kwargs):
+        requests.post('http://localhost:5000/active', data={'data':self.app.model.active.to_html()})
         self.display_message(self.app.model.active, **kwargs)
 
     def display_active_df_info(self, buffer):
