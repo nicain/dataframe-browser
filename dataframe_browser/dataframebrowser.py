@@ -8,7 +8,10 @@ import os
 import io
 import requests
 import warnings
+import readline
 import shlex
+import argcomplete
+import itertools
 
 DEFAULT_PROMPT = 'df> '
 COMMAND_SEP_CHAR = ';'
@@ -36,7 +39,7 @@ open_parser.add_argument("--table", nargs='+', dest='table_list', type=str, defa
 
 import argparse
 query_parser = ArgumentParser(description='query description', prog=DEFAULT_PROMPT.strip(), add_help=False)
-query_parser.add_argument(nargs=argparse.REMAINDER, dest='remainder_list', type=str)
+query_parser.add_argument(nargs='*', dest='remainder_list', type=str)
 
 command_parser_dict = {OPEN:open_parser, QUERY:query_parser}
 
@@ -56,6 +59,16 @@ working_example = ['open -q -f {0}'.format(os.path.join(os.path.dirname(__file__
 
 
 
+def get_argcompletion_matches(argcompletion_finder, text):
+    tmp = []
+    for ii in itertools.count():
+        res = argcompletion_finder.rl_complete(text, ii)
+        if res is None:
+            break
+        else:
+            tmp.append(res)
+    return tmp
+
 
 
 
@@ -74,6 +87,65 @@ def create_class_logger(cls, **kwargs):
 
     return logger
 
+class CompletionFinder(object):
+    
+    def __init__(self, **kwargs):
+
+        self.logger = create_class_logger(self.__class__, **kwargs.get('logging_settings', {}))
+        self.controller = kwargs['controller']
+        self.main_parser = self.controller.main_parser
+        self.subparser_dict = self.controller.subparser_dict
+
+        self.completion_finder_dict = {key:argcomplete.CompletionFinder(val) for key, val in self.subparser_dict.items()}
+        self.main_completion_finder = argcomplete.CompletionFinder(self.main_parser)
+
+    def initialize(self):
+
+        histfile = os.path.join(os.path.expanduser("~"), ".dataframe-browser")
+        try:
+            readline.read_history_file(histfile)
+            readline.set_history_length(1000) # default history len is -1 (infinite), which may grow unruly
+        except IOError:
+            pass
+        import atexit
+        atexit.register(readline.write_history_file, histfile)
+        del histfile
+
+        readline.set_completer(self.completer)
+        readline.set_completer_delims("")
+        readline.parse_and_bind("tab: complete")
+
+    
+    def get_options(self, startswith_text):
+        '''Build a list of options, by considering each '''
+        
+        subparser_command_dict = {}
+        for cmd, completion_finder in self.completion_finder_dict.items():
+            if cmd == QUERY:
+                pass
+            else:
+                tmp = startswith_text[len(cmd)+1:]
+                subparser_command_dict[cmd] = ['{0} {1}'.format(cmd, x) for x in get_argcompletion_matches(completion_finder, tmp)]
+        
+        main_commands = ['{0}'.format(x) for x in get_argcompletion_matches(self.main_completion_finder, '')]
+
+        ## INSERT CUSTOM MODIFICATION HERE: (START)
+
+        ## INSERT CUSTOM MODIFICATION HERE: (END)
+
+        subparser_commands = []
+        for command_list in subparser_command_dict.values():
+            subparser_commands += command_list
+        return [i for i in ['help']+subparser_commands+main_commands if i.startswith(startswith_text)]
+
+    def completer(self, startswith_text, state):
+
+        options = self.get_options(startswith_text)
+        if state < len(options):
+            return options[state]
+        else:
+            return None
+
 
 class TextController(object):
 
@@ -90,11 +162,18 @@ class TextController(object):
         self.DISPLAY_ACTIVE_DF_INFO = kwargs.get('DISPLAY_ACTIVE_DF_INFO', ['i:', 'i'])
         self.LS = kwargs.get('LS', 'ls')
         self.sep = COMMAND_SEP_CHAR
-
         self.input_list = None
+
+        self.subparser_dict = {OPEN:open_parser, QUERY:query_parser}
+        self.main_parser = main_parser
+
+        self.completion_finder = CompletionFinder(controller=self)
+        self.completion_finder.initialize()
+        
 
     def parse_single_command(self, command, parser=main_parser):
         split_command = shlex.split(command)
+        if split_command in (['help'], ['?']): split_command = ['--help']
         try:
             arg_res, rem = parser.parse_known_args(split_command)
             arg_dict = vars(arg_res)
@@ -174,24 +253,6 @@ class TextController(object):
 
         else:
             raise NotImplementedError(input)
-        # elif input[:2] == self.NEW_DF_NODE: 
-        #     fcn, kwargs = self.load_new_df, {'source': input[2:].strip()}
-        # elif input[:2] == self.ADD_BOOKMARK: 
-        #     fcn, kwargs = self.add_bookmark, {'input_value': input[2:].strip()}
-        # elif len(input) == 0: 
-        #     fcn, kwargs = self.app.view.display_active, {}
-        # elif input[:2] == self.QUERY: 
-        #     fcn, kwargs = self.query, {'query': input[2:].strip()}
-        # elif input in self.DISPLAY_ACTIVE_DF_INFO: 
-        #     fcn, kwargs = self.display_active_df_info, {}
-        # elif input in self.LS: 
-        #     fcn, kwargs = self.ls, {}
-        # else: 
-        #     fcn, kwargs = self.unrecognized, {'input_value':input.strip()}
-
-        # self.logger.info(json.dumps({fcn.__name__:kwargs}))
-
-        # return fcn, kwargs
 
 
     def open(self, **kwargs):
@@ -391,12 +452,18 @@ class DataFrameBrowser(object):
             pass
 
 
+    
+
+
 if __name__ == "__main__":    
     df_file_name = os.path.join(os.path.dirname(__file__),'..', 'tests', 'example.csv')
 
     def get_dfbd():
         dfb = DataFrameBrowser(logging_settings={'handler':logging.StreamHandler()})
         return {'dataframe_browser':dfb}
+
+
+
 
     
 
