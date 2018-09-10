@@ -107,6 +107,8 @@ class CompletionFinder(object):
         readline.set_completer(self.completer)
         readline.set_completer_delims("")
         readline.parse_and_bind("tab: complete")
+        readline.parse_and_bind('"\e[B": history-search-forward')
+        readline.parse_and_bind('"\e[A": history-search-backward') # https://github.com/donnemartin/gitsome/blob/master/xonsh/readline_shell.py
 
     def set_history_file(self, histfile):
 
