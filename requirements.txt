@@ -2,3 +2,7 @@ flask
 argcomplete
 pandas
 networkx
+bokeh
+selenium
+
+# conda install phantomjs
