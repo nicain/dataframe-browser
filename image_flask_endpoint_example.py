@@ -32,10 +32,8 @@ def get_figure(data_array):
     return fig
 
 def get_PIL(data_array):
-    # print plt.cm.viridis(data_array).shape
     i = Image.frombytes( "RGBA", data_array.shape, np.uint8(255*plt.cm.viridis(data_array))).convert('RGB')
-    i = i.resize((100,100))
-    # i.save('/home/nicholasc/tmp2.png')
+    i = i.resize((width,height))
     return i
 
 def get_bokeh(data_array):
@@ -65,6 +63,7 @@ def image_base64_bokeh(im):
 
     with BytesIO() as buffer:
         im = get_screenshot_as_png(im)
+        im = im.resize((width,height))
         im.convert('RGB').save(buffer, 'jpeg')
         return base64.b64encode(buffer.getvalue()).decode()
 
