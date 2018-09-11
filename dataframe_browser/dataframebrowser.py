@@ -23,9 +23,9 @@ from dataframe_browser.exceptions import CommandParsingException, BookmarkAlread
 from dataframe_browser.parsing import ArgumentParser, HelpAction
 from utilities import generate_uuid
 
-# import argparse
 OPEN = 'open'
 QUERY = 'query'
+BOOKMARK = 'bookmark'
 COMMAND = 'cmd'
 main_parser = ArgumentParser(description='main_parser description', prog=DEFAULT_PROMPT.strip(), add_help=False)
 main_parser.add_argument('--help', '-h', action=HelpAction, help='show this help message')
@@ -38,26 +38,16 @@ open_parser.add_argument("--uri", nargs=1, dest='uri', type=str)
 open_parser.add_argument("-q", "--quiet", dest='quiet', action='store_true')
 open_parser.add_argument("--table", nargs='+', dest='table_list', type=str, default=[])
 
-import argparse
 query_parser = ArgumentParser(description='query description', prog=DEFAULT_PROMPT.strip(), add_help=False)
 query_parser.add_argument(nargs='*', dest='remainder_list', type=str)
 
-command_parser_dict = {OPEN:open_parser, QUERY:query_parser}
+bookmark_parser = ArgumentParser(description='Bookmark description', prog=DEFAULT_PROMPT.strip(), add_help=False)
+bookmark_parser.add_argument('--help', '-h', action=HelpAction, help='show this help message')
+bookmark_parser.add_argument('name', nargs=1, type=str)
+bookmark_parser.add_argument('-f', '--force', dest='force', action='store_true')
+bookmark_parser.add_argument('--rm', dest='remove', action='store_true')
 
-# subparsers = main_parser.add_subparsers(description='subparser descritption', help='subparsers help str', dest='cmd')
-# a_parser = subparsers.add_parser("open", add_help=False)
-# a_parser.add_argument("something", nargs='?')
-# a_parser.add_argument('--help', action=HelpAction, help='OTHER HELP')
-# working_example = 'open --uri {0} --table {1}'.format('postgresql://mtrainreader:mtrainro@mtrain:5432/mtrain', 'subjects'  )
-# working_example = ['open -q -f {0}'.format(os.path.join(os.path.dirname(__file__),'..', 'tests', 'example.csv')), 'query a>0']
-
-
-
-# a_parser = subparsers.add_parser("A")
-# b_parser = subparsers.add_parser("B")
-
-# a_parser.add_argument("something", )
-
+command_parser_dict = {OPEN:open_parser, QUERY:query_parser, BOOKMARK:bookmark_parser}
 
 
 def get_argcompletion_matches(argcompletion_finder, text):
@@ -69,9 +59,6 @@ def get_argcompletion_matches(argcompletion_finder, text):
         else:
             tmp.append(res)
     return tmp
-
-
-
 
 
 def create_class_logger(cls, **kwargs):
@@ -87,6 +74,14 @@ def create_class_logger(cls, **kwargs):
     logger.setLevel(level) 
 
     return logger
+
+class DataFrameNode(object):
+
+    def __init__(self, df=None, metadata=None, name=None):
+
+        self.df = df
+        self.metadata = metadata
+        self.name = name
 
 class CompletionFinder(object):
     
@@ -170,11 +165,7 @@ class TextController(object):
         self.app = kwargs['app']
         self.QUIT_VALS = kwargs.get('QUIT_VALS', ['exit()'])
         self.DEFAULT_PROMPT = kwargs.get('DEFAULT_PROMPT', DEFAULT_PROMPT)
-        self.NEW_DF_NODE = kwargs.get('NEW_DF_NODE', 'o:')
-        self.ADD_BOOKMARK = kwargs.get('ADD_BOOKMARK', 'b:')
-        self.QUERY = kwargs.get('QUERY', 'q:')
-        self.DISPLAY_ACTIVE_DF_INFO = kwargs.get('DISPLAY_ACTIVE_DF_INFO', ['i:', 'i'])
-        self.LS = kwargs.get('LS', 'ls')
+
         self.sep = COMMAND_SEP_CHAR
         self.input_list = None
 
@@ -184,6 +175,7 @@ class TextController(object):
         self.completion_finder = CompletionFinder(controller=self)
         self.completion_finder.initialize(histfile=kwargs.get('histfile', None))
         
+        self.prompt = raw_input
 
     def parse_single_command(self, command, parser=main_parser):
         split_command = shlex.split(command)
@@ -287,8 +279,7 @@ class TextController(object):
         table = kwargs['table']
         quiet = kwargs.get('quiet', False)
         df = pd.read_sql_table(table, uri)
-        self.add_node(df, source=(uri, table), quiet=quiet)
-
+        self.add_dataframe(df, parent=None, quiet=quiet, metadata={'uri':uri, 'table':table})
 
     def ls(self, **kwargs):
         pass
@@ -304,23 +295,24 @@ class TextController(object):
         query_string = kwargs['query']
         parent_node = self.app.model.active_node
         result_df = self.app.model.active.query(query_string)
-        active_node = self.add_node(result_df)
-        self.add_edge(parent_node, active_node, query=query_string)
-
-    def add_edge(self, source, target, **kwargs):
-        self.app.model.graph.add_edge(source, target, **kwargs)
+        active_node = self.add_dataframe(result_df, parent=parent_node, metadata={'query':query_string})
 
 
     def add_bookmark(self, **kwargs):
         
-        bookmark_name = kwargs['input_value']
+        bookmark_name = kwargs['name']
+        msg = 'Bookmark added: {0}'.format(bookmark_name)
         try:
             self.app.model.add_bookmark(bookmark_name, self.app.model.active_node)
+            self.app.view.display_message(msg, type='info')
         except BookmarkAlreadyExists as e:
-            self.app.view.display_message(str(e), type='error')
 
-        self.app.view.display_message('Bookmark added: {0}'.format(bookmark_name), type='info')
-
+            if kwargs.get('force', False):
+                self.app.model.remove_bookmark(bookmark_name)
+                self.app.model.add_bookmark(bookmark_name, self.app.model.active_node)
+                self.app.view.display_message(msg, type='info')
+            else:
+                self.app.view.display_message(str(e), type='error')
             
     def load_new_df_from_file(self, **kwargs):
 
@@ -328,7 +320,7 @@ class TextController(object):
         quiet = kwargs.get('quiet', False)
 
         if not os.path.exists(file_name):
-            print 'Source not found: {0}\n'.format(file_name)
+            self.app.view.display_message('Source not found: {0}\n'.format(file_name), type='error')
             return
 
         if file_name[-4:] == '.csv':
@@ -336,42 +328,45 @@ class TextController(object):
         elif file_name[-2:] == '.p':
             df = pd.read_pickle(file_name)
         else:
-            print 'File extension not in (csv/p): {0}\n'.format(file_name)
+            self.app.view.display_message('File extension not in (csv/p): {0}\n'.format(file_name), type='error')
             return
 
-        self.add_node(df, source=file_name, quiet=quiet)
-        
-    def add_node(self, df, quiet=False, **kwargs):
+        self.add_dataframe(df, parent=None, quiet=quiet, metadata={'file_name':file_name})
 
-        uuid = generate_uuid(UUID_LENGTH)
-        self.app.model.graph.add_node(uuid, df=df, **kwargs)
-        self.set_active(uuid)
+
+    def add_dataframe(self, df, quiet=False, metadata=None, set_active=True, parent=None):
+
+        if metadata is None:
+            metadata = {}
+
+        new_node = self.app.model.add_dataframe(df=df, metadata=metadata, parent=parent)
+        if set_active:
+            self.set_active(new_node)
         if not quiet:
             self.app.view.display_active()
-        return uuid
 
-    def set_active(self, uuid):
-        self.app.model.active_node = uuid
+    def set_active(self, node):
+        self.app.model.set_active(node)
         
 
     def quit(self, **kwargs): 
         sys.exit(0)
 
 
-    def get_input(self, prompt=None):
-        if prompt is None: prompt = self.DEFAULT_PROMPT
+    def get_input(self, prompt_str=None):
+        if prompt_str is None: prompt_str = self.DEFAULT_PROMPT
         try:
-            raw_input_string = raw_input(prompt)
+            raw_input_string = self.prompt(prompt_str)
         except EOFError:
             sys.exit(0)
         return raw_input_string
 
 
-    def update(self, prompt=None):
-        if prompt is None: prompt = self.DEFAULT_PROMPT
+    def update(self, prompt_str=None):
+        if prompt_str is None: prompt_str = self.DEFAULT_PROMPT
         
         if len(self.input_list) == 0:
-            raw_input_string = self.get_input(prompt=prompt)
+            raw_input_string = self.get_input(prompt_str=prompt_str)
             self.input_list += self.parse_input_recursive(raw_input_string)
 
 
@@ -409,6 +404,20 @@ class Model(object):
             raise BookmarkAlreadyExists('Bookmark name {0} already in use'.format(name))
         else:
             self._bookmarks[name] = val
+
+    def remove_bookmark(self, name, val):
+        raise NotImplementedError
+
+    def add_dataframe(df=None, metadata=None, bookmark=None, parent=None):
+        if metadata is None:
+            metadata = {}
+        new_node = DataFrameNode(df=df, metadata=metadata, bookmark=bookmark)
+        self.graph.add_node(new_node)
+
+        if parent is not None:
+            self.graph.add_edge(parent, new_node)
+
+        return new_node
 
 
     @property
