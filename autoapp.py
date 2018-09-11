@@ -15,11 +15,11 @@ def show_tables():
 
 
     if request.method == 'POST': 
-        data['active'] = request.form['data']
+        data['active'] = (request.form['data'], request.form['header'])
         # data = pd.read_csv(os.path.join(os.path.dirname(__file__), 'tests', 'example.csv'))
 
 
-    return render_template('view.html', table=data['active'])
+    return render_template('view.html', table=data['active'][0], header=data['active'][1])
 
 
 if __name__ == "__main__":
