@@ -2,6 +2,8 @@ from bokeh.plotting import figure
 from bokeh.resources import CDN
 from bokeh.embed import file_html, components
 from bokeh.io import export_png
+import base64
+from io import BytesIO
 
 plot = figure()
 plot.circle([1,2], [3,4])
@@ -13,4 +15,6 @@ script, div = components(plot)
 # print html
 # print script, div
 
-export_png(plot, '/home/nicholasc/tmp.png')
+with BytesIO() as buffer:
+    export_png(plot, buffer)
+    base64.b64encode(buffer.getvalue()).decode()
