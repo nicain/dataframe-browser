@@ -49,7 +49,7 @@ command_parser_dict = {OPEN:open_parser, QUERY:query_parser}
 # a_parser.add_argument("something", nargs='?')
 # a_parser.add_argument('--help', action=HelpAction, help='OTHER HELP')
 # working_example = 'open --uri {0} --table {1}'.format('postgresql://mtrainreader:mtrainro@mtrain:5432/mtrain', 'subjects'  )
-working_example = ['open -q -f {0}'.format(os.path.join(os.path.dirname(__file__),'..', 'tests', 'example.csv')), 'query a>0']
+# working_example = ['open -q -f {0}'.format(os.path.join(os.path.dirname(__file__),'..', 'tests', 'example.csv')), 'query a>0']
 
 
 
@@ -482,8 +482,15 @@ if __name__ == "__main__":
     
 
     dataframe_browser_fixture = get_dfbd()
-    dataframe_browser_fixture['dataframe_browser'].run(input=working_example)
-    # # dataframe_browser_fixture['dataframe_browser'].run(input=['o: {0}; b: TEST'.format(df_file_name), 'i:;ls;exit()'])
+
+    input = []
+    input.append('open -q -f {0}'.format(os.path.join(os.path.dirname(__file__),'..', 'tests', 'example.csv')))
+    input.append('query a>0')
+
+
+
+    # dataframe_browser_fixture['dataframe_browser'].run(input=working_example)
+    dataframe_browser_fixture['dataframe_browser'].run(input=input)
     print len(dataframe_browser_fixture['dataframe_browser'].model.graph.nodes())
 
     # dataframe_browser_fixture['dataframe_browser'].run(input='--h')
