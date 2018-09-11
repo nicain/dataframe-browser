@@ -4,5 +4,6 @@ pandas
 networkx
 bokeh
 selenium
+beautifulsoup4
 
 # conda install -c conda-forge phantomjs

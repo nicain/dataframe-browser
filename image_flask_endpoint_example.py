@@ -7,6 +7,7 @@ import requests
 import bokeh.plotting as bkp
 from bokeh.io.export import get_screenshot_as_png
 from bokeh.embed import components
+from bs4 import BeautifulSoup
 
 from PIL import Image
 from io import BytesIO
@@ -76,9 +77,10 @@ def image_formatter_bokeh(im):
 
     script, div = components(im)
     script_list.append(script)
-    return div.replace('<div ', '<div style="height: {height}px; width: {width}px" '.format(height=height, width=width))
-    # raise
-    # return div
+    div = BeautifulSoup(div, "lxml").div
+    div['style'] = 'height: {height}px; width: {width}px'.format(height=height, width=width)
+
+    return div
 
 def image_formatter_bokeh_static(im):
     
