@@ -7,11 +7,19 @@ import requests
 import bokeh.plotting as bkp
 from bokeh.io.export import get_screenshot_as_png
 from bokeh.embed import components
-from bs4 import BeautifulSoup
+
 
 from PIL import Image
 from io import BytesIO
 import matplotlib.pyplot as plt
+
+
+from cssutils import parseStyle
+from bs4 import BeautifulSoup as BeautifulSoupPre
+def BeautifulSoup(*args, **kwargs):
+    kwargs.setdefault('features', 'lxml')
+    return BeautifulSoupPre(*args, **kwargs)
+
 
 pd.set_option('display.max_colwidth', -1) 
 
@@ -77,7 +85,7 @@ def image_formatter_bokeh(im):
 
     script, div = components(im)
     script_list.append(script)
-    div = BeautifulSoup(div, "lxml").div
+    div = BeautifulSoup(div).div
     div['style'] = 'height: {height}px; width: {width}px'.format(height=height, width=width)
 
     return div
@@ -95,8 +103,13 @@ df['image_PIL'] = df['data'].map(lambda f: get_PIL(f))
 df['image_bokeh_static'] = df['image_bokeh']
 df.drop('data', inplace=True, axis=1)
 
-html = df[['image_mpl', 'image_PIL', 'image_bokeh_static', 'image_bokeh']].to_html(formatters={'image_mpl': image_formatter_mpl, 'image_PIL': image_formatter_PIL, 'image_bokeh_static':image_formatter_bokeh_static, 'image_bokeh':image_formatter_bokeh}, escape=False)
+table_html = df[['image_mpl', 'image_PIL', 'image_bokeh_static', 'image_bokeh']].to_html(formatters={'image_mpl': image_formatter_mpl, 'image_PIL': image_formatter_PIL, 'image_bokeh_static':image_formatter_bokeh_static, 'image_bokeh':image_formatter_bokeh}, escape=False, classes="table")
+
+table_html_bs = BeautifulSoup(table_html).table
+style = parseStyle(table_html_bs.thead.tr['style'])
+style['text-align'] = 'center'
+table_html_bs.thead.tr['style'] = style.cssText
 
 header = '\n'.join(script_list)
-print requests.post('http://localhost:5000/active', data={'data':html, 'header':header})
+print requests.post('http://localhost:5000/active', data={'data':str(table_html_bs), 'header':header})
 
