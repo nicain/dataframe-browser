@@ -13,4 +13,4 @@ script, div = components(plot)
 # print html
 # print script, div
 
-export_png(plot, '~/tmp.png')
+export_png(plot, '/home/nicholasc/tmp.png')

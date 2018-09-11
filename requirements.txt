@@ -5,4 +5,4 @@ networkx
 bokeh
 selenium
 
-# conda install phantomjs
+# conda install -c conda-forge phantomjs
