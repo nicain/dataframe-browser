@@ -83,6 +83,17 @@ class DataFrameNode(object):
         self.metadata = metadata
         self.name = name
 
+    @property
+    def table(self):
+        return self.df
+
+    def to_html(self, *args, **kwargs):
+        return self.df.to_html(*args, **kwargs)
+
+    def __str__(self):
+
+        return str(self.df)
+
 class CompletionFinder(object):
     
     def __init__(self, **kwargs):
@@ -281,9 +292,6 @@ class TextController(object):
         df = pd.read_sql_table(table, uri)
         self.add_dataframe(df, parent=None, quiet=quiet, metadata={'uri':uri, 'table':table})
 
-    def ls(self, **kwargs):
-        pass
-
     def display_active_df_info(self, **kwargs):
         buffer = io.StringIO()
         self.app.model.active.info(buf=buffer, **kwargs)
@@ -293,9 +301,9 @@ class TextController(object):
     def query(self, **kwargs):
 
         query_string = kwargs['query']
-        parent_node = self.app.model.active_node
-        result_df = self.app.model.active.query(query_string)
-        active_node = self.add_dataframe(result_df, parent=parent_node, metadata={'query':query_string})
+        parent_node = self.app.model.active
+        result_df = parent_node.table.query(query_string)
+        self.add_dataframe(result_df, parent=parent_node, metadata={'query':query_string})
 
 
     def add_bookmark(self, **kwargs):
@@ -309,7 +317,7 @@ class TextController(object):
 
             if kwargs.get('force', False):
                 self.app.model.remove_bookmark(bookmark_name)
-                self.app.model.add_bookmark(bookmark_name, self.app.model.active_node)
+                self.app.model.set_bookmark(bookmark_name, self.app.model.active_node)
                 self.app.view.display_message(msg, type='info')
             else:
                 self.app.view.display_message(str(e), type='error')
@@ -383,8 +391,8 @@ class Model(object):
         
         self.app = kwargs['app']
         self.graph = nx.DiGraph()
-        self._bookmarks = {}
-        self.active_node = None
+        # self._bookmarks = {}
+        self._active = None
 
     @property
     def bookmarks(self):
@@ -398,20 +406,20 @@ class Model(object):
             if val in drop_set:
                 del self._bookmarks[key]
 
-    def add_bookmark(self, name, val):
-
-        if name in self._bookmarks:
-            raise BookmarkAlreadyExists('Bookmark name {0} already in use'.format(name))
-        else:
-            self._bookmarks[name] = val
+    def set_bookmark(self, name, val):
+        raise NotImplementedError
+        # if name in self._bookmarks:
+        #     raise BookmarkAlreadyExists('Bookmark name {0} already in use'.format(name))
+        # else:
+        #     self._bookmarks[name] = val
 
     def remove_bookmark(self, name, val):
         raise NotImplementedError
 
-    def add_dataframe(df=None, metadata=None, bookmark=None, parent=None):
+    def add_dataframe(self, df=None, metadata=None, name=None, parent=None):
         if metadata is None:
             metadata = {}
-        new_node = DataFrameNode(df=df, metadata=metadata, bookmark=bookmark)
+        new_node = DataFrameNode(df=df, metadata=metadata, name=name)
         self.graph.add_node(new_node)
 
         if parent is not None:
@@ -419,10 +427,14 @@ class Model(object):
 
         return new_node
 
+    def set_active(self, node_or_node_list):
+        self._active = node_or_node_list
+
 
     @property
     def active(self):
-        return self.graph.nodes[self.active_node]['df']
+
+        return self._active
 
 class ConsoleView(object):
 
@@ -432,8 +444,8 @@ class ConsoleView(object):
         self.app = kwargs['app']
 
     def display_active(self, **kwargs):
-        requests.post('http://localhost:5000/active', data={'data':self.app.model.active.to_html()})
-        self.display_message(self.app.model.active, **kwargs)
+        requests.post('http://localhost:5000/active', data={'header':[], 'data':self.app.model.active.to_html()})
+        self.display_message(str(self.app.model.active), **kwargs)
 
     def display_active_df_info(self, buffer):
         self.display_message(buffer.getvalue())
