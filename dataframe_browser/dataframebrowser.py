@@ -180,7 +180,7 @@ class TextController(object):
         self.sep = COMMAND_SEP_CHAR
         self.input_list = None
 
-        self.subparser_dict = {OPEN:open_parser, QUERY:query_parser}
+        self.subparser_dict = command_parser_dict
         self.main_parser = main_parser
 
         self.completion_finder = CompletionFinder(controller=self)
@@ -207,9 +207,9 @@ class TextController(object):
 
             else:
                 curr_command = arg_dict[COMMAND]
-                if curr_command in command_parser_dict:
+                if curr_command in self.subparser_dict:
                     new_command = [x for x in split_command if x != curr_command]
-                    arg_dict = {curr_command:vars(command_parser_dict[curr_command].parse_args(new_command))}
+                    arg_dict = {curr_command:vars(self.subparser_dict[curr_command].parse_args(new_command))}
                     self.logger.info(json.dumps({command:arg_dict}))
                     return (command, arg_dict)
 
@@ -507,11 +507,11 @@ if __name__ == "__main__":
     input = []
     input.append('open -q -f {0}'.format(os.path.join(os.path.dirname(__file__),'..', 'tests', 'example.csv')))
     input.append('query a>0')
+    input.append('bookmark this-branch')
 
 
 
     # dataframe_browser_fixture['dataframe_browser'].run(input=working_example)
     dataframe_browser_fixture['dataframe_browser'].run(input=input)
     print len(dataframe_browser_fixture['dataframe_browser'].model.graph.nodes())
-
     # dataframe_browser_fixture['dataframe_browser'].run(input='--h')
