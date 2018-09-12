@@ -29,7 +29,6 @@ BOOKMARK = 'bookmark'
 COMMAND = 'cmd'
 main_parser = ArgumentParser(description='main_parser description', prog=DEFAULT_PROMPT.strip(), add_help=False)
 main_parser.add_argument('--help', '-h', action=HelpAction, help='show this help message')
-main_parser.add_argument(COMMAND, choices=[OPEN, QUERY], nargs='?')
 
 open_parser = ArgumentParser(description='open description', prog=DEFAULT_PROMPT.strip(), add_help=False)
 open_parser.add_argument('--help', '-h', action=HelpAction, help='show this help message')
@@ -48,6 +47,7 @@ bookmark_parser.add_argument('-f', '--force', dest='force', action='store_true')
 bookmark_parser.add_argument('--rm', dest='remove', action='store_true')
 
 command_parser_dict = {OPEN:open_parser, QUERY:query_parser, BOOKMARK:bookmark_parser}
+main_parser.add_argument(COMMAND, choices=command_parser_dict.keys(), nargs='?')
 
 
 def get_argcompletion_matches(argcompletion_finder, text):
@@ -139,6 +139,11 @@ class CompletionFinder(object):
     def get_options(self, startswith_text):
         '''Build a list of options, by considering each '''
         
+        main_commands = ['{0}'.format(x) for x in get_argcompletion_matches(self.main_completion_finder, '')]
+
+        if len(startswith_text) == 0:
+            return main_commands
+
         subparser_command_dict = {}
         for cmd, completion_finder in self.completion_finder_dict.items():
             if cmd == QUERY:
@@ -147,7 +152,7 @@ class CompletionFinder(object):
                 tmp = startswith_text[len(cmd)+1:]
                 subparser_command_dict[cmd] = ['{0} {1}'.format(cmd, x) for x in get_argcompletion_matches(completion_finder, tmp)]
         
-        main_commands = ['{0}'.format(x) for x in get_argcompletion_matches(self.main_completion_finder, '')]
+
 
         ## INSERT CUSTOM MODIFICATION HERE: (START)
 
@@ -156,7 +161,9 @@ class CompletionFinder(object):
         subparser_commands = []
         for command_list in subparser_command_dict.values():
             subparser_commands += command_list
-        return [i for i in ['help']+subparser_commands+main_commands if i.startswith(startswith_text)]
+
+        all_option_list = [i for i in ['help']+subparser_commands+main_commands if i.startswith(startswith_text)]
+        return all_option_list
 
     def completer(self, startswith_text, state):
 
