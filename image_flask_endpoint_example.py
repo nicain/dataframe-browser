@@ -104,22 +104,21 @@ df['image_PIL'] = df['data'].map(lambda f: get_PIL(f))
 df['image_bokeh_static'] = df['image_bokeh']
 df.drop('data', inplace=True, axis=1)
 
-table_html = df[['image_mpl', 'image_PIL', 'image_bokeh_static', 'image_bokeh']].to_html(formatters={'image_mpl': image_formatter_mpl, 'image_PIL': image_formatter_PIL, 'image_bokeh_static':image_formatter_bokeh_static, 'image_bokeh':image_formatter_bokeh}, escape=False, classes=["display"], index=False)
+table_class = "display"
+table_html = df[['image_mpl', 'image_PIL', 'image_bokeh_static', 'image_bokeh']].to_html(formatters={'image_mpl': image_formatter_mpl, 'image_PIL': image_formatter_PIL, 'image_bokeh_static':image_formatter_bokeh_static, 'image_bokeh':image_formatter_bokeh}, escape=False, classes=[table_class], index=False)
 
+table_id = "example"
 table_html_bs = BeautifulSoup(table_html).table
+table_html_bs['id'] = table_id
 style = parseStyle(table_html_bs.thead.tr['style'])
 style['text-align'] = 'center'
 table_html_bs.thead.tr['style'] = style.cssText
 
-# table_html_bs['class'] = 'display'
-# table_html_bs['style'] = "width:100%"
-table_html_bs['id'] = "example"
-# del table_html_bs['border']
 
 # Center all the things:
 for x in table_html_bs.find_all('td'):
     x['align']='center'
 
 header = '\n'.join(script_list)
-print requests.post('http://localhost:5000/active', data={'data':str(table_html_bs), 'header':header})
+print requests.post('http://localhost:5000/active', data={'data':str(table_html_bs), 'header':header, 'table_id':table_id})
 
