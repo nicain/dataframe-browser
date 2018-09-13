@@ -23,7 +23,7 @@ def BeautifulSoup(*args, **kwargs):
 
 pd.set_option('display.max_colwidth', -1) 
 
-width = height = 100
+width = height = 200
 
 def get_figure(data_array):
     fig, ax = plt.subplots()
@@ -56,7 +56,7 @@ def image_base64_PIL(im):
 
 def image_base64_mpl(im):
     with BytesIO() as buffer:
-        im.savefig(buffer, format='jpeg')
+        im.savefig(buffer, format='png', transparent=True)
         return base64.b64encode(buffer.getvalue()).decode()
 
 def image_base64_bokeh(im):
@@ -96,7 +96,7 @@ def image_formatter_bokeh_static(im):
     return format_string.format(height=height, width=width, img=image_base64_bokeh(im))
     
 
-df = pd.DataFrame({'data':[np.random.rand(5,5) for _ in range(25)]})
+df = pd.DataFrame({'data':[np.random.rand(5,5) for _ in range(2)]})
 
 df['image_mpl'] = df['data'].map(lambda f: get_figure(f))
 df['image_bokeh'] = df['data'].map(lambda f: get_bokeh(f))
