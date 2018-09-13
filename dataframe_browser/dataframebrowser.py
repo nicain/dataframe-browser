@@ -309,14 +309,15 @@ class TextController(object):
         name = one(kwargs.pop('name'))
 
         if kwargs['remove']:
-            self.remove_bookmark(name)        
+            self.remove_bookmark(name=name)
         else:
             self.add_bookmark(name=name, force=kwargs['force'])
 
-    def remove_bookmark(self, name):
-
-        node = self.app.model.get_nodes_by_name(name=name)
-        node.set_name(name)
+    def remove_bookmark(self, **kwargs):
+        name=kwargs['name']
+        node = one(self.app.model.get_nodes_by_name(name=name))
+        node.set_name(None)
+        self.logger.info(json.dumps({'REMOVE_BOOKMARK':kwargs}, indent=4))
 
 
     def open_command(self, **kwargs):
@@ -351,6 +352,7 @@ class TextController(object):
         parent_node = self.app.model.active
         result_df = parent_node.table.query(query_string)
         self.add_dataframe(result_df, parent=parent_node, metadata={'query':query_string})
+        self.logger.info(json.dumps({'QUERY':kwargs}, indent=4))
 
 
     def add_bookmark(self, **kwargs):
@@ -360,14 +362,17 @@ class TextController(object):
         try:
             self.app.model.active.set_name(bookmark_name)
             self.app.view.display_message(msg, type='info')
+            self.logger.info(json.dumps({'ADD_BOOKMARK':kwargs}, indent=4))
         except BookmarkAlreadyExists as e:
 
             if kwargs.get('force', False):
                 self.app.model.remove_bookmark(bookmark_name)
                 self.app.model.active.set_name(bookmark_name)
                 self.app.view.display_message(msg, type='info')
+                self.logger.info(json.dumps({'ADD_BOOKMARK':kwargs}, indent=4))
             else:
                 self.app.view.display_message(str(e), type='error')
+                self.logger.error(json.dumps({'ADD_BOOKMARK':kwargs}, indent=4))
             
     def load_new_df_from_file(self, **kwargs):
 
@@ -451,15 +456,18 @@ class Model(object):
 
     #     node_to_remove = one([x for x in self.graph.nodes() if x.name == name])
 
-    def get_nodes_by_name(name=None, name_list=None):
+    def get_nodes_by_name(self, name=None, name_list=None):
 
         if name_list is None:
             name_list = []
 
-        if name is None:
+        if name is not None:
             name_list += [name]
+
+        return [x for x in self.graph.nodes() if x.name in name_list]
+
         
-    def remove_node(node):
+    def remove_node(self, node):
         self.graph.remove_node(node_to_remove)
 
     def add_dataframe(self, df=None, metadata=None, name=None, parent=None):
@@ -560,9 +568,10 @@ if __name__ == "__main__":
 
     input = []
     input.append('open -q -f {0}'.format(os.path.join(os.path.dirname(__file__),'..', 'tests', 'example.csv')))
+    input.append('bookmark this-branch')
     input.append('query a>0')
-    # input.append('bookmark this-branch')
-    # input.append('bookmark --rm this-branch')
+    input.append('bookmark this-other_branch')
+    input.append('bookmark --rm this-branch')
 
 
 
