@@ -85,13 +85,15 @@ def create_class_logger(cls, **kwargs):
 
 class DataFrameNode(object):
 
-    def __init__(self, df=None, metadata=None, name=None):
+    def __init__(self, df=None, metadata=None, name=None, load_time=None):
 
         # TODO?
         # https://www.kaggle.com/arjanso/reducing-dataframe-memory-size-by-65
         self.df = df
         self.metadata = metadata
         self._name = name
+
+        self.load_time = load_time # TODO
     
     @property
     def memory_usage(self):
