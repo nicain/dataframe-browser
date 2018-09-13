@@ -11,9 +11,5 @@ setup(
     include_package_data=True,
     setup_requires=['pytest-runner'],
     install_requires=['pandas', 'networkx', 'argcomplete'],
-    entry_points={
-          'console_scripts': [
-              'dataframe-browser = dataframe_browser.__main__:main'
-        ]
-    },
+    scripts=['bin/dataframe-browser']
 )
