@@ -253,7 +253,11 @@ class TextController(object):
 
     def parse_single_command(self, command, parser=main_parser):
         split_command = shlex.split(command)
-        if split_command in (['help'], ['?']): split_command = ['--help']
+        if split_command in (['help'], ['?']): 
+            split_command = ['--help']
+        if len(split_command) == 0:
+            return ('',)
+
         try:
             arg_res, rem = parser.parse_known_args(split_command)
             arg_dict = vars(arg_res)
@@ -543,14 +547,16 @@ class DataFrameBrowser(object):
         self.controller = kwargs.get('controller_class', TextController)(app=self, **controller_kwargs)
 
 
-    def run_hard_exit(self, input=['']):
+    def run_hard_exit(self, input=[''], interactive=True):
 
         self.controller.initialize_input(input)
-        while len(self.controller.input_list) > 0:
+        while len(self.controller.input_list) > 0 and interactive==True:
 
             curr_input, curr_input_kwargs = self.controller.input_list.pop(0)
             curr_input(**curr_input_kwargs)            
             self.controller.update()
+
+
 
         return self.model.active
 
@@ -559,6 +565,10 @@ class DataFrameBrowser(object):
             self.run_hard_exit(*args, **kwargs)
         except SystemExit as e:
             return self.model.active
+
+    @property
+    def active(self):
+        return self.model.active
 
 
     

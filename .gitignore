@@ -1,3 +1,7 @@
+dataframe_browser.egg-info/
+dist
+build
+.eggs
 .gitignore~
 .history
 **/.pytest_cache
