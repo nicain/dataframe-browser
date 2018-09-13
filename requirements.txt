@@ -1,6 +1,6 @@
 flask
 argcomplete
-pandas
+pandas >= 0.23.4
 networkx
 bokeh
 selenium

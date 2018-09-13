@@ -87,9 +87,15 @@ class DataFrameNode(object):
 
     def __init__(self, df=None, metadata=None, name=None):
 
+        # TODO?
+        # https://www.kaggle.com/arjanso/reducing-dataframe-memory-size-by-65
         self.df = df
         self.metadata = metadata
         self._name = name
+    
+    @property
+    def memory_usage(self):
+        return self.df.memory_usage(deep=True).sum()
 
     @property
     def table(self):
@@ -107,6 +113,8 @@ class DataFrameNode(object):
 
     def set_name(self, new_name):
         self._name = new_name
+
+    
 
 class CompletionFinder(object):
     
@@ -551,8 +559,8 @@ if __name__ == "__main__":
     input = []
     input.append('open -q -f {0}'.format(os.path.join(os.path.dirname(__file__),'..', 'tests', 'example.csv')))
     input.append('query a>0')
-    input.append('bookmark this-branch')
-    input.append('bookmark --rm this-branch')
+    # input.append('bookmark this-branch')
+    # input.append('bookmark --rm this-branch')
 
 
 
