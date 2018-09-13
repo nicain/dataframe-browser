@@ -10,6 +10,11 @@ def hello_world():
 
 data = {'active':None}
 
+@app.route("/graph", methods=['GET'])
+def show_graph():
+
+    return render_template('graph.html')
+
 @app.route("/active", methods=['GET', 'POST'])
 def show_tables():
 
