@@ -96,7 +96,7 @@ def image_formatter_bokeh_static(im):
     return format_string.format(height=height, width=width, img=image_base64_bokeh(im))
     
 
-df = pd.DataFrame({'data':[np.random.rand(5,5) for _ in range(5)]})
+df = pd.DataFrame({'data':[np.random.rand(5,5) for _ in range(25)]})
 
 df['image_mpl'] = df['data'].map(lambda f: get_figure(f))
 df['image_bokeh'] = df['data'].map(lambda f: get_bokeh(f))
@@ -111,10 +111,10 @@ style = parseStyle(table_html_bs.thead.tr['style'])
 style['text-align'] = 'center'
 table_html_bs.thead.tr['style'] = style.cssText
 
-table_html_bs['class'] = 'display'
-table_html_bs['style'] = "width:100%"
+# table_html_bs['class'] = 'display'
+# table_html_bs['style'] = "width:100%"
 table_html_bs['id'] = "example"
-del table_html_bs['border']
+# del table_html_bs['border']
 
 # Center all the things:
 for x in table_html_bs.find_all('td'):
