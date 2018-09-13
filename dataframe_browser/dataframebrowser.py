@@ -13,6 +13,8 @@ import shlex
 import argcomplete
 import atexit
 import itertools
+from future.utils import raise_from
+
 
 DEFAULT_PROMPT = 'df> '
 COMMAND_SEP_CHAR = ';'
@@ -49,6 +51,12 @@ bookmark_parser.add_argument('--rm', dest='remove', action='store_true')
 command_parser_dict = {OPEN:open_parser, QUERY:query_parser, BOOKMARK:bookmark_parser}
 main_parser.add_argument(COMMAND, choices=command_parser_dict.keys(), nargs='?')
 
+def one(x, exc_tp=TypeError):
+    try:
+        val, = x
+        return val
+    except TypeError as e:
+        raise_from(exc_tp, e)
 
 def get_argcompletion_matches(argcompletion_finder, text):
     tmp = []
@@ -81,7 +89,7 @@ class DataFrameNode(object):
 
         self.df = df
         self.metadata = metadata
-        self.name = name
+        self._name = name
 
     @property
     def table(self):
@@ -91,8 +99,14 @@ class DataFrameNode(object):
         return self.df.to_html(*args, **kwargs)
 
     def __str__(self):
-
         return str(self.df)
+    
+    @property
+    def name(self):
+        return self._name
+
+    def set_name(self, new_name):
+        self._name = new_name
 
 class CompletionFinder(object):
     
@@ -195,6 +209,26 @@ class TextController(object):
         
         self.prompt = raw_input
 
+    def input_mapper(self, input):
+    
+        # No-op for this command; either requested help, or unrecognized
+        if len(input) == 1 or (len(input) == 2 and input[1].get('help', None) == True):
+            return (lambda : None, {})
+
+        if input in self.QUIT_VALS: 
+            fcn, kwargs = self.quit, {}
+        elif OPEN in input[1]:
+            return self.open_command, input[1][OPEN]
+        elif QUERY in input[1]:
+            query = ' '.join(input[1][QUERY]['remainder_list'])
+            return self.query_command, {'query':query}
+        elif BOOKMARK in input[1]:
+            return self.bookmark_command, input[1][BOOKMARK]
+
+
+        else:
+            raise NotImplementedError(input)
+
     def parse_single_command(self, command, parser=main_parser):
         split_command = shlex.split(command)
         if split_command in (['help'], ['?']): split_command = ['--help']
@@ -260,26 +294,22 @@ class TextController(object):
 
         self.input_list = self.parse_input_recursive(input)
 
+    def bookmark_command(self, **kwargs):
 
-    def input_mapper(self, input):
+        name = one(kwargs.pop('name'))
 
-        # No-op for this command; either requested help, or unrecognized
-        if len(input) == 1 or (len(input) == 2 and input[1].get('help', None) == True):
-            return (lambda : None, {})
-
-        if input in self.QUIT_VALS: 
-            fcn, kwargs = self.quit, {}
-        elif OPEN in input[1]:
-            return self.open, input[1][OPEN]
-        elif QUERY in input[1]:
-            query = ' '.join(input[1][QUERY]['remainder_list'])
-            return self.query, {'query':query}
-
+        if kwargs['remove']:
+            self.remove_bookmark(name)        
         else:
-            raise NotImplementedError(input)
+            self.add_bookmark(name=name, force=kwargs['force'])
+
+    def remove_bookmark(self, name):
+
+        node = self.app.model.get_nodes_by_name(name=name)
+        node.set_name(name)
 
 
-    def open(self, **kwargs):
+    def open_command(self, **kwargs):
 
         quiet = kwargs.get('quiet', False)
 
@@ -305,7 +335,7 @@ class TextController(object):
         self.app.view.display_active_df_info(buffer)
 
 
-    def query(self, **kwargs):
+    def query_command(self, **kwargs):
 
         query_string = kwargs['query']
         parent_node = self.app.model.active
@@ -318,13 +348,13 @@ class TextController(object):
         bookmark_name = kwargs['name']
         msg = 'Bookmark added: {0}'.format(bookmark_name)
         try:
-            self.app.model.add_bookmark(bookmark_name, self.app.model.active_node)
+            self.app.model.active.set_name(bookmark_name)
             self.app.view.display_message(msg, type='info')
         except BookmarkAlreadyExists as e:
 
             if kwargs.get('force', False):
                 self.app.model.remove_bookmark(bookmark_name)
-                self.app.model.set_bookmark(bookmark_name, self.app.model.active_node)
+                self.app.model.active.set_name(bookmark_name)
                 self.app.view.display_message(msg, type='info')
             else:
                 self.app.view.display_message(str(e), type='error')
@@ -398,35 +428,35 @@ class Model(object):
         
         self.app = kwargs['app']
         self.graph = nx.DiGraph()
-        # self._bookmarks = {}
         self._active = None
 
     @property
-    def bookmarks(self):
-        self.prune_bookmarks()
-        return self._bookmarks
+    def names(self):
+        return [x.name for x in self.graph.nodes()]
 
-    def prune_bookmarks(self):
+    def set_name(self, new_name):
+        one([x for x in self.graph.nodes() if x.name == new_name]).name = new_name
 
-        drop_set = set(self.graph.nodes())-set(self._bookmarks.values())
-        for key, val in self._bookmarks.items():
-            if val in drop_set:
-                del self._bookmarks[key]
+    # def remove_node_by_name(self, name):
 
-    def set_bookmark(self, name, val):
-        raise NotImplementedError
-        # if name in self._bookmarks:
-        #     raise BookmarkAlreadyExists('Bookmark name {0} already in use'.format(name))
-        # else:
-        #     self._bookmarks[name] = val
+    #     node_to_remove = one([x for x in self.graph.nodes() if x.name == name])
 
-    def remove_bookmark(self, name, val):
-        raise NotImplementedError
+    def get_nodes_by_name(name=None, name_list=None):
+
+        if name_list is None:
+            name_list = []
+
+        if name is None:
+            name_list += [name]
+        
+    def remove_node(node):
+        self.graph.remove_node(node_to_remove)
 
     def add_dataframe(self, df=None, metadata=None, name=None, parent=None):
         if metadata is None:
             metadata = {}
         new_node = DataFrameNode(df=df, metadata=metadata, name=name)
+
         self.graph.add_node(new_node)
 
         if parent is not None:
@@ -435,12 +465,18 @@ class Model(object):
         return new_node
 
     def set_active(self, node_or_node_list):
+        node_type_list = (DataFrameNode,)
+        if isinstance(node_or_node_list, (set, list)):
+            for x in node_or_node_list:
+                assert isinstance(x, node_type_list)
+        else:
+            assert isinstance(node_or_node_list, node_type_list)
+
         self._active = node_or_node_list
 
 
     @property
     def active(self):
-
         return self._active
 
 class ConsoleView(object):
@@ -485,13 +521,13 @@ class DataFrameBrowser(object):
             curr_input(**curr_input_kwargs)            
             self.controller.update()
 
-        return self
+        return self.model.active
 
     def run(self, *args, **kwargs):
         try:
             self.run_hard_exit(*args, **kwargs)
         except SystemExit as e:
-            pass
+            return self.model.active
 
 
     
@@ -510,15 +546,18 @@ if __name__ == "__main__":
     
 
     dataframe_browser_fixture = get_dfbd()
+    dfb = dataframe_browser_fixture['dataframe_browser']
 
     input = []
     input.append('open -q -f {0}'.format(os.path.join(os.path.dirname(__file__),'..', 'tests', 'example.csv')))
     input.append('query a>0')
     input.append('bookmark this-branch')
+    input.append('bookmark --rm this-branch')
 
 
 
-    # dataframe_browser_fixture['dataframe_browser'].run(input=working_example)
-    dataframe_browser_fixture['dataframe_browser'].run(input=input)
-    print len(dataframe_browser_fixture['dataframe_browser'].model.graph.nodes())
-    # dataframe_browser_fixture['dataframe_browser'].run(input='--h')
+    last_active = dfb.run(input=input)
+    print dfb.model.names
+
+    print type(last_active)
+
