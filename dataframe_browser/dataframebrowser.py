@@ -28,6 +28,7 @@ from utilities import generate_uuid
 OPEN = 'open'
 QUERY = 'query'
 BOOKMARK = 'bookmark'
+ACTIVATE = 'activate'
 COMMAND = 'cmd'
 main_parser = ArgumentParser(description='main_parser description', prog=DEFAULT_PROMPT.strip(), add_help=False)
 main_parser.add_argument('--help', '-h', action=HelpAction, help='show this help message')
@@ -39,6 +40,9 @@ open_parser.add_argument("--uri", nargs=1, dest='uri', type=str)
 open_parser.add_argument("-q", "--quiet", dest='quiet', action='store_true')
 open_parser.add_argument("--table", nargs='+', dest='table_list', type=str, default=[])
 
+activate_parser = ArgumentParser(description='activate description', prog=DEFAULT_PROMPT.strip(), add_help=False)
+activate_parser.add_argument(nargs=1, dest='name', type=str)
+
 query_parser = ArgumentParser(description='query description', prog=DEFAULT_PROMPT.strip(), add_help=False)
 query_parser.add_argument(nargs='*', dest='remainder_list', type=str)
 
@@ -48,7 +52,7 @@ bookmark_parser.add_argument('name', nargs=1, type=str)
 bookmark_parser.add_argument('-f', '--force', dest='force', action='store_true')
 bookmark_parser.add_argument('--rm', dest='remove', action='store_true')
 
-command_parser_dict = {OPEN:open_parser, QUERY:query_parser, BOOKMARK:bookmark_parser}
+command_parser_dict = {OPEN:open_parser, QUERY:query_parser, BOOKMARK:bookmark_parser, ACTIVATE:activate_parser}
 main_parser.add_argument(COMMAND, choices=command_parser_dict.keys(), nargs='?')
 
 def one(x, exc_tp=TypeError):
@@ -234,10 +238,18 @@ class TextController(object):
             return self.query_command, {'query':query}
         elif BOOKMARK in input[1]:
             return self.bookmark_command, input[1][BOOKMARK]
+        elif ACTIVATE in input[1]:
+            return self.activate_command, input[1][ACTIVATE]
 
 
         else:
             raise NotImplementedError(input)
+
+    def activate_command(self, **kwargs):
+        self.logger.info(json.dumps({ACTIVATE:kwargs}, indent=4))
+        name = one(kwargs['name'])
+        node = one(self.app.model.get_nodes_by_name(name=name))
+        self.set_active(node)
 
     def parse_single_command(self, command, parser=main_parser):
         split_command = shlex.split(command)
@@ -462,13 +474,14 @@ class Model(object):
             name_list = []
 
         if name is not None:
+            assert isinstance(name, str)
             name_list += [name]
 
         return [x for x in self.graph.nodes() if x.name in name_list]
 
         
     def remove_node(self, node):
-        self.graph.remove_node(node_to_remove)
+        self.graph.remove_node(node)
 
     def add_dataframe(self, df=None, metadata=None, name=None, parent=None):
         if metadata is None:
@@ -570,13 +583,15 @@ if __name__ == "__main__":
     input.append('open -q -f {0}'.format(os.path.join(os.path.dirname(__file__),'..', 'tests', 'example.csv')))
     input.append('bookmark this-branch')
     input.append('query a>0')
-    input.append('bookmark this-other_branch')
-    input.append('bookmark --rm this-branch')
+    input.append('bookmark other-branch')
+    input.append('activate this-branch')
 
 
 
-    last_active = dfb.run(input=input)
+    active = dfb.run(input=input)
     print dfb.model.names
 
-    print type(last_active)
+    print type(active), active.name
 
+
+    # input.append('bookmark --rm this-branch')
