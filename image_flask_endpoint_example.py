@@ -40,7 +40,7 @@ def get_bokeh(data_array):
 
 
     im = bkp.figure(x_range=(0, data_array.shape[1]), y_range=(0, data_array.shape[0]),
-            tooltips=[("x", "$x"), ("y", "$y"), ("value", "@image")])
+            tooltips=[("x", "$x"), ("y", "$y"), ("value", "@image")], background_fill_color=None, border_fill_color=None)
 
     im.image(image=[np.flipud(data_array)], x=0, y=0, dw=data_array.shape[1], dh=data_array.shape[0], palette="Viridis11")
 
@@ -51,7 +51,7 @@ def get_bokeh(data_array):
 def image_base64_PIL(im):
 
     with BytesIO() as buffer:
-        im.save(buffer, 'jpeg')
+        im.save(buffer, 'png')
         return base64.b64encode(buffer.getvalue()).decode()
 
 def image_base64_mpl(im):
@@ -64,12 +64,12 @@ def image_base64_bokeh(im):
     with BytesIO() as buffer:
         im = get_screenshot_as_png(im)
         im = im.resize((width,height))
-        im.convert('RGB').save(buffer, 'jpeg')
+        im.convert('RGBA').save(buffer, 'png')
         return base64.b64encode(buffer.getvalue()).decode()
 
 
 
-format_string = '<img style="height: {height}px; width: {width}px" src="data:image/jpeg;base64,{img}">'
+format_string = '<img style="height: {height}px; width: {width}px" src="data:image/png;base64,{img}">'
 
 def image_formatter_mpl(im):
 
