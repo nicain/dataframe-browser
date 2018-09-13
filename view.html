@@ -44,13 +44,43 @@
         </script>
 
 
+
+
+  
+  
+ 
+
+
+
       <form class="form-inline">
-          <button type="submit" class="btn btn-primary mb-2">Submit:</button>
+        <div class="dropdown">
+          <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Dropdown
+          </button>
+          <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
+            <button class="dropdown-item" type="button">Action</button>
+            <button class="dropdown-item" type="button">Another action</button>
+            <button class="dropdown-item" type="button">Something else here</button>
+          </div>
+        </div>
+
+
+
           <div class="form-group mx-sm-3 mb-2">
-              <label for="inputPassword2" class="sr-only">Query</label>
-              <input type="text" class="form-control" id="inputPassword2" placeholder="Query">
+              <input type="text" class="form-control" id="query-input" placeholder="placeholder">
           </div>
       </form>
+
+      <script>
+          $(document).ready(function(){
+              $(".dropdown").on("hidden.bs.dropdown", function(event){
+                  var x = $(event.relatedTarget).text(); // Get the button text
+                  // alert("You clicked on: " + x);
+                  document.getElementById("query-input").align="right";
+                  document.getElementById("query-input").value = x;
+              });
+          });
+          </script>
 
       <!-- {{table|safe}} -->
 
