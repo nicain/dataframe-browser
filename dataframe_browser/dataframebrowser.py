@@ -4,6 +4,7 @@ import sys
 import logging
 from collections import OrderedDict
 import json
+import traceback
 import os
 import io
 import requests
@@ -191,9 +192,9 @@ class CompletionFinder(object):
         subparser_command_dict = {}
         for cmd, completion_finder in self.completion_finder_dict.items():
             if cmd == QUERY and self.controller.app.model.active is not None:
-                subparser_command_dict[cmd] = ['{0} {1}'.format(cmd, x) for x in self.controller.app.active.columns]
+                subparser_command_dict[cmd] = ['{0} {1}'.format(cmd, x) for x in self.controller.app.model.all_active_columns]
             elif cmd == ACTIVATE:
-                subparser_command_dict[cmd] = ['{0} {1}'.format(cmd, x) for x in self.controller.app.model.names if x is not None]
+                subparser_command_dict[cmd] = ['{0} {1}'.format(cmd, x) for x in self.controller.app.model.bookmarks if x is not None]
             else:
                 tmp = startswith_text[len(cmd)+1:]
                 subparser_command_dict[cmd] = ['{0} {1}'.format(cmd, x) for x in get_argcompletion_matches(completion_finder, tmp)]
@@ -211,7 +212,12 @@ class CompletionFinder(object):
 
     def completer(self, startswith_text, state):
 
-        options = self.get_options(startswith_text)
+        try:
+            options = self.get_options(startswith_text)
+        except Exception as e:
+            traceback.print_exc()
+            sys.exit(1)
+
         if state < len(options):
             return options[state]
         else:
@@ -545,6 +551,10 @@ class Model(object):
         return sorted(set.intersection(*[set(node.columns) for node in self.active]))
 
     @property
+    def all_active_columns(self):
+        return sorted(set.union(*[set(node.columns) for node in self.active]))
+
+    @property
     def active(self):
         return self._active
 
@@ -662,9 +672,3 @@ if __name__ == "__main__":
 
 
     active = dfb.run(input=input)
-    print dfb.model.names
-
-    print type(active), active.name
-
-
-    # input.append('bookmark --rm this-branch')
