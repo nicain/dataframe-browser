@@ -63,6 +63,18 @@ bookmark_parser.add_argument('--rm', dest='remove', action='store_true')
 command_parser_dict = {OPEN:open_parser, QUERY:query_parser, BOOKMARK:bookmark_parser, ACTIVATE:activate_parser}
 main_parser.add_argument(COMMAND, choices=command_parser_dict.keys(), nargs='?')
 
+import time
+import functools
+
+def fn_timer(function):
+    @functools.wraps(function)
+    def function_timer(*args, **kwargs):
+        t0 = time.time()
+        result = function(*args, **kwargs)
+        t1 = time.time()
+        return result, t1-t0
+    return function_timer
+
 def one(x, exc_tp=TypeError):
     try:
         val, = x
@@ -97,14 +109,21 @@ def create_class_logger(cls, **kwargs):
 
 class DataFrameNode(object):
 
-    def __init__(self, df=None, metadata=None, load_time=None):
+    def __init__(self, df=None, metadata=None):
 
         # TODO?
         # https://www.kaggle.com/arjanso/reducing-dataframe-memory-size-by-65
         self.df = df
         self.metadata = metadata
 
-        self.load_time = load_time # TODO
+        self._load_time = None
+
+    def set_load_time(self, t):
+        self._load_time = t
+    
+    @property
+    def load_time(self):
+        return self._load_time
     
     @property
     def memory_usage(self):
@@ -267,6 +286,7 @@ class TextController(object):
         else:
             raise NotImplementedError(input)
 
+    @fn_timer
     def activate_command(self, **kwargs):
         self.logger.info(json.dumps({ACTIVATE:kwargs}, indent=4))
         name = one(kwargs['name'])
@@ -342,6 +362,7 @@ class TextController(object):
 
         self.input_list = self.parse_input_recursive(input)
 
+    @fn_timer
     def bookmark_command(self, **kwargs):
 
         name = one(kwargs.pop('name'))
@@ -357,7 +378,7 @@ class TextController(object):
         node.set_name(None)
         self.logger.info(json.dumps({'REMOVE_BOOKMARK':kwargs}, indent=4))
 
-
+    @fn_timer
     def open_command(self, **kwargs):
 
         quiet = kwargs.get('quiet', False)
@@ -365,7 +386,9 @@ class TextController(object):
         set_active = kwargs.get('set-active', True)
         new_node_list = []
         for file_name in kwargs.get('file_list', []):
-            new_node = self.load_new_df_from_file(file_name=file_name, quiet=quiet, set_active=False)
+            new_node, load_time = self.load_new_df_from_file(file_name=file_name, quiet=quiet, set_active=False)
+            new_node.set_load_time(load_time)
+            self.logger.info(json.dumps({'LOAD_TIME':load_time}, indent=4))
             if new_node is not None: new_node_list.append(new_node)
 
         for table in kwargs.get('table_list', []):
@@ -394,7 +417,7 @@ class TextController(object):
         self.app.model.active.info(buf=buffer, **kwargs)
         self.app.view.display_active_df_info(buffer)
 
-
+    @fn_timer
     def query_command(self, **kwargs):
 
         query_string = kwargs['query']
@@ -421,7 +444,8 @@ class TextController(object):
                 self.logger.info(json.dumps({'ADD_BOOKMARK':kwargs}, indent=4))
             else:
                 self.app.view.display_message(str(e), type='error')
-            
+
+    @fn_timer        
     def load_new_df_from_file(self, **kwargs):
 
         file_name = kwargs['file_name']
@@ -624,7 +648,7 @@ class DataFrameBrowser(object):
         while len(self.controller.input_list) > 0:
 
             curr_input, curr_input_kwargs = self.controller.input_list.pop(0)
-            curr_input(**curr_input_kwargs)      
+            _, execution_time = curr_input(**curr_input_kwargs)      
             if interactive == True:
                 self.controller.update()
 
