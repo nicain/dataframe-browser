@@ -34,7 +34,7 @@ from utilities import generate_uuid
 
 OPEN = 'open'
 QUERY = 'query'
-BOOKMARK = 'bookmark'
+BOOKMARK = 'set-bookmark'
 ACTIVATE = 'activate'
 COMMAND = 'cmd'
 main_parser = ArgumentParser(description='main_parser description', prog=DEFAULT_PROMPT.strip(), add_help=False)
@@ -421,7 +421,6 @@ class TextController(object):
                 self.logger.info(json.dumps({'ADD_BOOKMARK':kwargs}, indent=4))
             else:
                 self.app.view.display_message(str(e), type='error')
-                self.logger.error(json.dumps({'ADD_BOOKMARK':kwargs}, indent=4))
             
     def load_new_df_from_file(self, **kwargs):
 
