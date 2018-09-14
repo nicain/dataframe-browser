@@ -34,12 +34,6 @@ def multi():
         uuid_table_list = json.loads(request.json)
         data['active'] = uuid_table_list
 
-
-
-    # print data['active']
-    # for uuid, html in data['active']:
-    #     print uuid, html[:10]
-
     return render_template('multi.html', uuid_table_list=data['active'], header='')
 
 

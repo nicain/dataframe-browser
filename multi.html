@@ -84,7 +84,7 @@
               <div class="col-9">
                 <div class="card w-90">
 
-                {% for table_uuid, curr_table, page_length in uuid_table_list %}
+                {% for table_uuid, curr_table, page_length, active_name in uuid_table_list %}
 
                     <script type="text/javascript" class="init">
                         $(document).ready(function() {
@@ -94,7 +94,7 @@
                     </script>
 
                     <div class="card-body">
-                        <h5 class="card-title">Card title</h5>
+                        <h5 class="card-title">{{active_name}}</h5>
                         {{curr_table|safe}}
                     </div>
 

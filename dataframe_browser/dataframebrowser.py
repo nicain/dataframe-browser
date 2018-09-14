@@ -397,18 +397,18 @@ class TextController(object):
 
     def add_bookmark(self, **kwargs):
         
-        bookmark_name = kwargs['name']
-        msg = 'Bookmark added: {0}'.format(bookmark_name)
+        msg = 'Bookmark added: {0}'.format(kwargs['name'])
         try:
-            self.app.model.active.set_name(bookmark_name)
+            self.set_bookmark_to_current_active(**kwargs)
             self.app.view.display_message(msg, type='info')
+            self.app.view.display_active()
             self.logger.info(json.dumps({'ADD_BOOKMARK':kwargs}, indent=4))
         except BookmarkAlreadyExists as e:
 
             if kwargs.get('force', False):
-                self.app.model.remove_bookmark(bookmark_name)
-                self.app.model.active.set_name(bookmark_name)
+                self.set_bookmark_to_current_active(**kwargs)
                 self.app.view.display_message(msg, type='info')
+                self.app.view.display_active()
                 self.logger.info(json.dumps({'ADD_BOOKMARK':kwargs}, indent=4))
             else:
                 self.app.view.display_message(str(e), type='error')
@@ -487,7 +487,12 @@ class Model(object):
         self.app = kwargs['app']
         self.graph = nx.DiGraph()
         self._active = None
+        self._active_name = None
         self.bookmark_dict = {}
+
+    @property
+    def active_name(self):
+        return self._active_name
 
     @property
     def bookmarks(self):
@@ -506,6 +511,7 @@ class Model(object):
                 self.bookmark_dict[name] += self.active
         else:
             self.bookmark_dict[name] = [x for x in self.active]
+        self._active_name = name
         
     def _remove_node(self, node):
         self.graph.remove_node(node)
@@ -523,12 +529,13 @@ class Model(object):
 
         return new_node
 
-    def set_active(self, node_list):
+    def set_active(self, node_list, name=None):
         self.logger.info(json.dumps({'SET_ACTIVE':str(node_list)}, indent=4))
         self._active = [x for x in node_list]
+        self._active_name = name
     
     def activate_bookmark(self, name):
-        self.set_active(self.bookmark_dict[name])
+        self.set_active(self.bookmark_dict[name], name=name)
 
 
 
@@ -547,13 +554,24 @@ class ConsoleView(object):
 
         if 'page_length' not in kwargs:
             page_length = 5 if len(self.app.model.active) > 1 else 20
+
+        active_name_base = self.app.model.active_name if self.app.model.active is not None else ''
         uuid_table_list = []
-        for node in self.app.model.active:
+        for ni, node in enumerate(self.app.model.active):
+
+            if self.app.model.active_name is None:
+                active_name = ''
+            else:
+                if len(self.app.model.active) > 1:
+                    active_name = '{active_name} ({ni})'.format(active_name=self.app.model.active_name, ni=ni)
+                else:
+                    active_name = self.app.model.active_name
+
             table_html = node.to_html()
             table_html_bs = BeautifulSoup(table_html).table
             table_uuid = generate_uuid()
             table_html_bs['id'] = table_uuid
-            uuid_table_list.append((table_uuid, str(table_html_bs), page_length))
+            uuid_table_list.append((table_uuid, str(table_html_bs), page_length, active_name))
 
         response = requests.post('http://localhost:5000/multi', json=json.dumps(uuid_table_list))
         
