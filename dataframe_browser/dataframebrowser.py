@@ -45,6 +45,7 @@ open_parser.add_argument("-f", "--file", nargs='+', dest='file_list', type=str, 
 open_parser.add_argument("--uri", nargs=1, dest='uri', type=str)
 open_parser.add_argument("-q", "--quiet", dest='quiet', action='store_true')
 open_parser.add_argument("--table", nargs='+', dest='table_list', type=str, default=[])
+open_parser.add_argument("--bookmark", nargs='?', type=str)
 
 activate_parser = ArgumentParser(description='activate description', prog=DEFAULT_PROMPT.strip(), add_help=False)
 activate_parser.add_argument(nargs=1, dest='name', type=str)
@@ -95,13 +96,12 @@ def create_class_logger(cls, **kwargs):
 
 class DataFrameNode(object):
 
-    def __init__(self, df=None, metadata=None, name=None, load_time=None):
+    def __init__(self, df=None, metadata=None, load_time=None):
 
         # TODO?
         # https://www.kaggle.com/arjanso/reducing-dataframe-memory-size-by-65
         self.df = df
         self.metadata = metadata
-        self._name = name
 
         self.load_time = load_time # TODO
     
@@ -132,13 +132,6 @@ class DataFrameNode(object):
         with pd.option_context('display.max_rows', 11, 'display.max_columns', 10):
             return str(self.df)
     
-    @property
-    def name(self):
-        return self._name
-
-    def set_name(self, new_name):
-        self._name = new_name
-
     @property
     def columns(self):
         return [str(x) for x in self.df.columns]
@@ -247,7 +240,7 @@ class TextController(object):
         self.prompt = raw_input
 
     def input_mapper(self, input):
-    
+
         # No-op for this command; either requested help, or unrecognized
         if len(input) == 1 or (len(input) == 2 and input[1].get('help', None) == True):
             return (lambda : None, {})
@@ -362,22 +355,33 @@ class TextController(object):
     def open_command(self, **kwargs):
 
         quiet = kwargs.get('quiet', False)
-
+        bookmark = kwargs.get('bookmark', None)
+        set_active = kwargs.get('set-active', True)
+        new_node_list = []
         for file_name in kwargs.get('file_list', []):
-            self.load_new_df_from_file(file_name=file_name, quiet=quiet)
-
+            new_node = self.load_new_df_from_file(file_name=file_name, quiet=quiet, set_active=False)
+            new_node_list.append(new_node)
 
         for table in kwargs.get('table_list', []):
             uri = kwargs['uri'][0]
-            self.load_new_df_from_uri(table=table, uri=uri, quiet=quiet)
-            
+            new_node = self.load_new_df_from_uri(table=table, uri=uri, quiet=quiet, set_active=False)
+            new_node_list.append(new_node)
+        
+        if set_active:
+            self.set_active(new_node_list)
+            if bookmark is not None:
+                self.set_bookmark_to_current_active(name=bookmark)
+        
+    def set_bookmark_to_current_active(self, **kwargs):
+        self.app.model.set_bookmark_to_current_active(**kwargs)
 
     def load_new_df_from_uri(self, **kwargs):
         uri = kwargs['uri']
         table = kwargs['table']
         quiet = kwargs.get('quiet', False)
+        set_active = kwargs.get('set_active', True)
         df = pd.read_sql_table(table, uri)
-        self.add_dataframe(df, parent=None, quiet=quiet, metadata={'uri':uri, 'table':table})
+        return self.add_dataframe(df, parent=None, quiet=quiet, metadata={'uri':uri, 'table':table}, set_active=set_active)
 
     def display_active_df_info(self, **kwargs):
         buffer = io.StringIO()
@@ -417,6 +421,7 @@ class TextController(object):
 
         file_name = kwargs['file_name']
         quiet = kwargs.get('quiet', False)
+        set_active = kwargs.get('set_active', True)
 
         if not os.path.exists(file_name):
             self.app.view.display_message('Source not found: {0}\n'.format(file_name), type='error')
@@ -430,7 +435,7 @@ class TextController(object):
             self.app.view.display_message('File extension not in (csv/p): {0}\n'.format(file_name), type='error')
             return
 
-        self.add_dataframe(df, parent=None, quiet=quiet, metadata={'file_name':file_name})
+        return self.add_dataframe(df, parent=None, quiet=quiet, metadata={'file_name':file_name}, set_active=set_active)
 
 
     def add_dataframe(self, df, quiet=False, metadata=None, set_active=True, parent=None):
@@ -440,13 +445,14 @@ class TextController(object):
 
         new_node = self.app.model.add_dataframe(df=df, metadata=metadata, parent=parent)
         if set_active:
-            self.set_active(new_node)
+            self.set_active([new_node], quiet=quiet)
+
+        return new_node
+    def set_active(self, node_list, quiet=False):
+        self.logger.info(json.dumps({'SET_ACTIVE':str(node_list)}, indent=4))
+        self.app.model.set_active(node_list)
         if not quiet:
             self.app.view.display_active()
-
-    def set_active(self, node):
-        self.logger.info(json.dumps({'SET_ACTIVE':node.name}, indent=4))
-        self.app.model.set_active(node)
         
 
     def quit(self, **kwargs): 
@@ -484,33 +490,34 @@ class Model(object):
         self.app = kwargs['app']
         self.graph = nx.DiGraph()
         self._active = None
+        self.bookmark_dict = {}
 
     @property
-    def names(self):
-        return [x.name for x in self.graph.nodes()]
+    def bookmarks(self):
+        return self.bookmark_dict.keys()
 
-    def set_name(self, new_name):
-        one([x for x in self.graph.nodes() if x.name == new_name]).name = new_name
+    def set_bookmark_to_current_active(self, name=None, force=False, append=False):
+        assert name is not None
 
-    def get_nodes_by_name(self, name=None, name_list=None):
+        if name in self.bookmarks and not force==True:
+            raise BookmarkAlreadyExists()
 
-        if name_list is None:
-            name_list = []
-
-        if name is not None:
-            assert isinstance(name, str)
-            name_list += [name]
-
-        return [x for x in self.graph.nodes() if x.name in name_list]
-
+        if append == True:
+            if len(self.active) == 1:
+                self.bookmark_dict[name].append(one(self.active))
+            else: 
+                self.bookmark_dict[name] += self.active
+        else:
+            self.bookmark_dict[name] = [x for x in self.active]
         
-    def remove_node(self, node):
+    def _remove_node(self, node):
         self.graph.remove_node(node)
 
-    def add_dataframe(self, df=None, metadata=None, name=None, parent=None):
+    def add_dataframe(self, df=None, metadata=None, parent=None):
         if metadata is None:
             metadata = {}
-        new_node = DataFrameNode(df=df, metadata=metadata, name=name)
+
+        new_node = DataFrameNode(df=df, metadata=metadata)
 
         self.graph.add_node(new_node)
 
@@ -519,15 +526,13 @@ class Model(object):
 
         return new_node
 
-    def set_active(self, node_or_node_list):
-        node_type_list = (DataFrameNode,)
-        if isinstance(node_or_node_list, (set, list)):
-            for x in node_or_node_list:
-                assert isinstance(x, node_type_list)
-        else:
-            assert isinstance(node_or_node_list, node_type_list)
+    def set_active(self, node_list):
+        self.logger.info(json.dumps({'SET_ACTIVE':str(node_list)}, indent=4))
+        self._active = [x for x in node_list]
+    
+    def activate_bookmark(self, name):
+        self.set_active(self.bookmark_dict[name])
 
-        self._active = node_or_node_list
 
 
     @property
@@ -542,9 +547,16 @@ class ConsoleView(object):
         self.app = kwargs['app']
 
     def display_active(self, **kwargs):
-        response = requests.post('http://localhost:5000/active', data={'table_id':"example", 'header':'', 'data':self.app.model.active.to_html()})
-        self.logger.info(json.dumps({'DISPLAY_ACTIVE':{'response':str(response)}}, indent=4))
+
+        active_node_list = self.app.model.active
+        if len(active_node_list) == 1:
+            curr_node = one(active_node_list)
+            response = requests.post('http://localhost:5000/active', data={'table_id':"example", 'header':'', 'data':curr_node.to_html()})
+        else:
+            curr_node = active_node_list[0]
+            response = requests.post('http://localhost:5000/active', data={'table_id':"example", 'header':'', 'data':curr_node.to_html()})
         self.display_message(str(self.app.model.active), **kwargs)
+        self.logger.info(json.dumps({'DISPLAY_ACTIVE':{'response':str(response)}}, indent=4))
 
     def display_active_df_info(self, buffer):
         self.display_message(buffer.getvalue())
@@ -571,11 +583,12 @@ class DataFrameBrowser(object):
     def run_hard_exit(self, input=[''], interactive=True):
 
         self.controller.initialize_input(input)
-        while len(self.controller.input_list) > 0 and interactive==True:
+        while len(self.controller.input_list) > 0:
 
             curr_input, curr_input_kwargs = self.controller.input_list.pop(0)
-            curr_input(**curr_input_kwargs)            
-            self.controller.update()
+            curr_input(**curr_input_kwargs)      
+            if interactive == True:
+                self.controller.update()
 
 
 
