@@ -113,10 +113,13 @@ class DataFrameNode(object):
     def table(self):
         return self.df
 
-    def to_html(self):
+    def to_html(self, columns=None):
+
+        if columns is None:
+            columns = self.df.columns
         
         table_class = "display"
-        table_html = self.df.to_html(classes=[table_class], index=False)
+        table_html = self.df[columns].to_html(classes=[table_class], index=False)
         table_html_bs = table_html_bs = BeautifulSoup(table_html).table
         style = parseStyle(table_html_bs.thead.tr['style'])
         style['text-align'] = 'center'
@@ -537,7 +540,9 @@ class Model(object):
     def activate_bookmark(self, name):
         self.set_active(self.bookmark_dict[name], name=name)
 
-
+    @property
+    def common_active_columns(self):
+        return sorted(set.intersection(*[set(node.columns) for node in self.active]))
 
     @property
     def active(self):
@@ -570,7 +575,8 @@ class ConsoleView(object):
                     else:
                         active_name = self.app.model.active_name
 
-                table_html = node.to_html()
+                common_col_list = self.app.model.common_active_columns
+                table_html = node.to_html(columns=common_col_list + [c for c in node.columns if c not in common_col_list])
                 table_html_bs = BeautifulSoup(table_html).table
                 table_uuid = generate_uuid()
                 table_html_bs['id'] = table_uuid
