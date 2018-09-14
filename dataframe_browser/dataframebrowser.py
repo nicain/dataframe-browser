@@ -111,7 +111,9 @@ class DataFrameNode(object):
         return self.df.to_html(*args, **kwargs)
 
     def __str__(self):
-        return str(self.df)
+
+        with pd.option_context('display.max_rows', 11, 'display.max_columns', 10):
+            return str(self.df)
     
     @property
     def name(self):
@@ -119,6 +121,10 @@ class DataFrameNode(object):
 
     def set_name(self, new_name):
         self._name = new_name
+
+    @property
+    def columns(self):
+        return [str(x) for x in self.df.columns]
 
     
 
@@ -174,11 +180,10 @@ class CompletionFinder(object):
 
         subparser_command_dict = {}
         for cmd, completion_finder in self.completion_finder_dict.items():
-            if cmd == QUERY and self.controller.app.active is not None:
-                print ['{0} {1}'.format(cmd, x) for x in self.controller.app.active.columns]
+            if cmd == QUERY and self.controller.app.model.active is not None:
                 subparser_command_dict[cmd] = ['{0} {1}'.format(cmd, x) for x in self.controller.app.active.columns]
             elif cmd == ACTIVATE:
-                subparser_command_dict[cmd] = ['{0} {1}'.format(cmd, x) for x in self.controller.app.model.names]
+                subparser_command_dict[cmd] = ['{0} {1}'.format(cmd, x) for x in self.controller.app.model.names if x is not None]
             else:
                 tmp = startswith_text[len(cmd)+1:]
                 subparser_command_dict[cmd] = ['{0} {1}'.format(cmd, x) for x in get_argcompletion_matches(completion_finder, tmp)]
@@ -423,6 +428,7 @@ class TextController(object):
             self.app.view.display_active()
 
     def set_active(self, node):
+        self.logger.info(json.dumps({'SET_ACTIVE':node.name}, indent=4))
         self.app.model.set_active(node)
         
 
@@ -565,7 +571,7 @@ class DataFrameBrowser(object):
         try:
             self.run_hard_exit(*args, **kwargs)
         except SystemExit as e:
-            return self.model.active
+            return self
 
     @property
     def active(self):
