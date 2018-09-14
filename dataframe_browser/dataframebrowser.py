@@ -545,13 +545,15 @@ class ConsoleView(object):
 
     def display_active(self, **kwargs):
 
+        if 'page_length' not in kwargs:
+            page_length = 5 if len(self.app.model.active) > 1 else 20
         uuid_table_list = []
         for node in self.app.model.active:
             table_html = node.to_html()
             table_html_bs = BeautifulSoup(table_html).table
             table_uuid = generate_uuid()
             table_html_bs['id'] = table_uuid
-            uuid_table_list.append((table_uuid, str(table_html_bs)))
+            uuid_table_list.append((table_uuid, str(table_html_bs), page_length))
 
         response = requests.post('http://localhost:5000/multi', json=json.dumps(uuid_table_list))
         

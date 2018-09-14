@@ -84,11 +84,12 @@
               <div class="col-9">
                 <div class="card w-90">
 
-                {% for table_uuid, curr_table in uuid_table_list %}
+                {% for table_uuid, curr_table, page_length in uuid_table_list %}
 
                     <script type="text/javascript" class="init">
                         $(document).ready(function() {
-                        $('#{{table_uuid}}').DataTable();
+                        $('#{{table_uuid}}').DataTable({"pageLength": {{page_length}}});
+                        // $('#example').dataTable(  );
                         } );
                     </script>
 
