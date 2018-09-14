@@ -357,12 +357,12 @@ class TextController(object):
         new_node_list = []
         for file_name in kwargs.get('file_list', []):
             new_node = self.load_new_df_from_file(file_name=file_name, quiet=quiet, set_active=False)
-            new_node_list.append(new_node)
+            if new_node is not None: new_node_list.append(new_node)
 
         for table in kwargs.get('table_list', []):
             uri = kwargs['uri'][0]
             new_node = self.load_new_df_from_uri(table=table, uri=uri, quiet=quiet, set_active=False)
-            new_node_list.append(new_node)
+            if new_node is not None: new_node_list.append(new_node)
         
         if set_active:
             self.set_active(new_node_list)
@@ -552,42 +552,32 @@ class ConsoleView(object):
 
     def display_active(self, **kwargs):
 
-        if 'page_length' not in kwargs:
-            page_length = 5 if len(self.app.model.active) > 1 else 20
+        if len(self.app.model.active) <= 1:
+            response = requests.post('http://localhost:5000/multi', json=json.dumps([]))
 
-        active_name_base = self.app.model.active_name if self.app.model.active is not None else ''
-        uuid_table_list = []
-        for ni, node in enumerate(self.app.model.active):
+        else:
+            if 'page_length' not in kwargs:
+                page_length = 5 if len(self.app.model.active) > 1 else 20
 
-            if self.app.model.active_name is None:
-                active_name = ''
-            else:
-                if len(self.app.model.active) > 1:
-                    active_name = '{active_name} ({ni})'.format(active_name=self.app.model.active_name, ni=ni)
+            uuid_table_list = []
+            for ni, node in enumerate(self.app.model.active):
+
+                if self.app.model.active_name is None:
+                    active_name = ''
                 else:
-                    active_name = self.app.model.active_name
+                    if len(self.app.model.active) > 1:
+                        active_name = '{active_name} ({ni})'.format(active_name=self.app.model.active_name, ni=ni)
+                    else:
+                        active_name = self.app.model.active_name
 
-            table_html = node.to_html()
-            table_html_bs = BeautifulSoup(table_html).table
-            table_uuid = generate_uuid()
-            table_html_bs['id'] = table_uuid
-            uuid_table_list.append((table_uuid, str(table_html_bs), page_length, active_name))
+                table_html = node.to_html()
+                table_html_bs = BeautifulSoup(table_html).table
+                table_uuid = generate_uuid()
+                table_html_bs['id'] = table_uuid
+                uuid_table_list.append((table_uuid, str(table_html_bs), page_length, active_name))
 
-        response = requests.post('http://localhost:5000/multi', json=json.dumps(uuid_table_list))
-        
-        # if len(active_node_list) == 1:
-
-        
-        
-        
-
-            # curr_uuid,  = 
-            # data = {generate_uuid(): for curr_node in active_node_list}
+            response = requests.post('http://localhost:5000/multi', json=json.dumps(uuid_table_list))
             
-        # else:
-        #     raise
-            # curr_node = active_node_list[0]
-            # response = requests.post('http://localhost:5000/multi', data={'header':'', 'data':curr_node.to_html()})
         self.display_message(str(self.app.model.active), **kwargs)
         self.logger.info(json.dumps({'DISPLAY_ACTIVE':{'response':str(response)}}, indent=4))
 
