@@ -298,6 +298,16 @@ class TextController(object):
     def info_command(self, **kwargs):
         self.logger.info(json.dumps({INFO:kwargs}, indent=4))
         
+        verbose_mode = kwargs.pop('verbose', False)
+
+        if kwargs.pop('bookmark_info'):
+            for name in self.app.model.bookmarks:
+                print name
+
+        # Makes sure I implemented everything
+        assert len(kwargs) == 0
+        print 'OKOKOK'
+
 
     @fn_timer
     def activate_command(self, **kwargs):
@@ -661,7 +671,11 @@ class DataFrameBrowser(object):
         while len(self.controller.input_list) > 0:
 
             curr_input, curr_input_kwargs = self.controller.input_list.pop(0)
-            _, execution_time = curr_input(**curr_input_kwargs)      
+            res = curr_input(**curr_input_kwargs)      
+            
+            if res is not None:
+                res, exec_time = res
+
             if interactive == True:
                 self.controller.update()
 
@@ -678,6 +692,10 @@ class DataFrameBrowser(object):
     @property
     def active(self):
         return self.model.active
+
+    def info(self, **kwargs):
+        info, exec_time = self.controller.info_command(**kwargs)
+        return info
 
 
     
