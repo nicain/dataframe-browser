@@ -37,6 +37,8 @@ QUERY = 'query'
 BOOKMARK = 'set-bookmark'
 ACTIVATE = 'activate'
 COMMAND = 'cmd'
+INFO = 'info'
+
 main_parser = ArgumentParser(description='main_parser description', prog=DEFAULT_PROMPT.strip(), add_help=False)
 main_parser.add_argument('--help', '-h', action=HelpAction, help='show this help message')
 
@@ -54,13 +56,18 @@ activate_parser.add_argument(nargs=1, dest='name', type=str)
 query_parser = ArgumentParser(description='query description', prog=DEFAULT_PROMPT.strip(), add_help=False)
 query_parser.add_argument(nargs='*', dest='remainder_list', type=str)
 
-bookmark_parser = ArgumentParser(description='Bookmark description', prog=DEFAULT_PROMPT.strip(), add_help=False)
+bookmark_parser = ArgumentParser(description='set-bookmark description', prog=DEFAULT_PROMPT.strip(), add_help=False)
 bookmark_parser.add_argument('--help', '-h', action=HelpAction, help='show this help message')
 bookmark_parser.add_argument('name', nargs=1, type=str)
 bookmark_parser.add_argument('-f', '--force', dest='force', action='store_true')
 bookmark_parser.add_argument('--rm', dest='remove', action='store_true')
 
-command_parser_dict = {OPEN:open_parser, QUERY:query_parser, BOOKMARK:bookmark_parser, ACTIVATE:activate_parser}
+info_parser = ArgumentParser(description='info description', prog=DEFAULT_PROMPT.strip(), add_help=False)
+info_parser.add_argument('--help', '-h', action=HelpAction, help='show this help message')
+info_parser.add_argument('-b', dest='bookmark_info', action='store_true', help='List current bookmarks')
+info_parser.add_argument('-v', dest='verbose', action='store_true', help='verbose mode')
+
+command_parser_dict = {OPEN:open_parser, QUERY:query_parser, BOOKMARK:bookmark_parser, ACTIVATE:activate_parser, INFO:info_parser}
 main_parser.add_argument(COMMAND, choices=command_parser_dict.keys(), nargs='?')
 
 import time
@@ -250,7 +257,6 @@ class TextController(object):
         self.logger = create_class_logger(self.__class__, **kwargs.get('logging_settings', {}))
 
         self.app = kwargs['app']
-        self.QUIT_VALS = kwargs.get('QUIT_VALS', ['exit()'])
         self.DEFAULT_PROMPT = kwargs.get('DEFAULT_PROMPT', DEFAULT_PROMPT)
 
         self.sep = COMMAND_SEP_CHAR
@@ -270,9 +276,9 @@ class TextController(object):
         if len(input) == 1 or (len(input) == 2 and input[1].get('help', None) == True):
             return (lambda : None, {})
 
-        if input in self.QUIT_VALS: 
-            fcn, kwargs = self.quit, {}
-        elif OPEN in input[1]:
+        # TODO: reorganize query, so that this becomes a loop
+
+        if OPEN in input[1]:
             return self.open_command, input[1][OPEN]
         elif QUERY in input[1]:
             query = ' '.join(input[1][QUERY]['remainder_list'])
@@ -281,10 +287,17 @@ class TextController(object):
             return self.bookmark_command, input[1][BOOKMARK]
         elif ACTIVATE in input[1]:
             return self.activate_command, input[1][ACTIVATE]
+        elif INFO in input[1]:
+            return self.info_command, input[1][INFO]
 
 
         else:
             raise NotImplementedError(input)
+
+    @fn_timer
+    def info_command(self, **kwargs):
+        self.logger.info(json.dumps({INFO:kwargs}, indent=4))
+        
 
     @fn_timer
     def activate_command(self, **kwargs):
