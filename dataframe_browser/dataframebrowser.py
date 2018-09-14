@@ -174,13 +174,14 @@ class CompletionFinder(object):
 
         subparser_command_dict = {}
         for cmd, completion_finder in self.completion_finder_dict.items():
-            if cmd == QUERY:
-                pass
+            if cmd == QUERY and self.controller.app.active is not None:
+                print ['{0} {1}'.format(cmd, x) for x in self.controller.app.active.columns]
+                subparser_command_dict[cmd] = ['{0} {1}'.format(cmd, x) for x in self.controller.app.active.columns]
+            elif cmd == ACTIVATE:
+                subparser_command_dict[cmd] = ['{0} {1}'.format(cmd, x) for x in self.controller.app.model.names]
             else:
                 tmp = startswith_text[len(cmd)+1:]
                 subparser_command_dict[cmd] = ['{0} {1}'.format(cmd, x) for x in get_argcompletion_matches(completion_finder, tmp)]
-        
-
 
         ## INSERT CUSTOM MODIFICATION HERE: (START)
 
