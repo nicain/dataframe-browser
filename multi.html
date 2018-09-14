@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <!-- jQuery library integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>  -->
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+
+        
+        <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+        <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
+
+
+
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <link
+            href="https://cdn.pydata.org/bokeh/release/bokeh-0.13.0.min.css"
+            rel="stylesheet" type="text/css">
+        <link
+            href="https://cdn.pydata.org/bokeh/release/bokeh-widgets-0.13.0.min.css"
+            rel="stylesheet" type="text/css">
+        <link
+            href="https://cdn.pydata.org/bokeh/release/bokeh-tables-0.13.0.min.css"
+            rel="stylesheet" type="text/css">
+
+        <script src="https://cdn.pydata.org/bokeh/release/bokeh-0.13.0.min.js"></script>
+        <script src="https://cdn.pydata.org/bokeh/release/bokeh-widgets-0.13.0.min.js"></script>
+        <script src="https://cdn.pydata.org/bokeh/release/bokeh-tables-0.13.0.min.js"></script>
+
+        {{header|safe}}
+
+        <title>Simple tables</title>
+    </head>
+    <body>
+
+
+
+
+  
+  
+ 
+
+
+
+      <form class="form-inline">
+        <div class="dropdown">
+          <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Dropdown
+          </button>
+          <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
+            <button class="dropdown-item" type="button">Action</button>
+            <button class="dropdown-item" type="button">Another action</button>
+            <button class="dropdown-item" type="button">Something else here</button>
+          </div>
+        </div>
+          <div class="form-group mx-sm-3 mb-2">
+              <input type="text" class="form-control" id="query-input" placeholder="placeholder">
+          </div>
+      </form>
+      <script>
+          $(document).ready(function(){
+              $(".dropdown").on("hidden.bs.dropdown", function(event){
+                  var x = $(event.relatedTarget).text(); // Get the button text
+                  // alert("You clicked on: " + x);
+                  document.getElementById("query-input").align="right";
+                  document.getElementById("query-input").value = x;
+              });
+          });
+          </script>
+
+
+
+
+
+
+      <div class="bd-example bd-example-tabs">
+          <div class="row">
+
+
+              <div class="col-9">
+                <div class="card w-90">
+
+                {% for table_uuid, curr_table in uuid_table_list %}
+
+                    <script type="text/javascript" class="init">
+                        $(document).ready(function() {
+                        $('#{{table_uuid}}').DataTable();
+                        } );
+                    </script>
+
+                    <div class="card-body">
+                        <h5 class="card-title">Card title</h5>
+                        {{curr_table|safe}}
+                    </div>
+
+                {% endfor %}
+
+
+
+                </div>
+              </div>
+              
+          </div>
+      </div>
+
+
+    </body>
+</html>

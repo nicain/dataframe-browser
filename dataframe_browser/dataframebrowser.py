@@ -117,10 +117,7 @@ class DataFrameNode(object):
         
         table_class = "display"
         table_html = self.df.to_html(classes=[table_class], index=False)
-
-        table_id = "example"
-        table_html_bs = BeautifulSoup(table_html).table
-        table_html_bs['id'] = table_id
+        table_html_bs = table_html_bs = BeautifulSoup(table_html).table
         style = parseStyle(table_html_bs.thead.tr['style'])
         style['text-align'] = 'center'
         table_html_bs.thead.tr['style'] = style.cssText
@@ -428,7 +425,7 @@ class TextController(object):
             return
 
         if file_name[-4:] == '.csv':
-            df = pd.read_csv(file_name)
+            df = pd.read_csv(file_name, index_col=kwargs.get('index_col', 0))
         elif file_name[-2:] == '.p':
             df = pd.read_pickle(file_name)
         else:
@@ -548,13 +545,29 @@ class ConsoleView(object):
 
     def display_active(self, **kwargs):
 
-        active_node_list = self.app.model.active
-        if len(active_node_list) == 1:
-            curr_node = one(active_node_list)
-            response = requests.post('http://localhost:5000/active', data={'table_id':"example", 'header':'', 'data':curr_node.to_html()})
-        else:
-            curr_node = active_node_list[0]
-            response = requests.post('http://localhost:5000/active', data={'table_id':"example", 'header':'', 'data':curr_node.to_html()})
+        uuid_table_list = []
+        for node in self.app.model.active:
+            table_html = node.to_html()
+            table_html_bs = BeautifulSoup(table_html).table
+            table_uuid = generate_uuid()
+            table_html_bs['id'] = table_uuid
+            uuid_table_list.append((table_uuid, str(table_html_bs)))
+
+        response = requests.post('http://localhost:5000/multi', json=json.dumps(uuid_table_list))
+        
+        # if len(active_node_list) == 1:
+
+        
+        
+        
+
+            # curr_uuid,  = 
+            # data = {generate_uuid(): for curr_node in active_node_list}
+            
+        # else:
+        #     raise
+            # curr_node = active_node_list[0]
+            # response = requests.post('http://localhost:5000/multi', data={'header':'', 'data':curr_node.to_html()})
         self.display_message(str(self.app.model.active), **kwargs)
         self.logger.info(json.dumps({'DISPLAY_ACTIVE':{'response':str(response)}}, indent=4))
 
