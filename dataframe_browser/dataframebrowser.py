@@ -15,6 +15,12 @@ import atexit
 import itertools
 from future.utils import raise_from
 
+from cssutils import parseStyle
+from bs4 import BeautifulSoup as BeautifulSoupPre
+def BeautifulSoup(*args, **kwargs):
+    kwargs.setdefault('features', 'lxml')
+    return BeautifulSoupPre(*args, **kwargs)
+
 
 DEFAULT_PROMPT = 'df> '
 COMMAND_SEP_CHAR = ';'
@@ -107,8 +113,19 @@ class DataFrameNode(object):
     def table(self):
         return self.df
 
-    def to_html(self, *args, **kwargs):
-        return self.df.to_html(*args, **kwargs)
+    def to_html(self):
+        
+        table_class = "display"
+        table_html = self.df.to_html(classes=[table_class], index=False)
+
+        table_id = "example"
+        table_html_bs = BeautifulSoup(table_html).table
+        table_html_bs['id'] = table_id
+        style = parseStyle(table_html_bs.thead.tr['style'])
+        style['text-align'] = 'center'
+        table_html_bs.thead.tr['style'] = style.cssText
+
+        return str(table_html_bs)
 
     def __str__(self):
 
@@ -475,10 +492,6 @@ class Model(object):
     def set_name(self, new_name):
         one([x for x in self.graph.nodes() if x.name == new_name]).name = new_name
 
-    # def remove_node_by_name(self, name):
-
-    #     node_to_remove = one([x for x in self.graph.nodes() if x.name == name])
-
     def get_nodes_by_name(self, name=None, name_list=None):
 
         if name_list is None:
@@ -529,7 +542,8 @@ class ConsoleView(object):
         self.app = kwargs['app']
 
     def display_active(self, **kwargs):
-        requests.post('http://localhost:5000/active', data={'header':[], 'data':self.app.model.active.to_html()})
+        response = requests.post('http://localhost:5000/active', data={'table_id':"example", 'header':'', 'data':self.app.model.active.to_html()})
+        self.logger.info(json.dumps({'DISPLAY_ACTIVE':{'response':str(response)}}, indent=4))
         self.display_message(str(self.app.model.active), **kwargs)
 
     def display_active_df_info(self, buffer):
