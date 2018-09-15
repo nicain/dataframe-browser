@@ -12,6 +12,7 @@ import warnings
 import readline
 import shlex
 import argcomplete
+import re
 import atexit
 import itertools
 from future.utils import raise_from
@@ -35,7 +36,7 @@ from utilities import generate_uuid
 OPEN = 'open'
 QUERY = 'query'
 BOOKMARK = 'set-bookmark'
-ACTIVATE = 'activate'
+ACTIVATE = 'select'
 COMMAND = 'cmd'
 INFO = 'info'
 
@@ -64,8 +65,8 @@ bookmark_parser.add_argument('--rm', dest='remove', action='store_true')
 
 info_parser = ArgumentParser(description='info description', prog=DEFAULT_PROMPT.strip(), add_help=False)
 info_parser.add_argument('--help', '-h', action=HelpAction, help='show this help message')
-info_parser.add_argument('-b', dest='bookmark_info', action='store_true', help='List current bookmarks')
-info_parser.add_argument('-v', dest='verbose', action='store_true', help='verbose mode')
+# info_parser.add_argument('-b', dest='bookmark_info', action='store_true', help='List current bookmarks')
+# info_parser.add_argument('-v', dest='verbose', action='store_true', help='verbose mode')
 
 command_parser_dict = {OPEN:open_parser, QUERY:query_parser, BOOKMARK:bookmark_parser, ACTIVATE:activate_parser, INFO:info_parser}
 main_parser.add_argument(COMMAND, choices=command_parser_dict.keys(), nargs='?')
@@ -227,7 +228,15 @@ class CompletionFinder(object):
                 subparser_command_dict[cmd] = ['{0} {1}'.format(cmd, x) for x in get_argcompletion_matches(completion_finder, tmp)]
 
         ## INSERT CUSTOM MODIFICATION HERE: (START)
+        # print
+        # print startswith_text, subparser_command_dict[ACTIVATE]
 
+        # Add ACTIVATE option for iith elemend 
+        tmp = []
+        for key, val in self.controller.app.model.bookmark_dict.items():
+            tmp += ['{cmd} {subcmd}[{ii}]'.format(cmd=ACTIVATE, subcmd=key, ii=ii) for ii in range(len(val)) if  startswith_text[:len('{cmd} {subcmd}'.format(cmd=ACTIVATE, subcmd=key))] == '{cmd} {subcmd}'.format(cmd=ACTIVATE, subcmd=key)]
+        subparser_command_dict[ACTIVATE] += tmp
+                        
         ## INSERT CUSTOM MODIFICATION HERE: (END)
 
         subparser_commands = []
@@ -235,6 +244,12 @@ class CompletionFinder(object):
             subparser_commands += command_list
 
         all_option_list = [i for i in ['help']+subparser_commands+main_commands if i.startswith(startswith_text)]
+
+        # print 
+        # print startswith_text, subparser_command_dict[ACTIVATE], all_option_list
+        # print
+
+
         return all_option_list
 
     def completer(self, startswith_text, state):
@@ -299,32 +314,61 @@ class TextController(object):
     def info_command(self, **kwargs):
         self.logger.info(json.dumps({INFO:kwargs}, indent=4))
         
-        verbose_mode = kwargs.pop('verbose', False)
+        print 'Bookmarked groups: ("*" means currently active)'
+        for name in self.app.model.bookmarks:
+            print '{name}{active} ({num_df})'.format(name=name, active='*' if name == self.app.model.active_name else '', num_df=len(self.app.model.bookmark_dict[name]))
 
-        # Print information about bookmarks:
-        if kwargs.pop('bookmark_info'):
-            print 'Bookmarks:'
-            for name in self.app.model.bookmarks:
-                if verbose_mode:
-                    for ii, node in enumerate(self.app.model.bookmark_dict[name]):
-                        name_str = '{name}{active}[{ii}]'.format(name=name, active='*' if name == self.app.model.active_name else '', ii=ii)
-                        info_df = node.describe(include='all')
-                        info_df.index.rename(name_str, inplace=True)
-                        print info_df
-                else:
-                    name_str = '{name}{active} ({num_df})'.format(name=name, active='*' if name == self.app.model.active_name else '', num_df=len(self.app.model.bookmark_dict[name]))
-                    print name_str
-                # print 'hello', name
+
+        print '\nActive group: (<anon> if not bookmarked)'
+
+        if self.app.model.active_name in self.app.model.bookmarks:
+            name_prefix = self.app.model.active_name
+        else:
+            name_prefix = '<anon>'
+
+        if len(self.app.model.active) == 1:
+            print one(self.app.model.active).describe(include='all')
+        else:
+            describe_df_list = [x.describe(include='all') for x in self.app.model.active]
+            [df.index.rename('{name_prefix}[{ii}]'.format(name_prefix=name_prefix, ii=ii), inplace=True) for ii, df in enumerate(describe_df_list)]
+            zipped_row_list = zip(*[str(x).split('\n') for x in describe_df_list])
+            print '\n'.join(['  |  '.join(row) for row in zipped_row_list])
+
+        # # Print information about bookmarks:
+        # if kwargs.pop('bookmark_info'):
+        #     print 'Bookmarks:'
+        #     for name in self.app.model.bookmarks:
+        #         if verbose_mode:
+        #             for ii, node in enumerate(self.app.model.bookmark_dict[name]):
+        #                 name_str = '{name}{active}[{ii}]'.format(name=name, active='*' if name == self.app.model.active_name else '', ii=ii)
+        #                 info_df = node.describe(include='all')
+        #                 info_df.index.rename(name_str, inplace=True)
+        #                 print info_df
+        #         else:
+        #             name_str = '{name}{active} ({num_df})'.format(name=name, active='*' if name == self.app.model.active_name else '', num_df=len(self.app.model.bookmark_dict[name]))
+        #             print name_str
+        #         # print 'hello', name
 
         # Makes sure I implemented everything
-        assert len(kwargs) == 0
+        # assert len(kwargs) == 0
 
     @fn_timer
     def activate_command(self, **kwargs):
         self.logger.info(json.dumps({ACTIVATE:kwargs}, indent=4))
-        name = one(kwargs['name'])
-        node = one(self.app.model.get_nodes_by_name(name=name))
-        self.set_active(node)
+        name_pre = one(kwargs['name'])
+        split_name = re.split("\[[0-9]+[0-9]*\]$", name_pre)
+        if len(split_name) == 1:
+            full_name = one(split_name)
+            node_list = self.app.model.bookmark_dict[full_name]
+        else:
+            assert len(split_name) == 2
+            assert len(split_name[1]) == 0
+            part_name = split_name[0]
+            idx = int(name_pre.replace(part_name,'')[1:-1])
+            node_list = [self.app.model.bookmark_dict[part_name][idx]]
+            full_name = '{part_name}[{idx}]'.format(part_name=part_name, idx=idx)
+        
+        self.set_active(node_list, name=full_name)
 
     def parse_single_command(self, command, parser=main_parser):
         split_command = shlex.split(command)
@@ -511,9 +555,11 @@ class TextController(object):
             self.set_active([new_node], quiet=quiet)
 
         return new_node
-    def set_active(self, node_list, quiet=False):
+
+    def set_active(self, node_list, quiet=False, name=None):
+
         self.logger.info(json.dumps({'SET_ACTIVE':str(node_list)}, indent=4))
-        self.app.model.set_active(node_list)
+        self.app.model.set_active(node_list, name=name)
         if not quiet:
             self.app.view.display_active()
         
@@ -624,7 +670,7 @@ class ConsoleView(object):
 
     def display_active(self, **kwargs):
 
-        if len(self.app.model.active) <= 1:
+        if len(self.app.model.active) < 1:
             response = requests.post('http://localhost:5000/multi', json=json.dumps([]))
 
         else:
@@ -650,8 +696,6 @@ class ConsoleView(object):
                 uuid_table_list.append((table_uuid, str(table_html_bs), page_length, active_name))
 
             response = requests.post('http://localhost:5000/multi', json=json.dumps(uuid_table_list))
-            
-        self.display_message(str(self.app.model.active), **kwargs)
         self.logger.info(json.dumps({'DISPLAY_ACTIVE':{'response':str(response)}}, indent=4))
 
     def display_active_df_info(self, buffer):
