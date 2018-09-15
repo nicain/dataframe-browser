@@ -333,16 +333,17 @@ class TextController(object):
         else:
             name_prefix = '<anon>'.format(anon=ANON_DEFAULT)
 
-        if len(self.app.model.active) == 1:
-            describe_df = one(self.app.model.active).describe(include='all')
-            describe_df.columns.name = '{name_prefix}'.format(name_prefix=name_prefix)
-            print describe_df
-        else:
-            describe_df_list = [x.describe(include='all') for x in self.app.model.active]
-            for ii, df in enumerate(describe_df_list):
-                df.columns.name = '{name_prefix}[{ii}]'.format(name_prefix=name_prefix, ii=ii)
-            zipped_row_list = zip(*[str(x).split('\n') for x in describe_df_list])
-            print '\n'.join(['  |  '.join(row) for row in zipped_row_list])
+        if self.app.model.active is not None:
+            if len(self.app.model.active) == 1:
+                describe_df = one(self.app.model.active).describe(include='all')
+                describe_df.columns.name = '{name_prefix}'.format(name_prefix=name_prefix)
+                print describe_df
+            else:
+                describe_df_list = [x.describe(include='all') for x in self.app.model.active]
+                for ii, df in enumerate(describe_df_list):
+                    df.columns.name = '{name_prefix}[{ii}]'.format(name_prefix=name_prefix, ii=ii)
+                zipped_row_list = zip(*[str(x).split('\n') for x in describe_df_list])
+                print '\n'.join(['  |  '.join(row) for row in zipped_row_list])
 
         # # Print information about bookmarks:
         # if kwargs.pop('bookmark_info'):
@@ -624,9 +625,7 @@ class Model(object):
         return self.bookmark_dict.keys()
 
     def set_bookmark_to_current_active(self, name=None, force=False, append=False):
-        
-        if name is None:
-            name = self._active_name
+        assert name is not None
 
         if name in self.bookmarks and not force==True:
             raise BookmarkAlreadyExists()
@@ -737,18 +736,24 @@ class DataFrameBrowser(object):
         if 'df' in kwargs:
             
             node_list = []
-            group_name = kwargs.get('group_name', None)
+            bookmark = kwargs.get('bookmark', None)
             if isinstance(kwargs['df'], (tuple, list)):
                 for df in kwargs['df'][::-1]:
                     node = self.controller.add_dataframe(df, set_active=False)
                     node_list.append(node)
+                self.controller.set_active(node_list)
+                if bookmark is not None:
+                    self.controller.set_bookmark_to_current_active(name=bookmark)
 
             elif isinstance(kwargs['df'], (pd.DataFrame)):
                 node = self.controller.add_dataframe(kwargs['df'], set_active=False)
-                node_list.append(node)
+                self.controller.set_active([node])
+                if bookmark is not None:
+                    self.controller.set_bookmark_to_current_active(name=bookmark)
 
             
-            self.controller.set_active(node_list, name=group_name)
+
+
 
             # def add_dataframe(self, df, quiet=False, metadata=None, set_active=True, parent=None):
 
