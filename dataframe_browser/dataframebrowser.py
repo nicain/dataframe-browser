@@ -273,7 +273,7 @@ class TextController(object):
         self.logger = create_class_logger(self.__class__, **kwargs.get('logging_settings', {}))
 
         self.app = kwargs['app']
-        self.DEFAULT_PROMPT = kwargs.get('DEFAULT_PROMPT', DEFAULT_PROMPT)
+        self._prompt = DEFAULT_PROMPT
 
         self.sep = COMMAND_SEP_CHAR
         self.input_list = None
@@ -284,7 +284,14 @@ class TextController(object):
         self.completion_finder = CompletionFinder(controller=self)
         self.completion_finder.initialize(histfile=kwargs.get('histfile', None))
         
-        self.prompt = raw_input
+        self.prompt_fcn = raw_input
+
+    @property
+    def prompt(self):
+        if self.app.model.active_name is None:
+            return self._prompt
+        else:
+            return '({active_name}) {prompt}'.format(active_name=self.app.model.active_name, prompt=self._prompt)
 
     def input_mapper(self, input):
 
@@ -571,20 +578,18 @@ class TextController(object):
         sys.exit(0)
 
 
-    def get_input(self, prompt_str=None):
-        if prompt_str is None: prompt_str = self.DEFAULT_PROMPT
+    def get_input(self):
         try:
-            raw_input_string = self.prompt(prompt_str)
+            raw_input_string = self.prompt_fcn(self.prompt)
         except EOFError:
             sys.exit(0)
         return raw_input_string
 
 
-    def update(self, prompt_str=None):
-        if prompt_str is None: prompt_str = self.DEFAULT_PROMPT
+    def update(self):
         
         if len(self.input_list) == 0:
-            raw_input_string = self.get_input(prompt_str=prompt_str)
+            raw_input_string = self.get_input()
             self.input_list += self.parse_input_recursive(raw_input_string)
 
 
