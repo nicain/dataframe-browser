@@ -59,7 +59,7 @@ query_parser.add_argument(nargs='*', dest='remainder_list', type=str)
 
 bookmark_parser = ArgumentParser(description='set-bookmark description', prog=DEFAULT_PROMPT.strip(), add_help=False)
 bookmark_parser.add_argument('--help', '-h', action=HelpAction, help='show this help message')
-bookmark_parser.add_argument('name', nargs='*', type=str)
+bookmark_parser.add_argument('name', nargs='?', type=str)
 bookmark_parser.add_argument('-f', '--force', dest='force', action='store_true')
 bookmark_parser.add_argument('--rm', dest='remove', action='store_true')
 
@@ -454,8 +454,6 @@ class TextController(object):
     def bookmark_command(self, **kwargs):
 
         name = kwargs.pop('name')
-        if len(name) == 0:
-            name = None
 
         if kwargs['remove']:
             self.remove_bookmark(name=name)
@@ -525,17 +523,17 @@ class TextController(object):
         
         msg = 'Bookmark added: {0}'.format(kwargs['name'])
         try:
-            self.set_bookmark_to_current_active(**kwargs)
-            self.app.view.display_message(msg, type='info')
-            self.app.view.display_active()
-            self.logger.info(json.dumps({'ADD_BOOKMARK':kwargs}, indent=4))
-        except BookmarkAlreadyExists as e:
-
-            if kwargs.get('force', False):
-                self.set_bookmark_to_current_active(**kwargs)
+            if self.set_bookmark_to_current_active(**kwargs):
                 self.app.view.display_message(msg, type='info')
                 self.app.view.display_active()
                 self.logger.info(json.dumps({'ADD_BOOKMARK':kwargs}, indent=4))
+        except BookmarkAlreadyExists as e:
+
+            if kwargs.get('force', False):
+                if self.set_bookmark_to_current_active(**kwargs):
+                    self.app.view.display_message(msg, type='info')
+                    self.app.view.display_active()
+                    self.logger.info(json.dumps({'ADD_BOOKMARK':kwargs}, indent=4))
             else:
                 self.app.view.display_message(str(e), type='error')
 
@@ -625,7 +623,12 @@ class Model(object):
         return self.bookmark_dict.keys()
 
     def set_bookmark_to_current_active(self, name=None, force=False, append=False):
-        assert name is not None
+
+        if name is None:
+            name = self._active_name
+            if name is None:
+                self.logger.info('No name given for bookmark, and no active name')
+                return False
 
         if name in self.bookmarks and not force==True:
             raise BookmarkAlreadyExists()
@@ -638,6 +641,8 @@ class Model(object):
         else:
             self.bookmark_dict[name] = [x for x in self.active]
         self._active_name = name
+
+        return True
         
     def _remove_node(self, node):
         self.graph.remove_node(node)
@@ -701,7 +706,6 @@ class ConsoleView(object):
                         active_name = '{active_name}[{ni}]'.format(active_name=self.app.model.active_name, ni=ni)
                     else:
                         active_name = self.app.model.active_name
-                print 'active_namesfdlkjh', active_name
                 common_col_list = self.app.model.common_active_columns
                 table_html = node.to_html(columns=common_col_list + [c for c in node.columns if c not in common_col_list])
                 table_html_bs = BeautifulSoup(table_html).table
