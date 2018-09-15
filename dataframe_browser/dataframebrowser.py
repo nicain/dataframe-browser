@@ -163,7 +163,8 @@ class DataFrameNode(object):
     def columns(self):
         return [str(x) for x in self.df.columns]
 
-    
+    def describe(self, **kwargs):
+        return self.df.describe(**kwargs)
 
 class CompletionFinder(object):
     
@@ -300,14 +301,23 @@ class TextController(object):
         
         verbose_mode = kwargs.pop('verbose', False)
 
+        # Print information about bookmarks:
         if kwargs.pop('bookmark_info'):
+            print 'Bookmarks:'
             for name in self.app.model.bookmarks:
-                print name
+                if verbose_mode:
+                    for ii, node in enumerate(self.app.model.bookmark_dict[name]):
+                        name_str = '{name}{active}[{ii}]'.format(name=name, active='*' if name == self.app.model.active_name else '', ii=ii)
+                        info_df = node.describe(include='all')
+                        info_df.index.rename(name_str, inplace=True)
+                        print info_df
+                else:
+                    name_str = '{name}{active} ({num_df})'.format(name=name, active='*' if name == self.app.model.active_name else '', num_df=len(self.app.model.bookmark_dict[name]))
+                    print name_str
+                # print 'hello', name
 
         # Makes sure I implemented everything
         assert len(kwargs) == 0
-        print 'OKOKOK'
-
 
     @fn_timer
     def activate_command(self, **kwargs):
@@ -442,12 +452,13 @@ class TextController(object):
 
     @fn_timer
     def query_command(self, **kwargs):
-
-        query_string = kwargs['query']
-        parent_node = self.app.model.active
-        result_df = parent_node.table.query(query_string)
-        self.add_dataframe(result_df, parent=parent_node, metadata={'query':query_string})
-        self.logger.info(json.dumps({'QUERY':kwargs}, indent=4))
+        raise NotImplementedError
+        # query_string = kwargs['query']
+        # parent_node = self.app.model.active
+        # result_df = parent_node.table.query(query_string)
+        # # self.add_dataframe(result_df, parent=parent_node, metadata={'query':query_string})
+        # self.logger.info(json.dumps({'QUERY':kwargs}, indent=4))
+        # return self.add_dataframe(df, parent=None, quiet=quiet, metadata={'uri':uri, 'table':table}, set_active=set_active)
 
 
     def add_bookmark(self, **kwargs):
