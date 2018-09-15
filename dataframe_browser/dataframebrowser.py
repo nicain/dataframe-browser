@@ -23,7 +23,7 @@ def BeautifulSoup(*args, **kwargs):
     kwargs.setdefault('features', 'lxml')
     return BeautifulSoupPre(*args, **kwargs)
 
-
+ANON_DEFAULT='<anon>'
 DEFAULT_PROMPT = 'df> '
 COMMAND_SEP_CHAR = ';'
 UNRECOGNIZED_INPUT_FORMAT = 'Unrecognized input: "{0}"\n'
@@ -318,19 +318,22 @@ class TextController(object):
         for name in self.app.model.bookmarks:
             print '{name}{active} ({num_df})'.format(name=name, active='*' if name == self.app.model.active_name else '', num_df=len(self.app.model.bookmark_dict[name]))
 
-
-        print '\nActive group: (<anon> if not bookmarked)'
+        
+        print '\nActive group: ({anon} if not bookmarked)'.format(anon=ANON_DEFAULT)
 
         if self.app.model.active_name in self.app.model.bookmarks:
             name_prefix = self.app.model.active_name
         else:
-            name_prefix = '<anon>'
+            name_prefix = '<anon>'.format(anon=ANON_DEFAULT)
 
         if len(self.app.model.active) == 1:
-            print one(self.app.model.active).describe(include='all')
+            describe_df = one(self.app.model.active).describe(include='all')
+            describe_df.columns.name = '{name_prefix}'.format(name_prefix=name_prefix)
+            print describe_df
         else:
             describe_df_list = [x.describe(include='all') for x in self.app.model.active]
-            [df.index.rename('{name_prefix}[{ii}]'.format(name_prefix=name_prefix, ii=ii), inplace=True) for ii, df in enumerate(describe_df_list)]
+            for ii, df in enumerate(describe_df_list):
+                df.columns.name = '{name_prefix}[{ii}]'.format(name_prefix=name_prefix, ii=ii)
             zipped_row_list = zip(*[str(x).split('\n') for x in describe_df_list])
             print '\n'.join(['  |  '.join(row) for row in zipped_row_list])
 
@@ -681,13 +684,13 @@ class ConsoleView(object):
             for ni, node in enumerate(self.app.model.active):
 
                 if self.app.model.active_name is None:
-                    active_name = ''
+                    active_name = ANON_DEFAULT
                 else:
                     if len(self.app.model.active) > 1:
-                        active_name = '{active_name} ({ni})'.format(active_name=self.app.model.active_name, ni=ni)
+                        active_name = '{active_name}[{ni}]'.format(active_name=self.app.model.active_name, ni=ni)
                     else:
                         active_name = self.app.model.active_name
-
+                print 'active_namesfdlkjh', active_name
                 common_col_list = self.app.model.common_active_columns
                 table_html = node.to_html(columns=common_col_list + [c for c in node.columns if c not in common_col_list])
                 table_html_bs = BeautifulSoup(table_html).table
