@@ -35,7 +35,7 @@ from utilities import generate_uuid
 
 OPEN = 'open'
 QUERY = 'query'
-BOOKMARK = 'set-bookmark'
+BOOKMARK = 'bookmark'
 ACTIVATE = 'select'
 COMMAND = 'cmd'
 INFO = 'info'
@@ -49,7 +49,7 @@ open_parser.add_argument("-f", "--file", nargs='+', dest='file_list', type=str, 
 open_parser.add_argument("--uri", nargs=1, dest='uri', type=str)
 open_parser.add_argument("-q", "--quiet", dest='quiet', action='store_true')
 open_parser.add_argument("--table", nargs='+', dest='table_list', type=str, default=[])
-open_parser.add_argument("--bookmark", nargs='?', type=str)
+open_parser.add_argument("--group-name", nargs='?', type=str)
 
 activate_parser = ArgumentParser(description='activate description', prog=DEFAULT_PROMPT.strip(), add_help=False)
 activate_parser.add_argument(nargs=1, dest='name', type=str)
@@ -59,7 +59,7 @@ query_parser.add_argument(nargs='*', dest='remainder_list', type=str)
 
 bookmark_parser = ArgumentParser(description='set-bookmark description', prog=DEFAULT_PROMPT.strip(), add_help=False)
 bookmark_parser.add_argument('--help', '-h', action=HelpAction, help='show this help message')
-bookmark_parser.add_argument('name', nargs=1, type=str)
+bookmark_parser.add_argument('name', nargs='*', type=str)
 bookmark_parser.add_argument('-f', '--force', dest='force', action='store_true')
 bookmark_parser.add_argument('--rm', dest='remove', action='store_true')
 
@@ -452,7 +452,9 @@ class TextController(object):
     @fn_timer
     def bookmark_command(self, **kwargs):
 
-        name = one(kwargs.pop('name'))
+        name = kwargs.pop('name')
+        if len(name) == 0:
+            name = None
 
         if kwargs['remove']:
             self.remove_bookmark(name=name)
@@ -516,6 +518,9 @@ class TextController(object):
 
 
     def add_bookmark(self, **kwargs):
+
+        if 'name' not in kwargs:
+            kwargs['name'] = self.app.model.active_name # IT IS POSSIBLE TO BE ACTIVE AND NOT BOOKMARKED!!!
         
         msg = 'Bookmark added: {0}'.format(kwargs['name'])
         try:
@@ -619,7 +624,9 @@ class Model(object):
         return self.bookmark_dict.keys()
 
     def set_bookmark_to_current_active(self, name=None, force=False, append=False):
-        assert name is not None
+        
+        if name is None:
+            name = self._active_name
 
         if name in self.bookmarks and not force==True:
             raise BookmarkAlreadyExists()
@@ -726,6 +733,24 @@ class DataFrameBrowser(object):
 
         controller_kwargs = kwargs.get('controller_kwargs', {})
         self.controller = kwargs.get('controller_class', TextController)(app=self, **controller_kwargs)
+
+        if 'df' in kwargs:
+            
+            node_list = []
+            group_name = kwargs.get('group_name', None)
+            if isinstance(kwargs['df'], (tuple, list)):
+                for df in kwargs['df'][::-1]:
+                    node = self.controller.add_dataframe(df, set_active=False)
+                    node_list.append(node)
+
+            elif isinstance(kwargs['df'], (pd.DataFrame)):
+                node = self.controller.add_dataframe(kwargs['df'], set_active=False)
+                node_list.append(node)
+
+            
+            self.controller.set_active(node_list, name=group_name)
+
+            # def add_dataframe(self, df, quiet=False, metadata=None, set_active=True, parent=None):
 
 
     def run_hard_exit(self, input=[''], interactive=True):
