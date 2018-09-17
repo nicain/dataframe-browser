@@ -3,6 +3,8 @@
 class BookmarkAlreadyExists(Exception):
     pass
 
+class UnrecognizedFileTypeException(Exception):
+    pass
 
 class CommandParsingException(Exception):
     
