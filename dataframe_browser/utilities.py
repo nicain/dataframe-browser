@@ -4,6 +4,8 @@ import functools
 import time
 import pandas as pd
 from customexceptions import UnrecognizedFileTypeException
+from bs4 import BeautifulSoup as BeautifulSoupPre
+from future.utils import raise_from
 
 def generate_uuid(length=32):
     '''https://gist.github.com/admiralobvious/d2dcc76a63df866be17f'''
@@ -52,3 +54,8 @@ def one(x, exc_tp=TypeError):
         return val
     except TypeError as e:
         raise_from(exc_tp, e)
+
+
+def BeautifulSoup(*args, **kwargs):
+    kwargs.setdefault('features', 'lxml')
+    return BeautifulSoupPre(*args, **kwargs)

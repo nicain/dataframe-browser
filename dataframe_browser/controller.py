@@ -47,3 +47,10 @@ class TextController(object):
             node = Node(nodeframe_list, parent=self.app.model.root, name=name)
 
         return node
+
+    def unbookmark(self, bookmark):
+    
+        node_to_unbookmark = self.app.model.get_node_by_name(bookmark)
+        node_to_unbookmark.rename(None)
+        if node_to_unbookmark is self.app.active:
+            self.app.view.display_node(node_to_unbookmark)

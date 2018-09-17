@@ -64,16 +64,16 @@ class Model(object):
         else:
             self._active = containing_node
 
+        self.app.view.display_active()
+
     @property
     def common_active_columns(self):
-        return sorted(set.intersection(*[set(node.columns) for node in self.active]))
+        return sorted(set.intersection(*[set(node.columns) for node in self.active.node_frames]))
 
     @property
     def all_active_columns(self):
-        return sorted(set.union(*[set(node.columns) for node in self.active]))
+        return sorted(set.union(*[set(node.columns) for node in self.active.node_frames]))
 
 
-    def unbookmark(self, bookmark):
 
-        self.get_node_by_name(bookmark).rename(None)
         

@@ -19,7 +19,7 @@ import os
 
 from utilities import create_class_logger
 from model import Model
-from view import ConsoleView
+from view import FlaskView
 from controller import TextController
 
 class DataFrameBrowser(object):
@@ -32,7 +32,7 @@ class DataFrameBrowser(object):
         self.model = Model(app=self, **model_kwargs)
         
         view_kwargs = kwargs.get('view_kwargs', {})
-        self.view = kwargs.get('view_class', ConsoleView)(app=self, **view_kwargs)
+        self.view = kwargs.get('view_class', FlaskView)(app=self, **view_kwargs)
 
         controller_kwargs = kwargs.get('controller_kwargs', {})
         self.controller = kwargs.get('controller_class', TextController)(app=self, **controller_kwargs)
@@ -63,7 +63,7 @@ class DataFrameBrowser(object):
     def unbookmark(self, *bookmarks):
 
         for bookmark in bookmarks:
-            self.model.unbookmark(bookmark)
+            self.controller.unbookmark(bookmark)
 
 
 

@@ -1,9 +1,6 @@
 import pandas as pd
 from cssutils import parseStyle
-from bs4 import BeautifulSoup as BeautifulSoupPre
-def BeautifulSoup(*args, **kwargs):
-    kwargs.setdefault('features', 'lxml')
-    return BeautifulSoupPre(*args, **kwargs)
+from utilities import BeautifulSoup
 
 
 class NodeFrame(object):
