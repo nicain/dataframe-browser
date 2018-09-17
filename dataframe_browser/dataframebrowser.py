@@ -75,6 +75,10 @@ class DataFrameBrowser(object):
         new_node = self.controller.create_node(nodeframe_list, self.active, name=new_bookmark, force=force)
         self.model.set_active(new_node)
 
+    def back(self):
+        self.model.set_active(self.model.active.parent)
+
+
 
         
 
@@ -87,11 +91,13 @@ class DataFrameBrowser(object):
 if __name__ == "__main__":    
     
     example_df_path = os.path.join(os.path.dirname(__file__),'..', 'tests', 'example.csv')
+    example2_df_path = os.path.join(os.path.dirname(__file__),'..', 'tests', 'example2.csv')
     dfb = DataFrameBrowser()
     dfb.open(filename=example_df_path, bookmark='A')
-    dfb.open(filename=example_df_path, bookmark='B')
-    dfb.append('A', new_bookmark='C')
-    # dfb.info()
+    dfb.open(filename=example2_df_path, bookmark='B')
+    dfb.append('A', force=True, new_bookmark='C')
+    dfb.back()
+    dfb.info()
     
 
 

@@ -40,12 +40,12 @@ class TextController(object):
         if name in self.app.model.bookmarks:
 
             if force == True:
-                node = Node(nodeframe_list, parent=self.app.model.root, name=name)
+                node = Node(nodeframe_list, parent=parent, name=name)
             else: 
                 raise NotImplementedError
         
         else:
-            node = Node(nodeframe_list, parent=self.app.model.root, name=name)
+            node = Node(nodeframe_list, parent=parent, name=name)
 
         return node
 
