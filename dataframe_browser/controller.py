@@ -31,6 +31,7 @@ class TextController(object):
         node = self.create_node((node_frame,), parent=self.app.model.root, name=bookmark, force=force)
         self.app.model.set_active(node)
 
+
     def create_node(self, nodeframe_list, parent, name=None, force=False):
 
         # TODO: consolidate use of root to top level

@@ -51,7 +51,7 @@ class FlaskView(ConsoleView):
                     active_name = dfb.ANON_DEFAULT
                 else:
                     if len(self.app.model.active) > 1:
-                        active_name = '{active_name}[{ni}]'.format(active_name=self.app.model.active_name, ni=ni)
+                        active_name = '{active_name}[{ni}]'.format(active_name=self.app.model.active.name, ni=ni)
                     else:
                         active_name = self.app.model.active.name
                 common_col_list = self.app.model.common_active_columns

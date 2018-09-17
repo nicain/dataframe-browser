@@ -48,21 +48,32 @@ class Model(object):
         else:
             return one(node_list)
 
-    def set_active(self, name=None, key=None):
+    def set_active(self, node, name=None, key=None):
+
         self.logger.info(json.dumps({'SET_ACTIVE':str(name)}, indent=4))
-        containing_node = self.get_node_by_name(name)
 
         if key is not None:
-            node_frame, new_key = containing_node[key], '{name}[{key}]'.format(name=name, key=key)
-
-            if new_key in self.bookmarks:
-                self._active = self.get_node_by_name(new_key)
+            if name is None:
+                containing_node = self.active
+                node_frame = containing_node[key]
+                new_node = self.app.controller.create_node((node_frame,), parent=containing_node)
+                self.app.model.set_active(new_node)
             else:
-                new_node = self.app.controller.create_node((node_frame,), parent=containing_node, name=new_key, force=False)
-                self.app.model.set_active(new_key)
+                containing_node = self.get_node_by_name(name)
+                new_key = '{name}[{key}]'.format(name=name, key=key)
+
+                if new_key in self.bookmarks:
+                    self._active = self.get_node_by_name(new_key)
+
+                else:
+                    new_node = self.app.controller.create_node((node_frame,), parent=containing_node, name=new_key, force=False)
+                    self.app.model.set_active(new_node, name=new_key)
+
+            
+
 
         else:
-            self._active = containing_node
+            self._active = node
 
         self.app.view.display_active()
 

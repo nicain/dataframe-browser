@@ -21,6 +21,7 @@ from utilities import create_class_logger
 from model import Model
 from view import FlaskView
 from controller import TextController
+from customexceptions import BookmarkAlreadyExists
 
 class DataFrameBrowser(object):
 
@@ -65,6 +66,14 @@ class DataFrameBrowser(object):
         for bookmark in bookmarks:
             self.controller.unbookmark(bookmark)
 
+    def append(self, other_bookmark, new_bookmark=None, force=False):
+        if other_bookmark == new_bookmark and force == False:
+            raise BookmarkAlreadyExists('Force not requested')
+
+        nodeframe_list = self.active.node_frames + self.model.get_node_by_name(other_bookmark).node_frames
+        
+        new_node = self.controller.create_node(nodeframe_list, self.active, name=new_bookmark, force=force)
+        self.model.set_active(new_node)
 
 
         
@@ -79,12 +88,10 @@ if __name__ == "__main__":
     
     example_df_path = os.path.join(os.path.dirname(__file__),'..', 'tests', 'example.csv')
     dfb = DataFrameBrowser()
-    dfb.open(filename=example_df_path, bookmark='hi')
-    dfb.open(filename=example_df_path, bookmark='hi2')
-    dfb.select(bookmark='hi', key=0, quiet=True)
-    dfb.select(bookmark='hi2', quiet=True)
-    dfb.unbookmark('hi2')
-    dfb.info()
+    dfb.open(filename=example_df_path, bookmark='A')
+    dfb.open(filename=example_df_path, bookmark='B')
+    dfb.append('A', new_bookmark='C')
+    # dfb.info()
     
 
 
