@@ -48,12 +48,21 @@ class Model(object):
         else:
             return one(node_list)
 
-    def set_active(self, node, name=None):
-        self.logger.info(json.dumps({'SET_ACTIVE':str(node)}, indent=4))
-        self._active = node
-    
-    # def activate_bookmark(self, name):
-    #     self.set_active(self.bookmark_dict[name], name=name)
+    def set_active(self, name=None, key=None):
+        self.logger.info(json.dumps({'SET_ACTIVE':str(name)}, indent=4))
+        containing_node = self.get_node_by_name(name)
+
+        if key is not None:
+            node_frame, new_key = containing_node[key], '{name}[{key}]'.format(name=name, key=key)
+
+            if new_key in self.bookmarks:
+                self._active = self.get_node_by_name(new_key)
+            else:
+                new_node = self.app.controller.create_node((node_frame,), parent=containing_node, name=new_key, force=False)
+                self.app.model.set_active(new_key)
+
+        else:
+            self._active = containing_node
 
     @property
     def common_active_columns(self):
@@ -63,3 +72,8 @@ class Model(object):
     def all_active_columns(self):
         return sorted(set.union(*[set(node.columns) for node in self.active]))
 
+
+    def unbookmark(self, bookmark):
+
+        self.get_node_by_name(bookmark).rename(None)
+        

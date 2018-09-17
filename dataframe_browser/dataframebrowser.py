@@ -50,9 +50,24 @@ class DataFrameBrowser(object):
             node = self.model.get_node_by_name(bookmark)
             if node is not None:
                 self.view.display_node_info(node)
-        
 
-    
+    def select(self, bookmark=None, key=None, quiet=False):
+
+        if bookmark is not None:
+
+            self.model.set_active(bookmark, key=key)
+        
+        if quiet is False:
+            self.info()
+
+    def unbookmark(self, *bookmarks):
+
+        for bookmark in bookmarks:
+            self.model.unbookmark(bookmark)
+
+
+
+        
 
     @property
     def active(self):
@@ -66,7 +81,11 @@ if __name__ == "__main__":
     dfb = DataFrameBrowser()
     dfb.open(filename=example_df_path, bookmark='hi')
     dfb.open(filename=example_df_path, bookmark='hi2')
-    print dfb.info()
+    dfb.select(bookmark='hi', key=0, quiet=True)
+    dfb.select(bookmark='hi2', quiet=True)
+    dfb.unbookmark('hi2')
+    dfb.info()
+    
 
 
 

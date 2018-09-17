@@ -4,7 +4,7 @@ from utilities import one
 
 class Node(object):
 
-    def __init__(self, nodeframes, name=None, parent=None, force=True):
+    def __init__(self, nodeframes, name=None, parent=None, force=True, keys=None):
         assert isinstance(nodeframes, tuple)
 
         self._name = name
@@ -15,13 +15,21 @@ class Node(object):
         self._parent = parent
         self._children = []
 
+        if keys is None:
+            self._key_dict = {ii:nodeframe for ii, nodeframe in zip(range(len(self.node_frames)), self.node_frames)}
+        else:
+            assert len(keys) == len(nodeframes)
+            self._key_dict = {key:nodeframe for key, nodeframe in zip(keys, self.node_frames)}
+
+
         if self.parent is None:
             assert self.name == 'root'
         else:
             assert isinstance(self.parent, Node)
             self.parent._children.append(self)
     
-
+    def __getitem__(self, key):
+        return self._key_dict[key]
 
     @property
     def name(self):
@@ -34,6 +42,9 @@ class Node(object):
     @property
     def parent(self):
         return self._parent
+
+    def rename(self, new_name):
+        self._name = new_name
 
     def get_children(self):
         return self._children

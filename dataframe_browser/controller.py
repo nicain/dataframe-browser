@@ -33,6 +33,9 @@ class TextController(object):
 
     def create_node(self, nodeframe_list, parent, name=None, force=False):
 
+        # TODO: consolidate use of root to top level
+        assert name != 'root'
+
         if name in self.app.model.bookmarks:
 
             if force == True:
