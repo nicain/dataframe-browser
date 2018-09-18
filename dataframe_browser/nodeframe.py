@@ -62,4 +62,9 @@ class NodeFrame(object):
     def merge(self, other, **kwargs):
         return self.df.merge(other.df, **kwargs)
 
+    @fn_timer
+    def query(self, **kwargs):
+        query = kwargs.pop('query')
+        return self.df.query(query, **kwargs)
+
     

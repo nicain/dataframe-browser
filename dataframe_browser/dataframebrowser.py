@@ -91,11 +91,11 @@ class DataFrameBrowser(object):
         self.model.set_active(new_node)
         self.view.display_active()
 
-    def query(self):
+    def query(self, query=None):
     
-        print self.active
-        # new_node = self.active.merge(on=on, how=how)
-        # self.model.set_active(new_node)
+        new_node_list = self.active.query(query=query)
+        self.model.set_active(new_node_list[0])
+        self.view.display_active()
 
 
     @property
@@ -122,7 +122,7 @@ if __name__ == "__main__":
     dfb.select('C[0]', 'a')
     dfb.append('A')
     dfb.bookmark('new')
-    dfb.merge(['a', 'c'], how='right')
+    # dfb.merge(['a', 'c'], how='right')
     # dfb.info()
-    # dfb.query()
+    dfb.query('a==2')
 
