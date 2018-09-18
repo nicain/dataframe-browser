@@ -13,7 +13,6 @@ class TextController(object):
         self.app = kwargs['app']
 
 
-    @fn_timer        
     def open_node_from_file(self, filename, bookmark=None, force=False, **kwargs):
 
         if not os.path.exists(filename):

@@ -55,8 +55,8 @@ class DataFrameBrowser(object):
     def select(self, bookmark=None, key=None, quiet=False):
 
         if bookmark is not None:
-
-            self.model.set_active(bookmark, key=key)
+            node = self.model.get_node_by_name(bookmark)
+            self.model.set_active(node, name=bookmark, key=key)
         
         if quiet is False:
             self.info()
@@ -78,26 +78,51 @@ class DataFrameBrowser(object):
     def back(self):
         self.model.set_active(self.model.active.parent)
 
+    # def forward(self, option=None):
+    #     if option is None:
+    #         assert len(self.model.children) == 1
+    #         forward_node = self.model.children
 
-
-        
 
     @property
     def active(self):
         return self.model.active
 
+    def groupby(self, by=None):
+
+        new_node_list = self.active.groupby(by=by)
+        print new_node_list[0]
+        self.model.set_active(new_node_list[0])
+
+            # print {key:df for key, df in node_frame.df.groupby(by=by)}
+        
+        # for key, val in self.active.node_frames[0].df.groupby(by=by):
+        #     print key
+            # pval
+        # key, val
+        # pass
+
 
 
 if __name__ == "__main__":    
     
-    example_df_path = os.path.join(os.path.dirname(__file__),'..', 'tests', 'example.csv')
-    example2_df_path = os.path.join(os.path.dirname(__file__),'..', 'tests', 'example2.csv')
+    from dataframe_browser.dataframebrowser import DataFrameBrowser
+    example_df_path = '/home/nicholasc/projects/dataframe-browser/tests/example.csv'
+    example2_df_path = '/home/nicholasc/projects/dataframe-browser/tests/example2.csv'
     dfb = DataFrameBrowser()
     dfb.open(filename=example_df_path, bookmark='A')
     dfb.open(filename=example2_df_path, bookmark='B')
     dfb.append('A', force=True, new_bookmark='C')
-    dfb.back()
+    dfb.groupby('c')
     dfb.info()
+    # print dfb.active._key_dict.keys()
+    dfb.select('C[0]', 'a')
+
+
+    # dfb.groupby()
+
+    # # dfb.back()
+    # print dfb.active.children
     
 
 

@@ -1,6 +1,6 @@
 import pandas as pd
 from cssutils import parseStyle
-from utilities import BeautifulSoup
+from utilities import BeautifulSoup, fn_timer
 
 
 class NodeFrame(object):
@@ -53,3 +53,8 @@ class NodeFrame(object):
 
     def describe(self, **kwargs):
         return self.df.describe(**kwargs)
+
+    @fn_timer
+    def groupby(self, **kwargs):
+
+        return {key:df for key, df in self.df.groupby(**kwargs)}

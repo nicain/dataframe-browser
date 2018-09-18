@@ -46,7 +46,8 @@ class Node(object):
     def rename(self, new_name):
         self._name = new_name
 
-    def get_children(self):
+    @property
+    def children(self):
         return self._children
 
     def __len__(self):
@@ -70,3 +71,26 @@ class Node(object):
                 df.columns.name = '{name_prefix}[{ii}]'.format(name_prefix=name_prefix, ii=ii)
             zipped_row_list = zip(*[str(x).split('\n') for x in describe_df_list])
             return '\n'.join(['  |  '.join(row) for row in zipped_row_list])
+
+    def groupby(self, **kwargs):
+
+        new_nodes = []
+        for ni, node_frame in enumerate(self.node_frames):
+            df_dict, load_time = node_frame.groupby(**kwargs)
+            
+            key_list, nodeframe_list = [], []
+            for key, df in df_dict.items():
+                key_list.append(key)
+                nodeframe_list.append(NodeFrame(df=df, load_time=load_time))
+            
+            if self.name is not None:
+                curr_node = Node(tuple(nodeframe_list), name='{parent_name}[{index}]'.format(parent_name=self.name, index=ni), parent=self, force=False, keys=key_list)
+            else:
+                curr_node = Node(tuple(nodeframe_list), name=None, parent=self, force=False)
+
+            new_nodes.append(curr_node)
+
+        return new_nodes
+            
+
+

@@ -29,7 +29,7 @@ class Model(object):
             cur_node = stack[0]
             stack = stack[1:]
             nodes.append(cur_node)
-            for child in cur_node.get_children():
+            for child in cur_node.children:
                 stack.append(child)
         
         return nodes
@@ -66,6 +66,7 @@ class Model(object):
                     self._active = self.get_node_by_name(new_key)
 
                 else:
+                    node_frame = containing_node[key]
                     new_node = self.app.controller.create_node((node_frame,), parent=containing_node, name=new_key, force=False)
                     self.app.model.set_active(new_node, name=new_key)
 
