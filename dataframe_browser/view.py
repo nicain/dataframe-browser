@@ -5,6 +5,8 @@ import json
 from collections import OrderedDict as OD
 import asciitree
 
+POST_ROUTE ='http://localhost:5000/model' 
+
 class ConsoleView(object):
 
     def __init__(self, **kwargs):
@@ -45,7 +47,7 @@ class FlaskView(ConsoleView):
 
 
         if self.app.model.active is None or len(self.app.model.active) < 1:
-            response = requests.post('http://localhost:5000/multi', json=json.dumps([]))
+            response = requests.post(POST_ROUTE, json=json.dumps([]))
 
         else:
             if page_length is None:
@@ -69,7 +71,7 @@ class FlaskView(ConsoleView):
                 table_html_bs['id'] = table_uuid
                 uuid_table_list.append((table_uuid, str(table_html_bs), page_length, active_name))
 
-            response = requests.post('http://localhost:5000/multi', json=json.dumps(uuid_table_list))
+            response = requests.post(POST_ROUTE, json=json.dumps(uuid_table_list))
         self.logger.info(json.dumps({'DISPLAY_ACTIVE':{'response':str(response)}}, indent=4))
 
 

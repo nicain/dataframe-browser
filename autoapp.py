@@ -2,8 +2,10 @@ from flask import Flask, render_template, request
 import pandas as pd
 import os
 import json
+from flask_socketio import SocketIO 
 
 app = Flask(__name__, template_folder='.')
+socketio = SocketIO(app) 
 
 @app.route('/')
 def hello_world():
@@ -26,16 +28,19 @@ def active():
 
     return render_template('view.html', table_id=data['active'][2], table=data['active'][0], header=data['active'][1])
 
-@app.route("/multi", methods=['GET', 'POST'])
-def multi():
+@app.route("/multi", methods=['GET']) 
+def multi():  
+    return render_template('multi.html', uuid_table_list=data['active'], header='') 
 
+@app.route("/model", methods=['POST']) 
+def model(): 
+ 
+    uuid_table_list = json.loads(request.json) 
+    data['active'] = uuid_table_list 
+ 
+    socketio.emit('reload') 
 
-    if request.method == 'POST': 
-        uuid_table_list = json.loads(request.json)
-        data['active'] = uuid_table_list
-
-    return render_template('multi.html', uuid_table_list=data['active'], header='')
-
+    return json.dumps(True)
 
 if __name__ == "__main__":
     app.run(debug=True)
