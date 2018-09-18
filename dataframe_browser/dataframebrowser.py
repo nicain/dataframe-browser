@@ -77,6 +77,9 @@ class DataFrameBrowser(object):
         new_node = self.controller.create_node(nodeframe_list, self.active, name=new_bookmark, force=force)
         self.model.set_active(new_node)
 
+    def bookmark(self, name):
+        self.model.active.rename(name)
+
     def back(self):
         self.model.set_active(self.model.active.parent)
 
@@ -106,8 +109,10 @@ if __name__ == "__main__":
     dfb.open(filename=example2_df_path, bookmark='B')
     dfb.append('A', force=True, new_bookmark='C')
     dfb.groupby('c')
-    # dfb.unbookmark('C')
-    # dfb.select('C[0]', 'a')
-    dfb.select('C[0]')
+    dfb.unbookmark('C')
+    dfb.select('C[0]', 'a')
+    dfb.append('A')
+    dfb.bookmark('new')
     dfb.info()
 
+    print dfb.active.name
