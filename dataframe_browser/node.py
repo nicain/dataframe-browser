@@ -111,10 +111,7 @@ class Node(object):
             total_time += load_time
             left_node_frame = NodeFrame(df=df, load_time=total_time)
 
-        if self.name is None:
-            return Node((left_node_frame,), name=None, parent=self, force=False)
-        else:
-            return Node((left_node_frame,), name='{parent_name}[{index}]'.format(parent_name=self.name, index='merge'), parent=self, force=False)
+        return Node((left_node_frame,), name=None, parent=self, force=False)
 
             
     def to_graph_dict(self):

@@ -14,11 +14,6 @@ def hello_world():
 # Achieves persistence:
 data = {'active':None}
 
-@app.route("/graph", methods=['GET'])
-def graph():
-
-    return render_template('graph.html')
-
 @app.route("/active", methods=['GET', 'POST'])
 def active():
 
@@ -40,6 +35,11 @@ def model():
  
     socketio.emit('reload') 
 
+    return json.dumps(True)
+
+@app.route("/reload", methods=['POST']) 
+def reload(): 
+    socketio.emit('reload') 
     return json.dumps(True)
 
 

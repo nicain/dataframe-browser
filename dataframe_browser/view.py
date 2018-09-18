@@ -8,6 +8,7 @@ import json
 
 POST_ROUTE ='http://localhost:5000/model' 
 POST_ROUTE_GRAPH ='http://localhost:5000/graph' 
+POST_RELOAD ='http://localhost:5000/reload' 
 
 class ConsoleView(object):
 
@@ -44,6 +45,7 @@ class FlaskView(ConsoleView):
 
     def display_active(self):
         self.display_node()
+        response = requests.post(POST_RELOAD, json=json.dumps([]))
 
     def display_node(self, page_length=None):
 
