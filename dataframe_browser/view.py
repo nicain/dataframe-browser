@@ -46,6 +46,7 @@ class FlaskView(ConsoleView):
     def display_active(self):
         self.display_node()
         response = requests.post(POST_RELOAD, json=json.dumps([]))
+        self.display_tree()
 
     def display_node(self, page_length=None):
 
@@ -85,4 +86,3 @@ class FlaskView(ConsoleView):
 
         root = self.app.model.get_node_by_name('root')
         response = requests.post(POST_ROUTE_GRAPH, json=json.dumps(root.to_graph_dict()))
-        print response

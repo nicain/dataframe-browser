@@ -89,9 +89,7 @@ class DataFrameBrowser(object):
 
         new_node = self.active.merge(on=on, how=how)
         self.model.set_active(new_node)
-        print 'A'
         self.view.display_active()
-        print 'B'
 
     def query(self):
     
@@ -112,19 +110,19 @@ class DataFrameBrowser(object):
 
 if __name__ == "__main__":    
     
-from dataframe_browser.dataframebrowser import DataFrameBrowser
-example_df_path = '/home/nicholasc/projects/dataframe-browser/tests/example.csv'
-example2_df_path = '/home/nicholasc/projects/dataframe-browser/tests/example2.csv'
-dfb = DataFrameBrowser()
-dfb.open(filename=example_df_path, bookmark='A')
-dfb.open(filename=example2_df_path, bookmark='B')
-dfb.append('A', force=True, new_bookmark='C')
-dfb.groupby('c')
-dfb.unbookmark('C')
-dfb.select('C[0]', 'a')
-dfb.append('A')
-dfb.bookmark('new')
-dfb.merge('a', how='right')
-# dfb.info()
-dfb.query()
+    from dataframe_browser.dataframebrowser import DataFrameBrowser
+    example_df_path = '/home/nicholasc/projects/dataframe-browser/tests/example.csv'
+    example2_df_path = '/home/nicholasc/projects/dataframe-browser/tests/example2.csv'
+    dfb = DataFrameBrowser()
+    dfb.open(filename=example_df_path, bookmark='A')
+    dfb.open(filename=example2_df_path, bookmark='B')
+    dfb.append('A', force=True, new_bookmark='C')
+    dfb.groupby('c')
+    dfb.unbookmark('C')
+    dfb.select('C[0]', 'a')
+    dfb.append('A')
+    dfb.bookmark('new')
+    dfb.merge(['a', 'c'], how='right')
+    # dfb.info()
+    # dfb.query()
 
