@@ -32,6 +32,12 @@ class Node(object):
     def __getitem__(self, key):
         return self._key_dict[key]
 
+    def get_key(self, cf):
+        for key, curr_f in self._key_dict.items():
+            if curr_f == cf:
+                return key
+        raise
+
     @property
     def name(self):
         return self._name
@@ -70,10 +76,10 @@ class Node(object):
             describe_df.columns.name = '{name_prefix}'.format(name_prefix=name_prefix)
             return str(describe_df)
         else:
-            describe_df_list = [x.describe(include='all') for x in self.node_frames]
-            for ii, df in enumerate(describe_df_list):
-                df.columns.name = '{name_prefix}[{ii}]'.format(name_prefix=name_prefix, ii=ii)
-            zipped_row_list = zip(*[str(x).split('\n') for x in describe_df_list])
+            describe_df_list = [(self.get_key(x), x.describe(include='all')) for x in self.node_frames]
+            for curr_key, df in describe_df_list:
+                df.columns.name = '{name_prefix}[{ii}]'.format(name_prefix=name_prefix, ii=curr_key)
+            zipped_row_list = zip(*[str(x[1]).split('\n') for x in describe_df_list])
             return '\n'.join(['  |  '.join(row) for row in zipped_row_list])
 
     def groupby(self, **kwargs):

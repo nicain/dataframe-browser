@@ -39,9 +39,9 @@ class ConsoleView(object):
 class FlaskView(ConsoleView):
 
     def display_active(self):
-        self.display_node(self.app.model.active)
+        self.display_node()
 
-    def display_node(self, node, page_length=None):
+    def display_node(self, page_length=None):
 
 
         if self.app.model.active is None or len(self.app.model.active) < 1:
@@ -52,17 +52,18 @@ class FlaskView(ConsoleView):
                 page_length = 5 if len(self.app.model.active) > 1 else 20
 
             uuid_table_list = []
-            for ni, node in enumerate(self.app.model.active.node_frames):
+            for frame in self.app.model.active.node_frames:
 
                 if self.app.model.active.name is None:
                     active_name = dfb.ANON_DEFAULT
                 else:
                     if len(self.app.model.active) > 1:
+                        ni = self.app.model.active.get_key(frame)
                         active_name = '{active_name}[{ni}]'.format(active_name=self.app.model.active.name, ni=ni)
                     else:
                         active_name = self.app.model.active.name
                 common_col_list = self.app.model.common_active_columns
-                table_html = node.to_html(columns=common_col_list + [c for c in node.columns if c not in common_col_list])
+                table_html = frame.to_html(columns=common_col_list + [c for c in frame.columns if c not in common_col_list])
                 table_html_bs = BeautifulSoup(table_html).table
                 table_uuid = generate_uuid()
                 table_html_bs['id'] = table_uuid

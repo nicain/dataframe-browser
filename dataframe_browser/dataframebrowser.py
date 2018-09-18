@@ -106,7 +106,8 @@ if __name__ == "__main__":
     dfb.open(filename=example2_df_path, bookmark='B')
     dfb.append('A', force=True, new_bookmark='C')
     dfb.groupby('c')
-    dfb.unbookmark('C')
-    dfb.select('C[0]', 'a')
+    # dfb.unbookmark('C')
+    # dfb.select('C[0]', 'a')
+    dfb.select('C[0]')
     dfb.info()
 
