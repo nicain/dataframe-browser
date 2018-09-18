@@ -2,7 +2,8 @@ from utilities import create_class_logger, one, generate_uuid, BeautifulSoup
 import dataframe_browser as dfb
 import requests
 import json
-
+from collections import OrderedDict as OD
+import asciitree
 
 class ConsoleView(object):
 
@@ -28,6 +29,12 @@ class ConsoleView(object):
 
     def display_active(self):
         pass
+
+    def display_tree(self):
+
+
+        root = self.app.model.get_node_by_name('root')
+        print asciitree.LeftAligned()({root:OD(root.items())})
 
 class FlaskView(ConsoleView):
 

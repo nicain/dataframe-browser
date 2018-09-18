@@ -1,6 +1,7 @@
 from nodeframe import NodeFrame
 import dataframe_browser as dfb
 from utilities import one
+from collections import OrderedDict as OD
 
 class Node(object):
 
@@ -49,6 +50,9 @@ class Node(object):
     @property
     def children(self):
         return self._children
+
+    def items(self):
+        return OD((x.name,OD(x.items())) for x in self._children)
 
     def __len__(self):
         return len(self.node_frames)
