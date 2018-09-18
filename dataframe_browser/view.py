@@ -79,6 +79,7 @@ class FlaskView(ConsoleView):
 
     def display_tree(self):
     
+        super(FlaskView, self).display_tree()
 
         root = self.app.model.get_node_by_name('root')
         response = requests.post(POST_ROUTE_GRAPH, json=json.dumps(root.to_graph_dict()))

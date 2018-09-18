@@ -26,7 +26,7 @@
 <body>
 <script src="//d3js.org/d3.v3.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script> 
 <script>
 
         var margin = {top: 20, right: 120, bottom: 20, left: 120},
@@ -170,6 +170,17 @@
         }
         
         </script>
+
+        <!-- reload th window when the model changes -->
+        <script> 
+            $(document).ready(function(){ 
+            var socket = io.connect('http://' + document.domain + ':' + location.port); 
+            socket.on('reload', function() { 
+                console.log('reload request received'); 
+                window.location.reload(true);  
+                }); 
+            }); 
+        </script> 
 
 
 </body>
