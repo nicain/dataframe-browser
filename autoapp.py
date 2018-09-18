@@ -45,8 +45,21 @@ def model():
 
 @app.route('/background_process_test')
 def background_process_test():
-    print "Hello"
     return json.dumps({"nothing":'much'})
+
+@app.route('/graph', methods=['POST'])
+def graph_post():
+    graph_dict = json.loads(request.json) 
+    data['graph'] = graph_dict
+    return json.dumps(True)
+
+@app.route('/graph', methods=['GET'])
+def graph_get():
+    return render_template('graph.html', uuid_table_list=data['graph'], header='') 
+
+@app.route('/graph_json')
+def graph_json():
+    return json.dumps(data['graph'])
 
 if __name__ == "__main__":
     app.run(debug=True)

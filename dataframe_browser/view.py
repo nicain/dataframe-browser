@@ -4,8 +4,10 @@ import requests
 import json
 from collections import OrderedDict as OD
 import asciitree
+import json
 
 POST_ROUTE ='http://localhost:5000/model' 
+POST_ROUTE_GRAPH ='http://localhost:5000/graph' 
 
 class ConsoleView(object):
 
@@ -75,3 +77,9 @@ class FlaskView(ConsoleView):
         self.logger.info(json.dumps({'DISPLAY_ACTIVE':{'response':str(response)}}, indent=4))
 
 
+    def display_tree(self):
+    
+
+        root = self.app.model.get_node_by_name('root')
+        response = requests.post(POST_ROUTE_GRAPH, json=json.dumps(root.to_graph_dict()))
+        print response

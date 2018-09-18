@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <!-- http://gitgraphjs.com/docs/gitgraph.js.html -->
+    <script src="http://gitgraphjs.com/js/gitgraph.min.js"></script>
+    
+</head>
+<!-- ================================================================== -->
+<body>
+        <canvas id="my-gitGraph"></canvas>
+
+        <script type="text/javascript">
+        window.onload=function(){
+            var gitgraph = new GitGraph({template: "metro",
+                                         orientation: "vertical-reverse",
+                                         author: '',
+                                         elementId: 'my-gitGraph'
+                                         });
+            const b1 = gitgraph.branch();
+            const c1 = b1.commit({tag:'sdaf'});
+            const c2 = b1.commit({});
+            const c3 = b1.commit({});
+
+            
+            gitgraph.commits.forEach(function(element) {
+                element.sha1 = '';
+                element.message = '';
+            });
+            gitgraph.branches.forEach(function(element) {
+                element.name = '';
+            });
+            gitgraph.render()
+
+        }
+        </script>
+        
+
+
+</body>
+</html>

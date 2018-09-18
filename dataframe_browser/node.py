@@ -117,5 +117,10 @@ class Node(object):
             return Node((left_node_frame,), name='{parent_name}[{index}]'.format(parent_name=self.name, index='merge'), parent=self, force=False)
 
             
-
+    def to_graph_dict(self):
+        children = [x.to_graph_dict() for x in self.children]
+        if len(children) > 0:
+            return {'name':str(self.name), 'children':[x.to_graph_dict() for x in self.children]}
+        else: 
+            return {'name':str(self.name)}
 

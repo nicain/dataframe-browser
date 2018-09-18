@@ -115,4 +115,5 @@ if __name__ == "__main__":
     dfb.append('A')
     dfb.bookmark('new')
     dfb.merge('a', how='right')
+    dfb.info()
 
