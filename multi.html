@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <!-- jQuery library integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>  -->
-        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
 
         <!-- Latest compiled and minified CSS -->
@@ -37,6 +37,26 @@
     </head>
     <body>
 
+        <script>
+            $(function() {
+                $('a#test').bind('click', function() {
+                $.getJSON('/background_process_test',
+                    function(data) {
+                    console.log(data);
+                });
+                return false;
+                });
+            });
+        </script>
+        
+        
+        <!-- <div class='container'>
+            <form>
+                
+            </form>
+        
+        </div> -->
+
 
         <form class="form-inline">
             <div class="dropdown">
@@ -52,6 +72,7 @@
             <div class="form-group mx-sm-3 mb-2">
                 <input type="text" class="form-control" id="query-input" placeholder="placeholder">
             </div>
+            <a href=# id=test><button class='btn btn-primary'>Test</button></a>
         </form>
 
         <script>
@@ -93,7 +114,7 @@
 
 
         <!-- reload th window when the model changes -->
-        <script type="text/javascript" charset="utf-8"> 
+        <script> 
         $(document).ready(function(){ 
         var socket = io.connect('http://' + document.domain + ':' + location.port); 
         socket.on('reload', function() { 

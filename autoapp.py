@@ -42,5 +42,11 @@ def model():
 
     return json.dumps(True)
 
+
+@app.route('/background_process_test')
+def background_process_test():
+    print "Hello"
+    return json.dumps({"nothing":'much'})
+
 if __name__ == "__main__":
     app.run(debug=True)
