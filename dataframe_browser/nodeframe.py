@@ -56,5 +56,10 @@ class NodeFrame(object):
 
     @fn_timer
     def groupby(self, **kwargs):
-
         return {key:df for key, df in self.df.groupby(**kwargs)}
+
+    @fn_timer
+    def merge(self, other, **kwargs):
+        return self.df.merge(other.df, **kwargs)
+
+    

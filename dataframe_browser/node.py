@@ -101,6 +101,21 @@ class Node(object):
             new_nodes.append(curr_node)
 
         return new_nodes
+
+    def merge(self, **kwargs):
+
+        total_time = 0
+        left_node_frame = self.node_frames[0]
+        for right_node_frame in self.node_frames[1:]:
+            df, load_time = left_node_frame.merge(right_node_frame, **kwargs)
+            total_time += load_time
+            left_node_frame = NodeFrame(df=df, load_time=total_time)
+
+        if self.name is None:
+            return Node((left_node_frame,), name=None, parent=self, force=False)
+        else:
+            return Node((left_node_frame,), name='{parent_name}[{index}]'.format(parent_name=self.name, index='merge'), parent=self, force=False)
+
             
 
 

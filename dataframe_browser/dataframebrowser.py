@@ -79,14 +79,15 @@ class DataFrameBrowser(object):
 
     def bookmark(self, name):
         self.model.active.rename(name)
+        self.view.display_active()
 
     def back(self):
         self.model.set_active(self.model.active.parent)
 
-    # def forward(self, option=None):
-    #     if option is None:
-    #         assert len(self.model.children) == 1
-    #         forward_node = self.model.children
+    def merge(self, on=None, how='inner'):
+
+        new_node = self.active.merge(on=on, how=how)
+        self.model.set_active(new_node)
 
 
     @property
@@ -113,6 +114,5 @@ if __name__ == "__main__":
     dfb.select('C[0]', 'a')
     dfb.append('A')
     dfb.bookmark('new')
-    dfb.info()
+    dfb.merge('a', how='right')
 
-    print dfb.active.name
