@@ -8,3 +8,4 @@ build
 tests/__pycache__
 *.pyc
 **/*.ipynb_checkpoints
+sandbox.py

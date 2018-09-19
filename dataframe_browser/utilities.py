@@ -48,6 +48,10 @@ def load_file(filename, **kwargs):
     
     return df
 
+@fn_timer
+def read_file_query_uri(query=None, uri=None):
+    return pd.read_sql_query(query,con=uri)
+
 def one(x, exc_tp=TypeError):
     try:
         val, = x

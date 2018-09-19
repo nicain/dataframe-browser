@@ -1,4 +1,4 @@
-from utilities import create_class_logger, fn_timer, load_file
+from utilities import create_class_logger, fn_timer, load_file, read_file_query_uri
 import os
 import pandas as pd
 from customexceptions import UnrecognizedFileTypeException
@@ -29,6 +29,17 @@ class TextController(object):
         node_frame = NodeFrame(df=df, load_time=load_time, metadata={'filename':filename})
         node = self.create_node((node_frame,), parent=self.app.model.root, name=bookmark, force=force)
         self.app.model.set_active(node)
+        self.app.view.display_active()
+
+    def read_node_from_uri_query(self, query=None, uri=None, bookmark=None, force=False):
+        
+        df, load_time = read_file_query_uri(query=query, uri=uri)
+
+        node_frame = NodeFrame(df=df, load_time=load_time, metadata={'query':query, 'uri':uri})
+        node = self.create_node((node_frame,), parent=self.app.model.root, name=bookmark, force=force)
+        self.app.model.set_active(node)
+        self.app.view.display_active()
+
 
 
     def create_node(self, nodeframe_list, parent, name=None, force=False):
