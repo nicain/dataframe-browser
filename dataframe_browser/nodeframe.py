@@ -1,6 +1,7 @@
 import pandas as pd
 from cssutils import parseStyle
 from utilities import BeautifulSoup, fn_timer
+import json
 
 
 class NodeFrame(object):
@@ -74,6 +75,13 @@ class NodeFrame(object):
 
     @fn_timer
     def apply(self, **kwargs):
-        result_series = self.df[kwargs['column']][range(5)].apply(kwargs['mapper_fcn'])
+
+        apply_fcn = lambda col_val: json.dumps({'mapper':kwargs['mapper'], 
+                                                'mapper_library':kwargs['mapper_library'], 
+                                                'args':[col_val],
+                                                'kwargs':{}})
+
+        result_series = self.df[kwargs['column']][range(5)].apply(apply_fcn)
+
         df = pd.DataFrame({kwargs['new_column']:result_series})
         return df.join(self.df)

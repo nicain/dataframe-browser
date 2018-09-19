@@ -67,8 +67,12 @@ from dataframe_browser.mappers import mapper_library_dict
 def lazy_formatting():
     data = json.loads(request.data)
     result = mapper_library_dict[data['mapper_library']][data['mapper']](*data.get('args',[]), **data.get('kwargs', {}))
-    # print data
     return json.dumps({'result':result})
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+
+    # {'mapper':'nwb_file_to_max_projection', 
+    # 'mapper_library':'dataframe_browser.mappers.brain_observatory', 
+    # 'args':['/allen/programs/braintv/production/neuralcoding/prod31/specimen_602810529/ophys_session_617204394/ophys_experiment_617388117/617388117.nwb']}

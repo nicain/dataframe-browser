@@ -90,8 +90,7 @@ class DataFrameBrowser(object):
 
     def apply(self, column=None, mapper=None, mapper_library=None, new_column=None):
 
-        mapper_fcn = self.mapper_library_dict[mapper_library][mapper]
-        new_node_list = self.active.apply(column=column, mapper_fcn=mapper_fcn, new_column=new_column)
+        new_node_list = self.active.apply(column=column, mapper=mapper, mapper_library=mapper_library, new_column=new_column)
         self.model.set_active(new_node_list[0])
         self.view.display_active()
 
