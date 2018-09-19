@@ -34,7 +34,12 @@ class NodeFrame(object):
             columns = self.df.columns
         
         table_class = "display"
-        table_html = self.df[columns].to_html(classes=[table_class], index=False)
+
+        old_width = pd.get_option('display.max_colwidth')
+        pd.set_option('display.max_colwidth', -1)
+
+        table_html = self.df[columns].to_html(classes=[table_class], index=False, escape=False)
+        pd.set_option('display.max_colwidth', old_width)
         table_html_bs = table_html_bs = BeautifulSoup(table_html).table
         style = parseStyle(table_html_bs.thead.tr['style'])
         style['text-align'] = 'center'
@@ -67,4 +72,8 @@ class NodeFrame(object):
         query = kwargs.pop('query')
         return self.df.query(query, **kwargs)
 
-    
+    @fn_timer
+    def apply(self, **kwargs):
+        result_series = self.df[kwargs['column']][range(5)].apply(kwargs['mapper_fcn'])
+        df = pd.DataFrame({kwargs['new_column']:result_series})
+        return df.join(self.df)

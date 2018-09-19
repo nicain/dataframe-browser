@@ -1,23 +1,6 @@
-# import pandas as pd
-# import networkx as nx
-# import sys
-# import logging
-# from collections import OrderedDict
-# import json
-# import traceback
 import os
-# import io
-# import requests
-# import warnings
-# import readline
-# import shlex
-# import argcomplete
-# import re
-# import atexit
-# import itertools
-# from future.utils import raise_from
 
-
+from mappers import mapper_library_dict
 from utilities import create_class_logger
 from model import Model
 from view import FlaskView
@@ -38,6 +21,10 @@ class DataFrameBrowser(object):
 
         controller_kwargs = kwargs.get('controller_kwargs', {})
         self.controller = kwargs.get('controller_class', TextController)(app=self, **controller_kwargs)
+
+        self.mapper_library_dict = mapper_library_dict
+
+
 
     def open(self, filename=None, bookmark=None):
 
@@ -99,7 +86,15 @@ class DataFrameBrowser(object):
 
     def read(self, query=None, uri=None):
         
-        new_node = self.controller.read_node_from_uri_query(query=query, uri=uri)
+        self.controller.read_node_from_uri_query(query=query, uri=uri)
+
+    def apply(self, column=None, mapper=None, mapper_library=None, new_column=None):
+
+        mapper_fcn = self.mapper_library_dict[mapper_library][mapper]
+        new_node_list = self.active.apply(column=column, mapper_fcn=mapper_fcn, new_column=new_column)
+        self.model.set_active(new_node_list[0])
+        self.view.display_active()
+
 
 
     @property
@@ -115,11 +110,27 @@ class DataFrameBrowser(object):
 if __name__ == "__main__":    
     
     from dataframe_browser.dataframebrowser import DataFrameBrowser
-    # example_df_path = '/home/nicholasc/projects/dataframe-browser/tests/example.csv'
-    example_df_path = '/home/nicholasc/projects/dataframe-browser/data/BOb_data.p'
-    # example2_df_path = '/home/nicholasc/projects/dataframe-browser/tests/example2.csv'
+    import pgpasslib
+
+    query = '''SELECT wkfnwb.storage_directory || wkfnwb.filename AS nwb_file
+    FROM experiment_containers ec JOIN ophys_experiments oe ON oe.experiment_container_id=ec.id AND oe.workflow_state = 'passed'
+    JOIN images mip ON mip.id=oe.maximum_intensity_projection_image_id
+    JOIN well_known_files wkfnwb ON wkfnwb.attachable_id=oe.id JOIN well_known_file_types wkft ON wkft.id=wkfnwb.well_known_file_type_id AND wkft.name = 'NWBOphys'
+    JOIN ophys_sessions os ON os.id=oe.ophys_session_id JOIN projects osp ON osp.id=os.project_id
+    WHERE osp.code = 'C600' AND ec.workflow_state NOT IN ('failed')
+    AND ec.workflow_state = 'published';'''
+    
+    password = pgpasslib.getpass('limsdb2', 5432, 'lims2', 'limsreader')
+
     dfb = DataFrameBrowser()
-    dfb.open(filename=example_df_path, bookmark='A')
+    dfb.read(query=query, uri='postgresql://limsreader:{password}@limsdb2:5432/lims2'.format(password=password))
+    dfb.apply(column='nwb_file', mapper='nwb_file_to_max_projection', mapper_library='dataframe_browser.mappers.brain_observatory', new_column='max_projection')
+
+    # example_df_path = '/home/nicholasc/projects/dataframe-browser/tests/example.csv'
+    # example_df_path = '/home/nicholasc/projects/dataframe-browser/data/BOb_data.p'
+    # example2_df_path = '/home/nicholasc/projects/dataframe-browser/tests/example2.csv'
+    # dfb = DataFrameBrowser()
+    # dfb.open(filename=example_df_path, bookmark='A')
     # dfb.open(filename=example2_df_path, bookmark='B')
     # dfb.append('A', force=True, new_bookmark='C')
     # dfb.groupby('c')

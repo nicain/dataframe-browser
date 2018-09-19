@@ -127,7 +127,16 @@ class Node(object):
 
         return new_nodes
 
+    def apply(self, **kwargs):
 
+        new_nodes = []
+        for node_frame in self.node_frames:
+            df, load_time = node_frame.apply(**kwargs)
+            node_frame = NodeFrame(df=df, load_time=load_time)
+            new_node = Node((node_frame,), name=None, parent=self, force=False)
+            new_nodes.append(new_node)
+
+        return new_nodes
             
     def to_graph_dict(self):
         children = [x.to_graph_dict() for x in self.children]

@@ -6,5 +6,7 @@ bokeh
 selenium
 beautifulsoup4
 cssutils
+pgpasslib
+matplotlib
 
 # conda install -c conda-forge phantomjs
