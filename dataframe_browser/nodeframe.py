@@ -76,12 +76,18 @@ class NodeFrame(object):
     @fn_timer
     def apply(self, **kwargs):
 
-        apply_fcn = lambda col_val: json.dumps({'mapper':kwargs['mapper'], 
-                                                'mapper_library':kwargs['mapper_library'], 
-                                                'args':[col_val],
-                                                'kwargs':{}})
+        # apply_fcn = lambda col_val: json.dumps({'mapper':kwargs['mapper'], 
+        #                                         'mapper_library':kwargs['mapper_library'], 
+        #                                         'args':[col_val],
+        #                                         'kwargs':{}})
 
-        result_series = self.df[kwargs['column']][range(5)].apply(apply_fcn)
+        js = '''$(function() {console.log( "ready!" );});'''
+
+        txt = """<script>{js}</script>""".format(js=js.strip())
+
+
+        apply_fcn = lambda x: txt
+        result_series = self.df[kwargs['column']].apply(apply_fcn)
 
         df = pd.DataFrame({kwargs['new_column']:result_series})
         return df.join(self.df)
