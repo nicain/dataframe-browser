@@ -88,7 +88,7 @@ class NodeFrame(object):
 
             id = generate_uuid()
             div_txt = '<div id="{id}"></div>'.format(id=id)
-            js = '$.ajax({{type : "POST", url : "/lazy_formatting", data: JSON.stringify({payload}, null, "\t"), contentType: "application/json;charset=UTF-8", success: function(result) {{document.getElementById("{id}").innerHTML = JSON.parse(result)["result"];}}}});'.format(id=id, payload=payload)
+            js = '$(function(){{if ($("#{id}").is(":visible")){{ $.ajax({{type : "POST", url : "/lazy_formatting", data: JSON.stringify({payload}, null, "\t"), contentType: "application/json;charset=UTF-8", success: function(result) {{document.getElementById("{id}").innerHTML = JSON.parse(result)["result"];}}}});}};}});'.format(id=id, payload=payload)
  
             
             js_txt = """<script>{js}</script>""".format(js=js)

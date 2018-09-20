@@ -74,6 +74,10 @@ def lazy_formatting():
 def sandbox():
     return render_template('sandbox.html') 
 
+@app.route('/sandbox2', methods=['POST'])
+def sandbox2():
+    return json.dumps({'a':'a'})
+
 if __name__ == "__main__":
     app.run(debug=True)
 

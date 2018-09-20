@@ -10,7 +10,25 @@
 
 
 <div id=123></div>
-<script type=text/javascript>var txt = $.ajax({type : "POST", url : "/lazy_formatting", data: JSON.stringify({a:'a'}, null, '\t'), contentType: 'application/json;charset=UTF-8', success: function(result) {document.getElementById(123).innerHTML = result;}});</script>
+<script type=text/javascript>
+
+    $(function(){
+    if ($("#123").is(':visible')){
+    
+
+    $.ajax({
+        type : "POST",
+        url : "/sandbox2",
+        data: JSON.stringify({a:'a'}, null, '\t'),
+        contentType: 'application/json;charset=UTF-8',
+        success: function(result) {
+            document.getElementById(123).innerHTML = result;
+            console.log('YES');
+        }
+    });
+    console.log('YES2');
+    };});
+</script>
 
 
 
