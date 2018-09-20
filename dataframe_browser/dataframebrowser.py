@@ -1,6 +1,5 @@
 import os
 
-from mappers import mapper_library_dict
 from utilities import create_class_logger
 from model import Model
 from view import FlaskView
@@ -21,9 +20,6 @@ class DataFrameBrowser(object):
 
         controller_kwargs = kwargs.get('controller_kwargs', {})
         self.controller = kwargs.get('controller_class', TextController)(app=self, **controller_kwargs)
-
-        self.mapper_library_dict = mapper_library_dict
-
 
 
     def open(self, filename=None, bookmark=None):
@@ -88,9 +84,9 @@ class DataFrameBrowser(object):
         
         self.controller.read_node_from_uri_query(query=query, uri=uri)
 
-    def apply(self, column=None, mapper=None, mapper_library=None, new_column=None):
+    def apply(self, column=None, mapper=None, mapper_library=None, new_column=None, lazy=False):
 
-        new_node_list = self.active.apply(column=column, mapper=mapper, mapper_library=mapper_library, new_column=new_column)
+        new_node_list = self.active.apply(column=column, mapper=mapper, mapper_library=mapper_library, new_column=new_column, lazy=lazy)
         self.model.set_active(new_node_list[0])
         self.view.display_active()
 
@@ -123,7 +119,8 @@ if __name__ == "__main__":
 
     dfb = DataFrameBrowser()
     dfb.read(query=query, uri='postgresql://limsreader:{password}@limsdb2:5432/lims2'.format(password=password))
-    dfb.apply(column='nwb_file', mapper='nwb_file_to_max_projection', mapper_library='dataframe_browser.mappers.brain_observatory', new_column='max_projection')
+    dfb.apply(column='nwb_file', mapper='nwb_file_to_max_projection', mapper_library='dataframe_browser.mappers.brain_observatory', new_column='max_projection', lazy=True)
+    # dfb.apply(column='nwb_file', mapper='test_apply', mapper_library='dataframe_browser.mappers.load_test', new_column='test')
 
     # example_df_path = '/home/nicholasc/projects/dataframe-browser/tests/example.csv'
     # example_df_path = '/home/nicholasc/projects/dataframe-browser/data/BOb_data.p'

@@ -26,7 +26,8 @@ def png(func):
     return wrapper_decorator
 
 import brain_observatory
+import load_test
 
 mapper_library_dict = {}
-for module in [brain_observatory]:
+for module in [brain_observatory, load_test]:
     mapper_library_dict[module.__name__] = dict(o for o in getmembers(module) if isfunction(o[1]))

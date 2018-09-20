@@ -56,7 +56,7 @@ class FlaskView(ConsoleView):
 
         else:
             if page_length is None:
-                page_length = 5 if len(self.app.model.active) > 1 else 5
+                page_length = 5 if len(self.app.model.active) > 1 else 20
 
             uuid_table_list = []
             for frame in self.app.model.active.node_frames:

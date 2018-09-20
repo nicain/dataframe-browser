@@ -3,6 +3,7 @@ from cssutils import parseStyle
 from utilities import BeautifulSoup, fn_timer, generate_uuid
 import json
 
+from dataframe_browser.mappers import mapper_library_dict
 
 class NodeFrame(object):
 
@@ -76,44 +77,40 @@ class NodeFrame(object):
     @fn_timer
     def apply(self, **kwargs):
 
+        if kwargs.get('lazy', True):
 
 
-        # js = '''$(function() {console.log( "ready!" );});'''
+            def apply_fcn(col_val):
 
-        # txt = """<script>{js}</script>""".format(js=js.strip())
+                payload = {'mapper':kwargs['mapper'], 'mapper_library':kwargs['mapper_library'], 'args':[str(col_val)], 'kwargs':{}}
 
-                                # if ($("#{id}").is(":visible")){{\
+                id = generate_uuid()
+                div_txt = '<div id="{id}"></div>'.format(id=id)
+                js = '$(".dataframe").on("draw.dt", function() {{\
+                                                                if ($("#{id}").is(":visible") && $("#{id}").is(":empty")  ){{\
+                                                                                                $.ajax({{type : "POST",\
+                                                                                                        url : "/lazy_formatting",\
+                                                                                                        data: JSON.stringify({payload}, null, "\t"),\
+                                                                                                        contentType: "application/json;charset=UTF-8",\
+                                                                                                        success: function(result) {{\
+                                                                                                                                    document.getElementById("{id}").innerHTML = JSON.parse(result)["result"];\
+                                                                                                                                    console.log("HW");\
+                                                                                                                                    }}\
+                                                                                                        }});\
+                                                                                                }};\
+                                                                }});'.format(id=id, payload=payload)
+    
+                
+                js_txt = """<script>{js}</script>""".format(js=js)
 
-        def apply_fcn(col_val):
+                f = ''.join([div_txt, js_txt])
 
-            payload = {'mapper':kwargs['mapper'], 'mapper_library':kwargs['mapper_library'], 'args':[str(col_val)], 'kwargs':{}}
+                return f
 
-            id = generate_uuid()
-            div_txt = '<div id="{id}"></div>'.format(id=id)
-            js = '$(".dataframe").on("draw.dt", function() {{\
-                                                            if ($("#{id}").is(":visible") && $("#{id}").is(":empty")  ){{\
-                                                                                            $.ajax({{type : "POST",\
-                                                                                                    url : "/lazy_formatting",\
-                                                                                                    data: JSON.stringify({payload}, null, "\t"),\
-                                                                                                    contentType: "application/json;charset=UTF-8",\
-                                                                                                    success: function(result) {{\
-                                                                                                                                document.getElementById("{id}").innerHTML = JSON.parse(result)["result"];\
-                                                                                                                                console.log("HW");\
-                                                                                                                                }}\
-                                                                                                    }});\
-                                                                                            }};\
-                                                            }});'.format(id=id, payload=payload)
- 
-            
-            js_txt = """<script>{js}</script>""".format(js=js)
+        else:
+            apply_fcn = mapper_library_dict[kwargs['mapper_library']][kwargs['mapper']]
 
-            f = ''.join([div_txt, js_txt])
-
-            return f
-
-
-        # apply_fcn = lambda x: txt
-        result_series = self.df[kwargs['column']][range(50)].apply(apply_fcn)
+        result_series = self.df[kwargs['column']].apply(apply_fcn)
 
         df = pd.DataFrame({kwargs['new_column']:result_series})
         return df.join(self.df)
