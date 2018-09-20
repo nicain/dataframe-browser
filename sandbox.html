@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+        <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+
+</head>
+<!-- ================================================================== -->
+<body>
+
+
+<div id=123></div>
+<script type=text/javascript>var txt = $.ajax({type : "POST", url : "/lazy_formatting", data: JSON.stringify({a:'a'}, null, '\t'), contentType: 'application/json;charset=UTF-8', success: function(result) {document.getElementById(123).innerHTML = result;}});</script>
+
+
+
+
+<!-- <script>
+    var txt =   $.ajax({
+                        type : "GET",
+                        url : "/lazy_formatting",
+                        data: JSON.stringify({'a':'b'}),
+                        contentType: "application/json",
+                        success: function(result) {
+                            console.log('result');
+                        }});
+
+    console.log(txt);
+
+
+    document.getElementById(123).innerHTML = txt;
+</script> -->
+</body>

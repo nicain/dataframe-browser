@@ -63,11 +63,16 @@ def graph_json():
 
 from dataframe_browser.mappers import mapper_library_dict
 
-@app.route('/lazy_formatting')
+@app.route('/lazy_formatting', methods=['POST'])
 def lazy_formatting():
-    data = json.loads(request.data)
+    # return json.dumps(request.json)
+    data = request.json
     result = mapper_library_dict[data['mapper_library']][data['mapper']](*data.get('args',[]), **data.get('kwargs', {}))
     return json.dumps({'result':result})
+
+@app.route('/sandbox')
+def sandbox():
+    return render_template('sandbox.html') 
 
 if __name__ == "__main__":
     app.run(debug=True)

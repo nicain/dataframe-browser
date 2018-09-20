@@ -1,6 +1,6 @@
 import pandas as pd
 from cssutils import parseStyle
-from utilities import BeautifulSoup, fn_timer
+from utilities import BeautifulSoup, fn_timer, generate_uuid
 import json
 
 
@@ -76,18 +76,30 @@ class NodeFrame(object):
     @fn_timer
     def apply(self, **kwargs):
 
-        # apply_fcn = lambda col_val: json.dumps({'mapper':kwargs['mapper'], 
-        #                                         'mapper_library':kwargs['mapper_library'], 
-        #                                         'args':[col_val],
-        #                                         'kwargs':{}})
-
-        js = '''$(function() {console.log( "ready!" );});'''
-
-        txt = """<script>{js}</script>""".format(js=js.strip())
 
 
-        apply_fcn = lambda x: txt
-        result_series = self.df[kwargs['column']].apply(apply_fcn)
+        # js = '''$(function() {console.log( "ready!" );});'''
+
+        # txt = """<script>{js}</script>""".format(js=js.strip())
+
+        def apply_fcn(col_val):
+
+            payload = {'mapper':kwargs['mapper'], 'mapper_library':kwargs['mapper_library'], 'args':[str(col_val)], 'kwargs':{}}
+
+            id = generate_uuid()
+            div_txt = '<div id="{id}"></div>'.format(id=id)
+            js = '$.ajax({{type : "POST", url : "/lazy_formatting", data: JSON.stringify({payload}, null, "\t"), contentType: "application/json;charset=UTF-8", success: function(result) {{document.getElementById("{id}").innerHTML = JSON.parse(result)["result"];}}}});'.format(id=id, payload=payload)
+ 
+            
+            js_txt = """<script>{js}</script>""".format(js=js)
+
+            f = ''.join([div_txt, js_txt])
+
+            return f
+
+
+        # apply_fcn = lambda x: txt
+        result_series = self.df[kwargs['column']][range(50)].apply(apply_fcn)
 
         df = pd.DataFrame({kwargs['new_column']:result_series})
         return df.join(self.df)
