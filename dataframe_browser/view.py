@@ -6,9 +6,10 @@ from collections import OrderedDict as OD
 import asciitree
 import json
 
-POST_ROUTE ='http://localhost:5000/model' 
-POST_ROUTE_GRAPH ='http://localhost:5000/graph' 
-POST_RELOAD ='http://localhost:5000/reload' 
+port=5000
+POST_ROUTE ='http://localhost:{port}/model'.format(port=port) 
+POST_ROUTE_GRAPH ='http://localhost:{port}/graph'.format(port=port)
+POST_RELOAD ='http://localhost:{port}/reload'.format(port=port)
 
 class ConsoleView(object):
 

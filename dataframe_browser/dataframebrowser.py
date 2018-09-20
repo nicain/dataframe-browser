@@ -107,7 +107,7 @@ if __name__ == "__main__":
     from dataframe_browser.dataframebrowser import DataFrameBrowser
     import pgpasslib
 
-    query = '''SELECT wkfnwb.storage_directory || wkfnwb.filename AS nwb_file
+    query = '''SELECT wkfnwb.storage_directory || wkfnwb.filename AS nwb_file, oe.experiment_container_id AS experiment_container_id, oe.ophys_session_id AS ophys_session_id
     FROM experiment_containers ec JOIN ophys_experiments oe ON oe.experiment_container_id=ec.id AND oe.workflow_state = 'passed'
     JOIN images mip ON mip.id=oe.maximum_intensity_projection_image_id
     JOIN well_known_files wkfnwb ON wkfnwb.attachable_id=oe.id JOIN well_known_file_types wkft ON wkft.id=wkfnwb.well_known_file_type_id AND wkft.name = 'NWBOphys'
@@ -119,7 +119,7 @@ if __name__ == "__main__":
 
     dfb = DataFrameBrowser()
     dfb.read(query=query, uri='postgresql://limsreader:{password}@limsdb2:5432/lims2'.format(password=password))
-    dfb.apply(column='nwb_file', mapper='nwb_file_to_max_projection', mapper_library='dataframe_browser.mappers.brain_observatory', new_column='max_projection', lazy=True)
+    # dfb.apply(column='nwb_file', mapper='nwb_file_to_max_projection', mapper_library='dataframe_browser.mappers.brain_observatory', new_column='max_projection', lazy=True)
     # dfb.apply(column='nwb_file', mapper='test_apply', mapper_library='dataframe_browser.mappers.load_test', new_column='test')
 
     # example_df_path = '/home/nicholasc/projects/dataframe-browser/tests/example.csv'
