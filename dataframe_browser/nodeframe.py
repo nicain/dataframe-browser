@@ -82,13 +82,29 @@ class NodeFrame(object):
 
         # txt = """<script>{js}</script>""".format(js=js.strip())
 
+                                # if ($("#{id}").is(":visible")){{\
+
         def apply_fcn(col_val):
 
             payload = {'mapper':kwargs['mapper'], 'mapper_library':kwargs['mapper_library'], 'args':[str(col_val)], 'kwargs':{}}
 
             id = generate_uuid()
-            div_txt = '<div id="{id}"></div>'.format(id=id)
-            js = '$(function(){{if ($("#{id}").is(":visible")){{ $.ajax({{type : "POST", url : "/lazy_formatting", data: JSON.stringify({payload}, null, "\t"), contentType: "application/json;charset=UTF-8", success: function(result) {{document.getElementById("{id}").innerHTML = JSON.parse(result)["result"];}}}});}};}});'.format(id=id, payload=payload)
+            div_txt = '<div id="{id}">PH</div>'.format(id=id)
+            js = '$(function(){{\
+                                $(".dataframe").on("draw.dt", function() {{\
+                                                                        if ($("#{id}").is(":visible")){{\
+                                                                                                        $.ajax({{type : "POST",\
+                                                                                                                url : "/lazy_formatting",\
+                                                                                                                data: JSON.stringify({payload}, null, "\t"),\
+                                                                                                                contentType: "application/json;charset=UTF-8",\
+                                                                                                                success: function(result) {{\
+                                                                                                                                            document.getElementById("{id}").innerHTML = JSON.parse(result)["result"];\
+                                                                                                                                            console.log("HW");\
+                                                                                                                                            }}\
+                                                                                                                }});\
+                                                                                                        }};\
+                                                                         }});\
+                              }});'.format(id=id, payload=payload)
  
             
             js_txt = """<script>{js}</script>""".format(js=js)

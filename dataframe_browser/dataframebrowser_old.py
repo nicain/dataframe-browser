@@ -146,7 +146,7 @@ class DataFrameNode(object):
         if columns is None:
             columns = self.df.columns
         
-        table_class = "display"
+        table_class = "displayhw"
         table_html = self.df[columns].to_html(classes=[table_class], index=False)
         table_html_bs = table_html_bs = BeautifulSoup(table_html).table
         style = parseStyle(table_html_bs.thead.tr['style'])

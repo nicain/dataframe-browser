@@ -9,12 +9,14 @@
 <body>
 
 
-<div id=123></div>
+<div id=123>'hi'</div>
 <script type=text/javascript>
-
+    console.log('A');
     $(function(){
-    if ($("#123").is(':visible')){
+
+    $(document).on('show', '#123',function() {
     
+    console.log('C');
 
     $.ajax({
         type : "POST",
@@ -27,7 +29,9 @@
         }
     });
     console.log('YES2');
-    };});
+    });
+    });
+    console.log('B');
 </script>
 
 
