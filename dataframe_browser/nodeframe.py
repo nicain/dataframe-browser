@@ -89,9 +89,9 @@ class NodeFrame(object):
             payload = {'mapper':kwargs['mapper'], 'mapper_library':kwargs['mapper_library'], 'args':[str(col_val)], 'kwargs':{}}
 
             id = generate_uuid()
-            div_txt = '<div id="{id}">PH</div>'.format(id=id)
+            div_txt = '<div id="{id}"></div>'.format(id=id)
             js = '$(".dataframe").on("draw.dt", function() {{\
-                                                            if ($("#{id}").is(":visible")){{\
+                                                            if ($("#{id}").is(":visible") && $("#{id}").is(":empty")  ){{\
                                                                                             $.ajax({{type : "POST",\
                                                                                                     url : "/lazy_formatting",\
                                                                                                     data: JSON.stringify({payload}, null, "\t"),\
