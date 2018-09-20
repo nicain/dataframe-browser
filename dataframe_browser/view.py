@@ -6,10 +6,7 @@ from collections import OrderedDict as OD
 import asciitree
 import json
 
-port=5000
-POST_ROUTE ='http://localhost:{port}/model'.format(port=port) 
-POST_ROUTE_GRAPH ='http://localhost:{port}/graph'.format(port=port)
-POST_RELOAD ='http://localhost:{port}/reload'.format(port=port)
+
 
 class ConsoleView(object):
 
@@ -42,18 +39,13 @@ class ConsoleView(object):
         root = self.app.model.get_node_by_name('root')
         print asciitree.LeftAligned()({root:OD(root.items())})
 
-class FlaskView(ConsoleView):
-
-    def display_active(self):
-        self.display_node()
-        response = requests.post(POST_RELOAD, json=json.dumps([]))
-        self.display_tree()
+class FlaskViewServer(ConsoleView):
 
     def display_node(self, page_length=None):
-
+    
 
         if self.app.model.active is None or len(self.app.model.active) < 1:
-            response = requests.post(POST_ROUTE, json=json.dumps([]))
+            uuid_table_list = []
 
         else:
             if page_length is None:
@@ -77,13 +69,36 @@ class FlaskView(ConsoleView):
                 table_html_bs['id'] = table_uuid
                 uuid_table_list.append((table_uuid, str(table_html_bs), page_length, active_name))
 
-            response = requests.post(POST_ROUTE, json=json.dumps(uuid_table_list))
-        self.logger.info(json.dumps({'DISPLAY_ACTIVE':{'response':str(response)}}, indent=4))
+
+        self.logger.info(json.dumps(['DISPLAY_NODE'], indent=4))
+        return uuid_table_list
+
+class FlaskViewClient(ConsoleView):
+
+    def __init__(self, **kwargs):
+        
+        self.port = kwargs.pop('port', 5000)
+        self.uri_base = kwargs.pop('uri_base','localhost')
+        
+        super(FlaskViewClient, self).__init__(**kwargs)
+
+        self.POST_ROUTE ='http://{uri_base}:{port}/model'.format(port=self.port, uri_base=self.uri_base) 
+        self.POST_ROUTE_GRAPH ='http://{uri_base}:{port}/graph'.format(port=self.port, uri_base=self.uri_base)
+        self.POST_RELOAD ='http://{uri_base}:{port}/reload'.format(port=self.port, uri_base=self.uri_base)
+
+    def display_active(self):
+        self.display_node()
+        response = requests.post(self.POST_RELOAD, json=json.dumps([]))
+        self.display_tree()
+
+    def display_node(self, page_length=None):
+        # response = requests.post(self.POST_ROUTE, json=json.dumps(uuid_table_list))
+        raise NotImplementedError
 
 
     def display_tree(self):
     
-        super(FlaskView, self).display_tree()
+        super(FlaskViewClient, self).display_tree()
 
         root = self.app.model.get_node_by_name('root')
-        response = requests.post(POST_ROUTE_GRAPH, json=json.dumps(root.to_graph_dict()))
+        response = requests.post(self.POST_ROUTE_GRAPH, json=json.dumps(root.to_graph_dict()))

@@ -3,9 +3,20 @@ import pandas as pd
 import os
 import json
 from flask_socketio import SocketIO 
+from dataframe_browser.dataframebrowser import DataFrameBrowser
 
 app = Flask(__name__, template_folder='.')
 socketio = SocketIO(app) 
+
+dfb = DataFrameBrowser()
+
+
+@app.route("/browser", methods=['GET']) 
+def browser_get():  
+
+    uuid_table_list = dfb.view.display_node()
+
+    return render_template('multi.html', uuid_table_list=uuid_table_list, header='') 
 
 @app.route('/')
 def hello_world():

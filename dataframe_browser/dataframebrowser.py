@@ -2,7 +2,7 @@ import os
 
 from utilities import create_class_logger
 from model import Model
-from view import FlaskView
+from view import FlaskViewServer as FlaskView
 from controller import TextController
 from customexceptions import BookmarkAlreadyExists
 
