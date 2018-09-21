@@ -9,5 +9,6 @@ cssutils
 pgpasslib
 matplotlib
 gunicorn
+requests
 
 # conda install -c conda-forge phantomjs

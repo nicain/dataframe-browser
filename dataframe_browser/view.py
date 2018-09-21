@@ -16,7 +16,8 @@ class ConsoleView(object):
         self.app = kwargs['app']
 
     
-
+    def display_message(self, msg, type=None):
+        print msg
 
     def display_branch_info(self):
         print '\nBookmarked groups: ("*" means currently active)'
@@ -73,32 +74,32 @@ class FlaskViewServer(ConsoleView):
         self.logger.info(json.dumps(['DISPLAY_NODE'], indent=4))
         return uuid_table_list
 
-class FlaskViewClient(ConsoleView):
+# class FlaskViewClient(ConsoleView):
 
-    def __init__(self, **kwargs):
+#     def __init__(self, **kwargs):
         
-        self.port = kwargs.pop('port', 5000)
-        self.uri_base = kwargs.pop('uri_base','localhost')
+#         self.port = kwargs.pop('port', 5000)
+#         self.uri_base = kwargs.pop('uri_base','localhost')
         
-        super(FlaskViewClient, self).__init__(**kwargs)
+#         super(FlaskViewClient, self).__init__(**kwargs)
 
-        self.POST_ROUTE ='http://{uri_base}:{port}/model'.format(port=self.port, uri_base=self.uri_base) 
-        self.POST_ROUTE_GRAPH ='http://{uri_base}:{port}/graph'.format(port=self.port, uri_base=self.uri_base)
-        self.POST_RELOAD ='http://{uri_base}:{port}/reload'.format(port=self.port, uri_base=self.uri_base)
+#         self.POST_ROUTE ='http://{uri_base}:{port}/model'.format(port=self.port, uri_base=self.uri_base) 
+#         self.POST_ROUTE_GRAPH ='http://{uri_base}:{port}/graph'.format(port=self.port, uri_base=self.uri_base)
+#         self.POST_RELOAD ='http://{uri_base}:{port}/reload'.format(port=self.port, uri_base=self.uri_base)
 
-    def display_active(self):
-        self.display_node()
-        response = requests.post(self.POST_RELOAD, json=json.dumps([]))
-        self.display_tree()
+#     def display_active(self):
+#         self.display_node()
+#         response = requests.post(self.POST_RELOAD, json=json.dumps([]))
+#         self.display_tree()
 
-    def display_node(self, page_length=None):
-        # response = requests.post(self.POST_ROUTE, json=json.dumps(uuid_table_list))
-        raise NotImplementedError
+#     def display_node(self, page_length=None):
+#         # response = requests.post(self.POST_ROUTE, json=json.dumps(uuid_table_list))
+#         raise NotImplementedError
 
 
-    def display_tree(self):
+#     def display_tree(self):
     
-        super(FlaskViewClient, self).display_tree()
+#         super(FlaskViewClient, self).display_tree()
 
-        root = self.app.model.get_node_by_name('root')
-        response = requests.post(self.POST_ROUTE_GRAPH, json=json.dumps(root.to_graph_dict()))
+#         root = self.app.model.get_node_by_name('root')
+#         response = requests.post(self.POST_ROUTE_GRAPH, json=json.dumps(root.to_graph_dict()))

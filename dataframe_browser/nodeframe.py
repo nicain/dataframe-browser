@@ -2,6 +2,7 @@ import pandas as pd
 from cssutils import parseStyle
 from utilities import BeautifulSoup, fn_timer, generate_uuid
 import json
+# import time
 
 from dataframe_browser.mappers import mapper_library_dict
 
@@ -39,15 +40,19 @@ class NodeFrame(object):
 
         old_width = pd.get_option('display.max_colwidth')
         pd.set_option('display.max_colwidth', -1)
-
-        table_html = self.df[columns].to_html(classes=[table_class], index=False, escape=False)
+        # t0 = time.time()
+        table_html = self.df[columns].to_html(classes=[table_class], index=False, escape=False, justify='center')
+        # print time.time() - t0
         pd.set_option('display.max_colwidth', old_width)
-        table_html_bs = table_html_bs = BeautifulSoup(table_html).table
-        style = parseStyle(table_html_bs.thead.tr['style'])
-        style['text-align'] = 'center'
-        table_html_bs.thead.tr['style'] = style.cssText
+        # t0 = time.time()
+        # table_html_bs = BeautifulSoup(table_html).table
+        # print time.time() - t0
+        # style = parseStyle(table_html_bs.thead.tr['style'])
+        # style['text-align'] = 'center'
+        # table_html_bs.thead.tr['style'] = style.cssText
+        # print done
 
-        return str(table_html_bs)
+        return table_html
 
     def __str__(self):
 

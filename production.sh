@@ -1,1 +1,1 @@
-gunicorn -k gevent --log-level debug --bind 0.0.0.0:5001 autoapp:app
+gunicorn -k gevent --log-level debug --bind 0.0.0.0:5000 autoapp:app
