@@ -1,18 +1,25 @@
 import requests
 import pgpasslib
+import json
 
-requests.post('http://localhost:5000/command', data={
+requests.post('http://localhost:5000/command', json=json.dumps({
     'command':'open',
     # 'filename':'/home/nicholasc/projects/dataframe-browser/data/example2.csv',
     'filename':'/home/nicholasc/projects/dataframe-browser/data/cell_counting.csv',
     'reload':False
-    })
+    }))
 
-requests.post('http://localhost:5000/command', data={
-    'command':'groupby',
-    'by':['Sex', 'creline'],
+requests.post('http://localhost:5000/command', json=json.dumps({
+    'command':'query',
+    'query':'acronym=="root"',
     'reload':True
-    })
+    }))
+
+# requests.post('http://localhost:5000/command', json=json.dumps({
+#     'command':'groupby',
+#     'by':['Sex', 'creline'],
+#     'reload':True
+#     }))
 
 
 # requests.post('http://localhost:5000/command', data={

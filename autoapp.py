@@ -21,16 +21,10 @@ def browser_get():
 @app.route("/command", methods=['POST'])
 def cmd_post():
 
-    data = request.form.to_dict()
+    data = json.loads(request.json)
 
     command = data.pop('command')
-    reload_bool = bool(data.pop('reload', True))
-
-    # coerce safely:
-    if reload_bool in [True, 'True', 'true']:
-        reload_bool = True
-    elif reload_bool in [False, 'False', 'false']:
-        reload_bool = False
+    reload_bool = data.pop('reload', True)
 
     if command == 'read':
         dfb.read(**data)
@@ -38,6 +32,8 @@ def cmd_post():
         dfb.open(**data)
     elif command == 'groupby':
         dfb.groupby(**data)
+    elif command == 'query':
+        dfb.query(**data)
 
     if reload_bool:
         socketio.emit('reload') 
