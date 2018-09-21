@@ -18,6 +18,20 @@ def browser_get():
 
     return render_template('multi.html', uuid_table_list=uuid_table_list, header='') 
 
+@app.route("/command", methods=['POST'])
+def cmd_post():
+
+    data = request.form.to_dict()
+
+    command = data.pop('command')
+    if command == 'read':
+        dfb.read(**data)
+    elif command == 'open':
+        dfb.open(**data)
+
+    socketio.emit('reload') 
+    return json.dumps(True)
+
 @app.route('/')
 def hello_world():
     return 'Hello, World!'
