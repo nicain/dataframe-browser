@@ -34,3 +34,27 @@ def nwb_file_to_max_projection(nwb_file):
     ax.set_yticks([])
 
     return fig
+
+@png
+def plot_traces_heatmap(nwb_file):
+
+    data_set = BrainObservatoryNwbDataSet(nwb_file)
+
+    _, dff_traces = data_set.get_dff_traces()
+
+    fig, ax = plt.subplots(figsize=(20, 8))
+    cax = ax.pcolormesh(dff_traces, cmap='magma', vmin=0, vmax=np.percentile(dff_traces, 99))
+    ax.set_ylim(0, dff_traces.shape[0])
+    ax.set_xlim(0, dff_traces.shape[1])
+    ax.set_ylabel('cells')
+    ax.set_xlabel('2P frames')
+    cb = plt.colorbar(cax, pad=0.015)
+    cb.set_label('dF/F', labelpad=3)
+
+    return fig
+
+
+    
+
+
+

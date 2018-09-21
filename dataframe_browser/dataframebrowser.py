@@ -147,7 +147,10 @@ if __name__ == "__main__":
 
 
     # dfb.apply(column='nwb_file', mapper='nwb_file_to_max_projection', mapper_library='dataframe_browser.mappers.brain_observatory', new_column='max_projection', lazy=True)
+    dfb = DataFrameBrowser()
+    dfb.read(query=query, uri='postgresql://limsreader:{password}@limsdb2:5432/lims2'.format(password=password))
     # dfb.apply(column='nwb_file', mapper='test_apply', mapper_library='dataframe_browser.mappers.load_test', new_column='test')
+    dfb.apply(column='nwb_file', mapper='nwb_file_to_dff_traces_heatmap', mapper_library='dataframe_browser.mappers.brain_observatory', new_column='max_projection', lazy=True)
 
     # example_df_path = '/home/nicholasc/projects/dataframe-browser/tests/example.csv'
     # example_df_path = '/home/nicholasc/projects/dataframe-browser/data/BOb_data.p'
