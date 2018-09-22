@@ -114,7 +114,6 @@ from dataframe_browser.mappers import mapper_library_dict
 @app.route('/lazy_formatting', methods=['POST'])
 def lazy_formatting():
     data = request.json
-    print data
     result = mapper_library_dict[data['mapper']](*data.get('args',[]), **data.get('kwargs', {}))
     return json.dumps({'result':result})
 

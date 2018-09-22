@@ -31,9 +31,10 @@ class png(object):
 
 import brain_observatory
 import load_test
+import widgets
 
 mapper_library_dict = {}
-for module in [brain_observatory, load_test]:
+for module in [brain_observatory, load_test, widgets]:
     for name, fcn in [o for o in getmembers(module) if isfunction(o[1])]:
         path = "{0}.{1}".format(module.__name__, name)
         mapper_library_dict[str(path)] = fcn

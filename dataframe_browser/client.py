@@ -63,8 +63,8 @@ if __name__ == "__main__":
     c = Cursor()
 
     c.open(filename='/home/nicholasc/projects/dataframe-browser/data/cell_specimens.p')
-    c.keep(['area', 'dsi_dg', 'osi_dg', 'donor_full_genotype']).reload()
-    # c.query('area=="VISpm"').reload()
+    c.query('area=="VISpm"')
+    c.keep(['area', 'dsi_dg', 'osi_dg', 'g_dsi_dg',]).reload()
     # c.groupby('area')
     
 

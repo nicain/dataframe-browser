@@ -5,8 +5,11 @@ from bokeh.models import Select, ColumnDataSource
 from bokeh.plotting import figure
 from bokeh.models.callbacks import CustomJS
 from bokeh.embed import components
+import json
 
-def xy_compare(df, width=200, size = 9, color = "#31AADE"):
+def xy_compare(series, width=200, size = 9, color = "#31AADE"):
+
+    df = pd.DataFrame(series.to_dict())
 
     columns = list(df.columns)
     initial_x_key = columns[0]
@@ -60,7 +63,10 @@ def xy_compare(df, width=200, size = 9, color = "#31AADE"):
 
     script, div = components(layout)
 
-    html = ''.join([script, div])
+    html = ''.join([script, div]).replace('\n', '')
+    x = 'console.log("Bokeh: ERROR: Unable to run BokehJS code because BokehJS library is missing")'
+    html = html.replace(x, x+';')
+
     return html
 
 if __name__ == "__main__":
@@ -68,7 +74,7 @@ if __name__ == "__main__":
     import pyperclip
     from bokeh.sampledata.autompg import autompg_clean as df
 
-    df = pd.DataFrame({'A':[1,2,3,4], 'B':[5,6,1,2], 'C':[0,1,6,2]})
+    df = pd.DataFrame({'A':[1,2,3,4], 'B':[float('nan'),6,1,2], 'C':[0,1,6,2]})
     html = xy_compare(df)
 
     pyperclip.copy(html)

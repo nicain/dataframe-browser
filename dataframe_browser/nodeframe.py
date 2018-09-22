@@ -47,9 +47,9 @@ class NodeFrame(object):
 
         print memory_usage(df, deep=True)
         
-        flash('Warning: table too large to render; showing summary table instead', category='warning')
 
         if memory_usage(df, deep=True) > max_size:
+            flash('Warning: table too large to render; showing summary table instead', category='warning')
             df_to_render = df.describe(include='all').T
             df_to_render.index.name = 'column'
             df_to_render = df_to_render.reset_index()
@@ -158,7 +158,7 @@ class NodeFrame(object):
         else:
             apply_fcn = mapper_library_dict[kwargs['mapper']]
 
-        result_series = self.df[kwargs['column']].apply(apply_fcn)
+        result_series = self.df[kwargs['column']].apply(apply_fcn, axis=1)
 
         df = pd.DataFrame({kwargs['new_column']:result_series})
         return df.join(self.df)
