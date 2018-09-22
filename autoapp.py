@@ -42,6 +42,8 @@ def cmd_post():
         dfb.keep(**data)
     elif command == 'concat':
         dfb.concat(**data)
+    elif command == 'apply':
+        dfb.apply(**data)
     elif command == 'reload':
         reload_bool = True
     else:
@@ -111,7 +113,8 @@ from dataframe_browser.mappers import mapper_library_dict
 @app.route('/lazy_formatting', methods=['POST'])
 def lazy_formatting():
     data = request.json
-    result = mapper_library_dict[data['mapper_library']][data['mapper']](*data.get('args',[]), **data.get('kwargs', {}))
+    print data
+    result = mapper_library_dict[data['mapper']](*data.get('args',[]), **data.get('kwargs', {}))
     return json.dumps({'result':result})
 
 @app.route('/sandbox')

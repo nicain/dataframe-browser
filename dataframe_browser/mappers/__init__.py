@@ -14,24 +14,29 @@ def image_base64_mpl(im):
         im.savefig(buffer, format='png', transparent=True)
         return base64.b64encode(buffer.getvalue()).decode()
 
-def png(func):
-    @functools.wraps(func)
-    def wrapper_decorator(*args, **kwargs):
-        # Do something before
-        fig = func(*args, **kwargs)
+class png(object):
 
-        image_base64 = image_base64_mpl(fig)
-        plt.close()
+    def __call__(self, func):
 
-        return image_formatter_mpl(image_base64)
-    return wrapper_decorator
+        @functools.wraps(func)
+        def wrapper_decorator(*args, **kwargs):
+            # Do something before
+            fig = func(*args, **kwargs)
+
+            image_base64 = image_base64_mpl(fig)
+            plt.close()
+
+            return image_formatter_mpl(image_base64)
+        return wrapper_decorator
 
 import brain_observatory
 import load_test
 
 mapper_library_dict = {}
 for module in [brain_observatory, load_test]:
-    mapper_library_dict[module.__name__] = dict(o for o in getmembers(module) if isfunction(o[1]))
+    for name, fcn in [o for o in getmembers(module) if isfunction(o[1])]:
+        path = "{0}.{1}".format(module.__name__, name)
+        mapper_library_dict[str(path)] = fcn
 
 def squeeze(input_list):
     set_val = set(tuple(input_list))
@@ -42,4 +47,5 @@ def squeeze(input_list):
     return ret_val
 
 for curr_fnc in [squeeze]:
-    mapper_library_dict[curr_fnc.__name__] = curr_fnc
+    mapper_library_dict[str(curr_fnc.__name__)] = curr_fnc
+

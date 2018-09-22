@@ -8,7 +8,7 @@ import allensdk.brain_observatory.roi_masks as roi_masks
 
 from dataframe_browser.mappers import png
 
-@png
+@png()
 def nwb_file_to_max_projection(nwb_file):
     data_set = BrainObservatoryNwbDataSet(nwb_file)
     max_projection_img = data_set.get_max_projection()
@@ -35,7 +35,7 @@ def nwb_file_to_max_projection(nwb_file):
 
     return fig
 
-@png
+@png()
 def plot_traces_heatmap(nwb_file):
 
     data_set = BrainObservatoryNwbDataSet(nwb_file)

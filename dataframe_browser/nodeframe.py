@@ -38,12 +38,12 @@ class NodeFrame(object):
         
         table_class = "display"
 
-        # old_width = pd.get_option('display.max_colwidth')
-        # pd.set_option('display.max_colwidth', -1)
+        old_width = pd.get_option('display.max_colwidth')
+        pd.set_option('display.max_colwidth', -1)
 
         table_html = self.df[columns].to_html(classes=[table_class], index=False, escape=False, justify='center')
 
-        # pd.set_option('display.max_colwidth', old_width)
+        pd.set_option('display.max_colwidth', old_width)
 
 
         return table_html
@@ -116,7 +116,7 @@ class NodeFrame(object):
 
             def apply_fcn(col_val):
 
-                payload = {'mapper':kwargs['mapper'], 'mapper_library':kwargs['mapper_library'], 'args':[str(col_val)], 'kwargs':{}}
+                payload = {'mapper':str(kwargs['mapper']), 'args':[str(col_val)], 'kwargs':{}}
 
                 id = generate_uuid()
                 div_txt = '<div id="{id}"></div>'.format(id=id)
@@ -142,7 +142,7 @@ class NodeFrame(object):
                 return f
 
         else:
-            apply_fcn = mapper_library_dict[kwargs['mapper_library']][kwargs['mapper']]
+            apply_fcn = mapper_library_dict[kwargs['mapper']]
 
         result_series = self.df[kwargs['column']].apply(apply_fcn)
 
