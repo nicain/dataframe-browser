@@ -126,7 +126,14 @@ def sandbox2():
     return json.dumps({'a':'a'})
 
 if __name__ == "__main__":
+    
+    import webbrowser
+
+    webbrowser.open('http://localhost:5000/browser')
+    
     app.run(debug=True)
+
+
 
 
     # {'mapper':'nwb_file_to_max_projection', 

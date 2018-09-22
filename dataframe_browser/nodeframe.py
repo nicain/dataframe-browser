@@ -6,6 +6,10 @@ import json
 
 from dataframe_browser.mappers import mapper_library_dict
 
+# TODO: Move to utilities
+def memory_usage(df, deep=True):
+    return df.memory_usage(deep=deep).sum()
+
 class NodeFrame(object):
 
     def __init__(self, df=None, load_time=None, metadata=None):
@@ -23,15 +27,13 @@ class NodeFrame(object):
     def load_time(self):
         return self._load_time
     
-    @property
-    def memory_usage(self):
-        return self.df.memory_usage(deep=True).sum()
+
 
     @property
     def table(self):
         return self.df
 
-    def to_html(self, columns=None):
+    def to_html(self, columns=None, max_size=5000000):
 
         if columns is None:
             columns = self.df.columns
@@ -41,7 +43,17 @@ class NodeFrame(object):
         old_width = pd.get_option('display.max_colwidth')
         pd.set_option('display.max_colwidth', -1)
 
-        table_html = self.df[columns].to_html(classes=[table_class], index=False, escape=False, justify='center')
+        df = self.df[columns]
+
+        print memory_usage(df, deep=True)
+
+        if memory_usage(df, deep=True) > max_size:
+            df_to_render = df.describe(include='all').T
+            df_to_render.index.name = 'column'
+            df_to_render = df_to_render.reset_index()
+        else:
+            df_to_render = df
+        table_html = df_to_render.to_html(classes=[table_class], index=False, escape=False, justify='center')
 
         pd.set_option('display.max_colwidth', old_width)
 
