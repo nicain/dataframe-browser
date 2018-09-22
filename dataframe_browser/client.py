@@ -41,6 +41,9 @@ class Cursor(object):
     def concat(self, how='vertical', reload=False):
         return self.run(command='concat', how=how, reload=reload)
 
+    def reload(self):
+        return self.run(command='reload', reload=True)
+
     @property
     def help(self):
         print 'HALP' # TODO: rework CLI argparse to print meaningful help
@@ -52,7 +55,7 @@ if __name__ == "__main__":
 
     c = Cursor()
 
-    c.open(filename='/home/nicholasc/projects/dataframe-browser/data/cell_counting.csv').query('acronym=="root"').groupby('Sex').concat()
+    c.open(filename='/home/nicholasc/projects/dataframe-browser/data/cell_counting.csv').query('acronym=="root"').groupfold('Sex').concat().reload()
 
 # requests.post('http://localhost:5000/command', json=json.dumps({
 #     'command':'query',

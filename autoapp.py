@@ -42,6 +42,8 @@ def cmd_post():
         dfb.keep(**data)
     elif command == 'concat':
         dfb.concat(**data)
+    elif command == 'reload':
+        reload_bool = True
     else:
         print 'COMMAND NOT RECOGNIZED', command, reload_bool, data
         return json.dumps(True)    
