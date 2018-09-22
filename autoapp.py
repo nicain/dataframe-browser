@@ -32,6 +32,8 @@ def cmd_post():
         dfb.open(**data)
     elif command == 'groupby':
         dfb.groupby(**data)
+    elif command == 'groupfold':
+        dfb.groupfold(**data)
     elif command == 'query':
         dfb.query(**data)
 

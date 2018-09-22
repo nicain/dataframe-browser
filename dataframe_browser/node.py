@@ -103,6 +103,18 @@ class Node(object):
 
         return new_nodes
 
+    def groupfold(self, by=None):
+    
+        node_frame_list = []
+        for _, node_frame in enumerate(self.node_frames):
+            df, load_time = node_frame.groupfold(by=by)
+            node_frame = NodeFrame(df=df, load_time=load_time)
+            node_frame_list.append(node_frame)
+        new_node = Node(tuple(node_frame_list), name=None, parent=self, force=False)
+
+        return new_node
+
+
     def merge(self, **kwargs):
 
         total_time = 0

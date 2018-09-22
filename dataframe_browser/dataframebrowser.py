@@ -97,9 +97,12 @@ class DataFrameBrowser(object):
         return self.model.active
 
     def groupby(self, by=None):
-
         new_node_list = self.active.groupby(by=by)
         self.model.set_active(new_node_list[0])
+
+    def groupfold(self, by=None):
+        new_node = self.active.groupfold(by=by)
+        self.model.set_active(new_node)
 
 
 if __name__ == "__main__":    

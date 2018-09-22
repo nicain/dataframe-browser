@@ -1,6 +1,6 @@
 import pandas as pd
 from cssutils import parseStyle
-from utilities import BeautifulSoup, fn_timer, generate_uuid
+from utilities import BeautifulSoup, fn_timer, generate_uuid, one
 import json
 # import time
 
@@ -38,19 +38,13 @@ class NodeFrame(object):
         
         table_class = "display"
 
-        old_width = pd.get_option('display.max_colwidth')
-        pd.set_option('display.max_colwidth', -1)
-        # t0 = time.time()
+        # old_width = pd.get_option('display.max_colwidth')
+        # pd.set_option('display.max_colwidth', -1)
+
         table_html = self.df[columns].to_html(classes=[table_class], index=False, escape=False, justify='center')
-        # print time.time() - t0
-        pd.set_option('display.max_colwidth', old_width)
-        # t0 = time.time()
-        # table_html_bs = BeautifulSoup(table_html).table
-        # print time.time() - t0
-        # style = parseStyle(table_html_bs.thead.tr['style'])
-        # style['text-align'] = 'center'
-        # table_html_bs.thead.tr['style'] = style.cssText
-        # print done
+
+        # pd.set_option('display.max_colwidth', old_width)
+
 
         return table_html
 
@@ -78,6 +72,18 @@ class NodeFrame(object):
     def query(self, **kwargs):
         query = kwargs.pop('query')
         return self.df.query(query, **kwargs)
+
+    @fn_timer
+    def groupfold(self, by=None):
+        data_dict = {}
+        for key, df in self.df.groupby(by):
+            data_dict[key] = df.T.apply(lambda x: list(x), axis=1).drop(by)
+
+        tmp = pd.DataFrame(data_dict)
+        if isinstance(by, list) and len(by) == 1:
+            by=one(by)
+        tmp.columns = tmp.columns.rename(by)
+        return tmp.T.reset_index()
 
     @fn_timer
     def apply(self, **kwargs):
