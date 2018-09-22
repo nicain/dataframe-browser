@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, flash
 import pandas as pd
 import os
 import json
@@ -6,6 +6,7 @@ from flask_socketio import SocketIO
 from dataframe_browser.dataframebrowser import DataFrameBrowser
 
 app = Flask(__name__, template_folder='.')
+app.secret_key = 'super secret key'
 socketio = SocketIO(app) 
 
 dfb = DataFrameBrowser()

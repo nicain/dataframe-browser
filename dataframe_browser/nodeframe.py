@@ -2,7 +2,7 @@ import pandas as pd
 from cssutils import parseStyle
 from utilities import BeautifulSoup, fn_timer, generate_uuid, one
 import json
-# import time
+from flask import flash
 
 from dataframe_browser.mappers import mapper_library_dict
 
@@ -46,6 +46,8 @@ class NodeFrame(object):
         df = self.df[columns]
 
         print memory_usage(df, deep=True)
+        
+        flash('Warning: table too large to render; showing summary table instead', category='warning')
 
         if memory_usage(df, deep=True) > max_size:
             df_to_render = df.describe(include='all').T
