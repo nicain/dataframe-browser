@@ -86,6 +86,17 @@ class NodeFrame(object):
         return tmp.T.reset_index()
 
     @fn_timer
+    def drop(self, columns=None):
+        return self.df.drop(columns, axis=1)
+
+    @fn_timer
+    def keep(self, columns=None):
+        if isinstance(columns, (str, unicode)):
+            return self.df[[columns]]
+        else:
+            return self.df[columns]
+
+    @fn_timer
     def apply(self, **kwargs):
 
         if kwargs.get('lazy', True):

@@ -104,6 +104,18 @@ class DataFrameBrowser(object):
         new_node = self.active.groupfold(by=by)
         self.model.set_active(new_node)
 
+    def drop(self, columns=None):
+        new_node = self.active.drop(columns=columns)
+        self.model.set_active(new_node)
+
+    def keep(self, columns=None):
+        new_node = self.active.keep(columns=columns)
+        self.model.set_active(new_node)
+
+    def concat(self, how='vertical'):
+        new_node = self.active.concat(how=how)
+        self.model.set_active(new_node)
+
 
 if __name__ == "__main__":    
     

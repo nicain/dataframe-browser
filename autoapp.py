@@ -36,6 +36,15 @@ def cmd_post():
         dfb.groupfold(**data)
     elif command == 'query':
         dfb.query(**data)
+    elif command == 'drop':
+        dfb.drop(**data)
+    elif command == 'keep':
+        dfb.keep(**data)
+    elif command == 'concat':
+        dfb.concat(**data)
+    else:
+        print 'COMMAND NOT RECOGNIZED', command, reload_bool, data
+        return json.dumps(True)    
 
     if reload_bool:
         socketio.emit('reload') 

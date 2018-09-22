@@ -2,6 +2,7 @@ from nodeframe import NodeFrame
 import dataframe_browser as dfb
 from utilities import one
 from collections import OrderedDict as OD
+import pandas as pd
 
 class Node(object):
 
@@ -111,6 +112,46 @@ class Node(object):
             node_frame = NodeFrame(df=df, load_time=load_time)
             node_frame_list.append(node_frame)
         new_node = Node(tuple(node_frame_list), name=None, parent=self, force=False)
+
+        return new_node
+
+    def drop(self, columns=None):
+        
+        node_frame_list = []
+        for _, node_frame in enumerate(self.node_frames):
+            df, load_time = node_frame.drop(columns=columns)
+            node_frame = NodeFrame(df=df, load_time=load_time)
+            node_frame_list.append(node_frame)
+        new_node = Node(tuple(node_frame_list), name=None, parent=self, force=False)
+
+        return new_node
+
+    def keep(self, columns=None):
+        
+        node_frame_list = []
+        for _, node_frame in enumerate(self.node_frames):
+            df, load_time = node_frame.keep(columns=columns)
+            node_frame = NodeFrame(df=df, load_time=load_time)
+            node_frame_list.append(node_frame)
+        new_node = Node(tuple(node_frame_list), name=None, parent=self, force=False)
+
+        return new_node
+
+    def concat(self, how='vertical'):
+        
+        if how == 'vertical':
+            axis=1
+        elif how == 'horizontal':
+            axis=0
+        else: 
+            raise RuntimeError
+
+        df_list = []
+        for _, node_frame in enumerate(self.node_frames):
+            df_list.append(node_frame.df)
+        new_df = pd.concat(df_list)
+        node_frame = NodeFrame(df=new_df, load_time=None)
+        new_node = Node((node_frame,), name=None, parent=self, force=False)
 
         return new_node
 
