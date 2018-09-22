@@ -55,7 +55,10 @@ if __name__ == "__main__":
 
     c = Cursor()
 
-    c.open(filename='/home/nicholasc/projects/dataframe-browser/data/cell_counting.csv').query('acronym=="root"').groupfold('Sex').concat().reload()
+    c = c.open(filename='/home/nicholasc/projects/dataframe-browser/data/cell_counting.csv')
+    # c = c.query('acronym in ["root"]')
+    c = c.groupfold(['creline', 'Sex'])
+    c = c.reload()
 
 # requests.post('http://localhost:5000/command', json=json.dumps({
 #     'command':'query',

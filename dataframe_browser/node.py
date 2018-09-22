@@ -108,7 +108,7 @@ class Node(object):
     
         node_frame_list = []
         for _, node_frame in enumerate(self.node_frames):
-            df, load_time = node_frame.groupfold(by=by)
+            df, load_time = node_frame.pivot(by=by)
             node_frame = NodeFrame(df=df, load_time=load_time)
             node_frame_list.append(node_frame)
         new_node = Node(tuple(node_frame_list), name=None, parent=self, force=False)

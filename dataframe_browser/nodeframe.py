@@ -74,10 +74,22 @@ class NodeFrame(object):
         return self.df.query(query, **kwargs)
 
     @fn_timer
-    def groupfold(self, by=None):
+    def pivot(self, by=None, reduce='squeeze'):
+
+        mapper = mapper_library_dict[reduce]
+
         data_dict = {}
         for key, df in self.df.groupby(by):
-            data_dict[key] = df.T.apply(lambda x: list(x), axis=1).drop(by)
+            data_dict[key] = df.T.apply(mapper, axis=1).drop(by)
+
+        # for key, val in data_dict[key].items():
+        #     print key, val
+
+        # if squeeze == True:
+        #     for key, val in data_dict.items():
+        #         set_val = set(*val)
+        #         if len(set_val) == 1:
+        #             data_dict[key] = one(set_val)
 
         tmp = pd.DataFrame(data_dict)
         if isinstance(by, list) and len(by) == 1:

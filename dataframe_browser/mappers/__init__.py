@@ -3,6 +3,7 @@ import functools
 from io import BytesIO
 import base64
 import matplotlib.pyplot as plt
+from dataframe_browser.utilities import one
 
 def image_formatter_mpl(image_base64):
     format_string = '<img style="height: {height}px; width: {width}px" src="data:image/png;base64,{img}">'
@@ -31,3 +32,14 @@ import load_test
 mapper_library_dict = {}
 for module in [brain_observatory, load_test]:
     mapper_library_dict[module.__name__] = dict(o for o in getmembers(module) if isfunction(o[1]))
+
+def squeeze(input_list):
+    set_val = set(tuple(input_list))
+    if len(set_val) == 1:
+        ret_val = one(set_val)
+    else:
+        ret_val = list(input_list)
+    return ret_val
+
+for curr_fnc in [squeeze]:
+    mapper_library_dict[curr_fnc.__name__] = curr_fnc
