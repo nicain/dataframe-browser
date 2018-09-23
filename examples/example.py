@@ -7,6 +7,7 @@ c.open(filename='/home/nicholasc/projects/dataframe-browser/data/example.csv')
 # c.keep(['area', 'dsi_dg', 'osi_dg', 'g_dsi_dg',])
 c.groupby('a')
 c.drop(frames=[0])
+c.back()
 c.reload()
 
 # c.apply(column=['dsi_dg', 'g_dsi_dg', 'osi_dg'], mapper='dataframe_browser.mappers.widgets.xy_compare', new_column='bokeh', lazy=False)

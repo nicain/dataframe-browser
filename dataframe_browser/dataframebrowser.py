@@ -64,10 +64,6 @@ class DataFrameBrowser(object):
         self.model.active.rename(name)
         self.view.display_active()
 
-    def back(self):
-        self.model.set_active(self.model.active.parent)
-        self.view.display_active()
-
     def merge(self, on=None, how='inner'):
 
         new_node = self.active.merge(on=on, how=how)
@@ -89,6 +85,13 @@ class DataFrameBrowser(object):
         new_node_list = self.active.apply(column=column, mapper=mapper, new_column=new_column, lazy=lazy, drop=drop)
         self.model.set_active(new_node_list[0])
         self.view.display_active()
+
+    def back(self, N=1):
+
+        for _ in range(N):
+            self.model.set_active(self.active.parent)
+
+
 
 
 

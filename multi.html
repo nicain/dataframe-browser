@@ -57,7 +57,7 @@
     </head>
     <body>
         
-        <script>
+        <!-- <script>
             $(function() {
                 $('a#test').bind('click', function() {
                 $.getJSON('/background_process_test',
@@ -67,9 +67,13 @@
                 return false;
                 });
             });
-        </script>
+        </script> -->
 
-        <form class="form-inline">
+        <form action="/command" method="POST">
+            <button type="submit" class="btn btn-primary" name="command" value="back">Back</button>
+        </form>
+
+        <!-- <form class="form-inline">
             <div class="dropdown">
             <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 Dropdown
@@ -84,9 +88,9 @@
                 <input type="text" class="form-control" id="query-input" placeholder="placeholder">
             </div>
             <a href=# id=test><button class='btn btn-primary'>Test</button></a>
-        </form>
+        </form> -->
 
-        <script>
+        <!-- <script>
             $(document).ready(function(){
                 $(".dropdown").on("hidden.bs.dropdown", function(event){
                     var x = $(event.relatedTarget).text(); // Get the button text
@@ -95,7 +99,7 @@
                     document.getElementById("query-input").value = x;
                 });
             });
-        </script>
+        </script> -->
 
 
         <div class="container-fluid">  <!-- https://getbootstrap.com/docs/4.0/layout/grid/ ".container-fluid for width: 100% across all viewport and device sizes."" -->
@@ -114,8 +118,7 @@
                         <div class="card-header">
                             <form action="/command" method="POST">
                                 <input type="hidden" name='frames' value='{{frame_index}}'>
-                                <input type="hidden" name='reload' value='false'>
-                                <button type="submit" class="btn btn-danger" value="drop" name="command">Drop</button> {{active_name}}
+                                <button type="submit" class="btn btn-danger" name="command" value="drop">Drop</button> {{active_name}}
                                     
                                 <!-- </div> -->
                             </form>

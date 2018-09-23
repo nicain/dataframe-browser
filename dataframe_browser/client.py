@@ -50,6 +50,9 @@ class Cursor(object):
 
     def reload(self):
         return self.run(command='reload', reload=True)
+    
+    def back(self, N=1, reload=False):
+        return self.run(command='back', reload=reload)
 
 
     @property

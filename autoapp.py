@@ -27,7 +27,7 @@ def cmd_post():
     if not request.json:
         data = dict(request.form)
         command = one(data.pop('command'))
-        reload_bool = one(data.pop('reload', True))
+        reload_bool = False
         redirect_to_main = True
 
     else:
@@ -54,6 +54,8 @@ def cmd_post():
         dfb.concat(**data)
     elif command == 'apply':
         dfb.apply(**data)
+    elif command == 'back':
+        dfb.back(**data)
     elif command == 'reload':
         reload_bool = True
     else:
@@ -137,7 +139,6 @@ def sandbox():
 @app.route('/sandbox2', methods=['POST'])
 def sandbox2():
     print dict(request.form)
-    # return render_template('sandbox.html') 
     return json.dumps(dict(request.form))
 
 if __name__ == "__main__":
