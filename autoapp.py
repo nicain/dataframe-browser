@@ -123,7 +123,9 @@ def sandbox():
 
 @app.route('/sandbox2', methods=['POST'])
 def sandbox2():
-    return json.dumps({'a':'a'})
+    print dict(request.form)
+    return render_template('sandbox.html') 
+    # return json.dumps({'a':'a'})
 
 if __name__ == "__main__":
     

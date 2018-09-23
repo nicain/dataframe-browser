@@ -98,31 +98,42 @@
         </script>
 
 
-        <div class="bd-example bd-example-tabs">
-            <div class="row">
-                <div class="col-9">
-                    <div class="card w-90">
+        <div class="container-fluid">  <!-- https://getbootstrap.com/docs/4.0/layout/grid/ ".container-fluid for width: 100% across all viewport and device sizes."" -->
+            {% for table_uuid, curr_table, page_length, active_name in uuid_table_list %}
+                <div class="row">        
+                <div class="col-auto-12">        <!-- https://stackoverflow.com/a/24177022 "col-*-6 spans 6 of 12 columns (half the width), col-*-12 spans 12 of 12 columns (the entire width)"-->
+                <div class="card my-1 py-0">
+                    <div class="card-body p-2">
 
-                        {% for table_uuid, curr_table, page_length, active_name in uuid_table_list %}
+                        <script type="text/javascript" class="init">
+                            $(document).ready(function() {
+                            $('#{{table_uuid}}').DataTable({"autoWidth": false, "scrollX": false, "lengthMenu": [5, 10, 25, 50, 75, 100 ], "pageLength": {{page_length}}});
+                            });
+                        </script>
 
-                            <script type="text/javascript" class="init">
-                                $(document).ready(function() {
-                                $('#{{table_uuid}}').DataTable({"autoWidth": false, "scrollX": false, "lengthMenu": [5, 10, 25, 50, 75, 100 ], "pageLength": {{page_length}}});
-                                });
-                            </script>
+                        <div class="card-header">
+                            <form action="/sandbox2" method="POST">
+                                <!-- <div class="form-group"></div> -->
+                                    <button type="submit" class="btn btn-danger" value="Submit" name="HW">Drop</button> {{active_name}}
+                                    
+                                <!-- </div> -->
+                            </form>
+                        </div>
 
-                            <div class="card-body">
-                                <h5 class="card-title">{{active_name}}</h5>
-                                {{curr_table|safe}}
-                            </div>
+                        <div class="card-body">
+                            {{curr_table|safe}}
+                        </div>
 
-                        {% endfor %}
-
-                    </div>
-                </div>                
-            </div>
+                    </div>                
+                </div>
+                </div>
+                </div>
+            {% endfor %}
         </div>
-
+        <!-- </div> -->
+        <!-- <div class="bd-example bd-example-tabs"> -->
+            <!-- <div class="row"> -->
+                <!-- <div class="col-9"> -->
 
         <!-- reload th window when the model changes -->
         <script> 
