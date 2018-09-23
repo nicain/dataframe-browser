@@ -94,12 +94,7 @@ class Node(object):
                 key_list.append(key)
                 nodeframe_list.append(NodeFrame(df=df, load_time=load_time))
             
-            if self.name is not None:
-                # Probably a  index-instead of key bug here too:
-                curr_node = Node(tuple(nodeframe_list), name='{parent_name}[{index}]'.format(parent_name=self.name, index=ni), parent=self, force=False, keys=key_list)
-            else:
-                curr_node = Node(tuple(nodeframe_list), name=None, parent=self, force=False)
-
+            curr_node = Node(tuple(nodeframe_list), name=None, parent=self, force=False)
             new_nodes.append(curr_node)
 
         return new_nodes
