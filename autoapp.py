@@ -19,7 +19,15 @@ def browser_get():
     uuid_table_list = dfb.view.display_node()
     uuid_table_list_frame_index = [[fi]+list(f) for fi, f in enumerate(uuid_table_list)]
 
-    return render_template('multi.html', uuid_table_list=uuid_table_list_frame_index, header='') 
+    return render_template('browser.html', uuid_table_list=uuid_table_list_frame_index, header='') 
+
+@app.route("/bookmarks", methods=['POST'])
+def bookmarks():
+
+    print dict(request.form)
+    print dfb.model.bookmarks
+
+    return redirect('/sandbox')
 
 @app.route("/command", methods=['POST'])
 def cmd_post():
@@ -56,6 +64,8 @@ def cmd_post():
         dfb.apply(**data)
     elif command == 'back':
         dfb.back(**data)
+    elif command == 'bookmark':
+        dfb.bookmark(**data)
     elif command == 'reload':
         reload_bool = True
     else:

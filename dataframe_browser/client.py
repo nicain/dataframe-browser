@@ -52,7 +52,10 @@ class Cursor(object):
         return self.run(command='reload', reload=True)
     
     def back(self, N=1, reload=False):
-        return self.run(command='back', reload=reload)
+        return self.run(command='back', N=N, reload=reload)
+
+    def bookmark(self, name=None, reload=False):
+        return self.run(command='bookmark', name=name, reload=reload)
 
 
     @property

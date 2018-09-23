@@ -60,9 +60,9 @@ class DataFrameBrowser(object):
         new_node = self.controller.create_node(nodeframe_list, self.active, name=new_bookmark, force=force)
         self.model.set_active(new_node)
 
-    def bookmark(self, name):
+    def bookmark(self, name=None):
         self.model.active.rename(name)
-        self.view.display_active()
+        # self.view.display_active()
 
     def merge(self, on=None, how='inner'):
 

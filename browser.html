@@ -1,0 +1,105 @@
+
+{% extends 'nav.html' %}
+
+{% block content %}
+
+        
+        
+        
+
+   
+        
+        <!-- <script>
+            $(function() {
+                $('a#test').bind('click', function() {
+                $.getJSON('/background_process_test',
+                    function(data) {
+                    console.log(data);
+                });
+                return false;
+                });
+            });
+        </script> -->
+
+        <form action="/command" method="POST">
+            <button type="submit" class="btn btn-primary" name="command" value="back">Back</button>
+        </form>
+
+        <!-- <form class="form-inline">
+            <div class="dropdown">
+            <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Dropdown
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
+                <button class="dropdown-item" type="button">Action</button>
+                <button class="dropdown-item" type="button">Another action</button>
+                <button class="dropdown-item" type="button">Something else here</button>
+            </div>
+            </div>
+            <div class="form-group mx-sm-3 mb-2">
+                <input type="text" class="form-control" id="query-input" placeholder="placeholder">
+            </div>
+            <a href=# id=test><button class='btn btn-primary'>Test</button></a>
+        </form> -->
+
+        <!-- <script>
+            $(document).ready(function(){
+                $(".dropdown").on("hidden.bs.dropdown", function(event){
+                    var x = $(event.relatedTarget).text(); // Get the button text
+                    // alert("You clicked on: " + x);
+                    document.getElementById("query-input").align="right";
+                    document.getElementById("query-input").value = x;
+                });
+            });
+        </script> -->
+
+
+        <div class="container-fluid">  <!-- https://getbootstrap.com/docs/4.0/layout/grid/ ".container-fluid for width: 100% across all viewport and device sizes."" -->
+            {% for frame_index, table_uuid, curr_table, page_length, active_name in uuid_table_list %}
+                <div class="row">        
+                <div class="col-auto-12">        <!-- https://stackoverflow.com/a/24177022 "col-*-6 spans 6 of 12 columns (half the width), col-*-12 spans 12 of 12 columns (the entire width)"-->
+                <div class="card my-1 py-0">
+                    <div class="card-body p-2">
+
+                        <script type="text/javascript" class="init">
+                            $(document).ready(function() {
+                            $('#{{table_uuid}}').DataTable({"autoWidth": false, "scrollX": false, "lengthMenu": [5, 10, 25, 50, 75, 100 ], "pageLength": {{page_length}}});
+                            });
+                        </script>
+
+                        <div class="card-header">
+                            <form action="/command" method="POST">
+                                <input type="hidden" name='frames' value='{{frame_index}}'>
+                                <button type="submit" class="btn btn-danger" name="command" value="drop">Drop</button> {{active_name}}
+                                    
+                                <!-- </div> -->
+                            </form>
+                        </div>
+
+                        <div class="card-body">
+                            {{curr_table|safe}}
+                        </div>
+
+                    </div>                
+                </div>
+                </div>
+                </div>
+            {% endfor %}
+        </div>
+        <!-- </div> -->
+        <!-- <div class="bd-example bd-example-tabs"> -->
+            <!-- <div class="row"> -->
+                <!-- <div class="col-9"> -->
+
+        <!-- reload th window when the model changes -->
+        <script> 
+        $(document).ready(function(){ 
+        var socket = io.connect('http://' + document.domain + ':' + location.port); 
+        socket.on('reload', function() { 
+            console.log('reload request received'); 
+            window.location.reload(true);  
+            }); 
+        }); 
+        </script> 
+
+{% endblock %}
