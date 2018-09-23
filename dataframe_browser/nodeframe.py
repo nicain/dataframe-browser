@@ -88,27 +88,25 @@ class NodeFrame(object):
         return self.df.query(query, **kwargs)
 
     @fn_timer
-    def pivot(self, by=None, reduce='squeeze'):
+    def pivot(self, by=None, reduce=None):
 
-        mapper = mapper_library_dict[reduce]
+        if reduce is None:
+            reduce = dict()
 
         data_dict = {}
         for key, df in self.df.groupby(by):
-            data_dict[key] = df.T.apply(mapper, axis=1).drop(by)
+            data_dict[key] = df.T.apply(lambda x: list(x), axis=1).drop(by)
 
-        # for key, val in data_dict[key].items():
-        #     print key, val
+        for key, val in data_dict.items():
+            data_dict[key] = pd.Series([mapper_library_dict[reduce.get(key, 'squeeze')](x) for x in val], index=val.index)
 
-        # if squeeze == True:
-        #     for key, val in data_dict.items():
-        #         set_val = set(*val)
-        #         if len(set_val) == 1:
-        #             data_dict[key] = one(set_val)
 
         tmp = pd.DataFrame(data_dict)
         if isinstance(by, list) and len(by) == 1:
             by=one(by)
+
         tmp.columns = tmp.columns.rename(by)
+
         return tmp.T.reset_index()
 
     @fn_timer
@@ -161,4 +159,9 @@ class NodeFrame(object):
         result_series = self.df[kwargs['column']].apply(apply_fcn, axis=1)
 
         df = pd.DataFrame({kwargs['new_column']:result_series})
-        return df.join(self.df)
+
+        df = df.join(self.df)
+        if kwargs['drop'] == True:
+            df = df.drop(kwargs['column'], axis=1)
+
+        return df

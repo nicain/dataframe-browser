@@ -32,6 +32,7 @@ class png(object):
 import brain_observatory
 import load_test
 import widgets
+import pandas as pd
 
 mapper_library_dict = {}
 for module in [brain_observatory, load_test, widgets]:
@@ -47,6 +48,27 @@ def squeeze(input_list):
         ret_val = list(input_list)
     return ret_val
 
-for curr_fnc in [squeeze]:
+def to_df(series):
+
+    df = pd.DataFrame(series.to_dict())
+
+    df = df.describe(include='all')
+    df.index.name = 'column'
+    df = df.reset_index()
+
+    table_class = "display"
+    html = df.to_html(classes=[table_class], index=False, escape=False, justify='center').replace('\n', '')
+    return html
+    # return pd.DataFrame(series.to_dict())
+
+
+
+for curr_fnc in [squeeze, to_df]:
     mapper_library_dict[str(curr_fnc.__name__)] = curr_fnc
 
+    # df = df.describe(include='all').T
+    # df.index.name = 'column'
+    # df = df.reset_index()
+
+    # table_class = "display"
+    # html = df.to_html(classes=[table_class], index=False, escape=False, justify='center').replace('\n', '')
