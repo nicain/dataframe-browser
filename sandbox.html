@@ -1,24 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
 
-<head>
+{% extends 'nav.html' %}
 
-    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+{% block sandbox %}
 
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+<form action="/sandbox2" method="POST">
+  <div class="form-group"></div>
+    <button type="submit" class="btn btn-danger" value="Submit" name="HW">Submit</button>
+    <!-- <input type="submit" value="Submit2" name="HW2">
+    <input type="submit" value="Submit" name="HW"> -->
+  </div>
+</form>
 
-</head>
-<!-- ================================================================== -->
-<body>
-    <form action="/sandbox2" method="POST">
-      <div class="form-group"></div>
-        <button type="submit" class="btn btn-danger" value="Submit" name="HW">Submit</button>
-        <!-- <input type="submit" value="Submit2" name="HW2">
-        <input type="submit" value="Submit" name="HW"> -->
-      </div>
-    </form>
-</body>
+{% endblock %}
+
 
