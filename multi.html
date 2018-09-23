@@ -99,7 +99,7 @@
 
 
         <div class="container-fluid">  <!-- https://getbootstrap.com/docs/4.0/layout/grid/ ".container-fluid for width: 100% across all viewport and device sizes."" -->
-            {% for table_uuid, curr_table, page_length, active_name in uuid_table_list %}
+            {% for frame_index, table_uuid, curr_table, page_length, active_name in uuid_table_list %}
                 <div class="row">        
                 <div class="col-auto-12">        <!-- https://stackoverflow.com/a/24177022 "col-*-6 spans 6 of 12 columns (half the width), col-*-12 spans 12 of 12 columns (the entire width)"-->
                 <div class="card my-1 py-0">
@@ -112,9 +112,10 @@
                         </script>
 
                         <div class="card-header">
-                            <form action="/sandbox2" method="POST">
-                                <!-- <div class="form-group"></div> -->
-                                    <button type="submit" class="btn btn-danger" value="Submit" name="HW">Drop</button> {{active_name}}
+                            <form action="/command" method="POST">
+                                <input type="hidden" name='frames' value='{{frame_index}}'>
+                                <input type="hidden" name='reload' value='false'>
+                                <button type="submit" class="btn btn-danger" value="drop" name="command">Drop</button> {{active_name}}
                                     
                                 <!-- </div> -->
                             </form>

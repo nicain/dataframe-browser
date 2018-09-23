@@ -111,7 +111,11 @@ class NodeFrame(object):
 
     @fn_timer
     def drop(self, columns=None):
-        return self.df.drop(columns, axis=1)
+        if columns is None:
+            return self.df.copy()
+        else:
+            return self.df.drop(columns, axis=1)
+            
 
     @fn_timer
     def keep(self, columns=None):

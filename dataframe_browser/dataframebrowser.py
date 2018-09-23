@@ -104,8 +104,8 @@ class DataFrameBrowser(object):
         new_node = self.active.groupfold(by=by)
         self.model.set_active(new_node)
 
-    def drop(self, columns=None):
-        new_node = self.active.drop(columns=columns)
+    def drop(self, columns=None, frames=None):
+        new_node = self.active.drop(columns=columns, frames=frames)
         self.model.set_active(new_node)
 
     def keep(self, columns=None):

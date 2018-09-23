@@ -1,9 +1,11 @@
-from flask import Flask, render_template, request, flash
+from flask import Flask, render_template, request, flash, redirect
 import pandas as pd
 import os
 import json
 from flask_socketio import SocketIO 
 from dataframe_browser.dataframebrowser import DataFrameBrowser
+from dataframe_browser.utilities import one
+
 
 app = Flask(__name__, template_folder='.')
 app.secret_key = 'super secret key'
@@ -11,21 +13,28 @@ socketio = SocketIO(app)
 
 dfb = DataFrameBrowser()
 
-
 @app.route("/browser", methods=['GET']) 
 def browser_get():  
 
     uuid_table_list = dfb.view.display_node()
+    uuid_table_list_frame_index = [[fi]+list(f) for fi, f in enumerate(uuid_table_list)]
 
-    return render_template('multi.html', uuid_table_list=uuid_table_list, header='') 
+    return render_template('multi.html', uuid_table_list=uuid_table_list_frame_index, header='') 
 
 @app.route("/command", methods=['POST'])
 def cmd_post():
 
-    data = json.loads(request.json)
+    if not request.json:
+        data = dict(request.form)
+        command = one(data.pop('command'))
+        reload_bool = one(data.pop('reload', True))
+        redirect_to_main = True
 
-    command = data.pop('command')
-    reload_bool = data.pop('reload', True)
+    else:
+        data = json.loads(request.json)
+        command = data.pop('command')
+        reload_bool = data.pop('reload', True)
+        redirect_to_main = False
 
     if command == 'read':
         dfb.read(**data)
@@ -52,8 +61,12 @@ def cmd_post():
         return json.dumps(True)    
 
     if reload_bool:
-        socketio.emit('reload') 
-    return json.dumps(True)
+        socketio.emit('reload')
+    
+    if redirect_to_main:
+        return redirect('/browser')
+    else:
+        return json.dumps(True)
 
 @app.route('/')
 def hello_world():
@@ -124,8 +137,8 @@ def sandbox():
 @app.route('/sandbox2', methods=['POST'])
 def sandbox2():
     print dict(request.form)
-    return render_template('sandbox.html') 
-    # return json.dumps({'a':'a'})
+    # return render_template('sandbox.html') 
+    return json.dumps(dict(request.form))
 
 if __name__ == "__main__":
     

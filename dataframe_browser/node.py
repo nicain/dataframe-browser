@@ -115,13 +115,19 @@ class Node(object):
 
         return new_node
 
-    def drop(self, columns=None):
+    def drop(self, columns=None, frames=None):
+
+        if frames is None:
+            frames_to_drop = []
+        else:
+            frames_to_drop = [int(ii) for ii in frames]
         
         node_frame_list = []
-        for _, node_frame in enumerate(self.node_frames):
-            df, load_time = node_frame.drop(columns=columns)
-            node_frame = NodeFrame(df=df, load_time=load_time)
-            node_frame_list.append(node_frame)
+        for frame_index, node_frame in enumerate(self.node_frames):
+            if frame_index not in frames_to_drop:
+                df, load_time = node_frame.drop(columns=columns)
+                node_frame = NodeFrame(df=df, load_time=load_time)
+                node_frame_list.append(node_frame)
         new_node = Node(tuple(node_frame_list), name=None, parent=self, force=False)
 
         return new_node

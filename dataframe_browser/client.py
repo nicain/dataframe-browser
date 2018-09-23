@@ -15,6 +15,7 @@ class Cursor(object):
         return 'http://{hostname}:{port}/command'.format(hostname=self.hostname, port=self.port)
 
     def run(self, **kwargs):
+        print kwargs
         result = requests.post(self.command, json=json.dumps(kwargs))
         if result.status_code != 200:
             result.raise_for_status()
@@ -35,8 +36,8 @@ class Cursor(object):
     def groupfold(self, by=None, reload=False):
         return self.run(command='groupfold', by=by, reload=reload)
 
-    def drop(self, columns=None, reload=False):
-        return self.run(command='drop', columns=columns, reload=reload)
+    def drop(self, columns=None, frames=None, reload=False):
+        return self.run(command='drop', columns=columns, reload=reload, frames=frames)
 
     def keep(self, columns=None, reload=False):
         return self.run(command='keep', columns=columns, reload=reload)
