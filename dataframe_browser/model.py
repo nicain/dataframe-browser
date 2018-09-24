@@ -90,4 +90,8 @@ class Model(object):
     def disable_nav_parent_back(self):
         return self.active == self.root
 
+    @property
+    def disable_nav_child_forward(self):
+        return self.active._child_set_from_back_button is None
+            
         

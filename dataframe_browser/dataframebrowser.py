@@ -89,7 +89,15 @@ class DataFrameBrowser(object):
     def back(self, N=1):
 
         for _ in range(N):
+            original_active_before_going_back = self.active
             self.model.set_active(self.active.parent)
+            self.active._child_set_from_back_button = original_active_before_going_back
+
+
+    def forward(self):
+    
+        original_active_before_going_forward = self.active
+        self.model.set_active(self.active._child_set_from_back_button)
 
 
 

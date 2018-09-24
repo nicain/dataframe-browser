@@ -19,7 +19,11 @@ def browser_get():
     uuid_table_list = dfb.view.display_node()
     uuid_table_list_frame_index = [[fi]+list(f) for fi, f in enumerate(uuid_table_list)]
 
-    return render_template('browser.html', uuid_table_list=uuid_table_list_frame_index, header='', disable_nav_parent_back=str(dfb.model.disable_nav_parent_back).lower())
+    return render_template('browser.html', 
+                           uuid_table_list=uuid_table_list_frame_index, 
+                           header='', # TODO: might remove this
+                           disable_nav_parent_back = str(dfb.model.disable_nav_parent_back).lower(),
+                           disable_nav_child_forward = str(dfb.model.disable_nav_child_forward).lower())
 
 @app.route("/bookmarks", methods=['POST'])
 def bookmarks():
@@ -64,13 +68,15 @@ def cmd_post():
         dfb.apply(**data)
     elif command == 'back':
         dfb.back(**data)
+    elif command == 'forward':
+        dfb.forward(**data)
     elif command == 'bookmark':
         dfb.bookmark(**data)
     elif command == 'reload':
         reload_bool = True
     else:
         print 'COMMAND NOT RECOGNIZED', command, reload_bool, data
-        return json.dumps(True)    
+        return json.dumps('COMMAND NOT RECOGNIZED')    
 
     if reload_bool:
         socketio.emit('reload')

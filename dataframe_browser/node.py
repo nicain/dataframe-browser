@@ -16,6 +16,7 @@ class Node(object):
         self._node_frames = nodeframes
         self._parent = parent
         self._children = []
+        self._child_set_from_back_button = None
 
         if keys is None:
             self._key_dict = {ii:nodeframe for ii, nodeframe in zip(range(len(self.node_frames)), self.node_frames)}

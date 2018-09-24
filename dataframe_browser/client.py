@@ -54,6 +54,9 @@ class Cursor(object):
     def back(self, N=1, reload=False):
         return self.run(command='back', N=N, reload=reload)
 
+    def forward(self, reload=False):
+        return self.run(command='forward', reload=reload)
+
     def bookmark(self, name=None, reload=False):
         return self.run(command='bookmark', name=name, reload=reload)
 
