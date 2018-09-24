@@ -128,13 +128,19 @@ class Node(object):
 
         return new_node
 
-    def keep(self, columns=None):
+    def keep(self, columns=None, frames=None):
+
+        if frames is None:
+            frames_to_keep = []
+        else:
+            frames_to_keep = [int(ii) for ii in frames]
         
         node_frame_list = []
-        for _, node_frame in enumerate(self.node_frames):
-            df, load_time = node_frame.keep(columns=columns)
-            node_frame = NodeFrame(df=df, load_time=load_time)
-            node_frame_list.append(node_frame)
+        for frame_index, node_frame in enumerate(self.node_frames):
+            if frame_index in frames_to_keep:
+                df, load_time = node_frame.keep(columns=columns)
+                node_frame = NodeFrame(df=df, load_time=load_time)
+                node_frame_list.append(node_frame)
         new_node = Node(tuple(node_frame_list), name=None, parent=self, force=False)
 
         return new_node

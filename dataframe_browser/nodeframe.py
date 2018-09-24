@@ -119,7 +119,9 @@ class NodeFrame(object):
 
     @fn_timer
     def keep(self, columns=None):
-        if isinstance(columns, (str, unicode)):
+        if columns is None:
+            return self.df.copy()
+        elif isinstance(columns, (str, unicode)):
             return self.df[[columns]]
         else:
             return self.df[columns]

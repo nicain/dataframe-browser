@@ -4,7 +4,7 @@ c = Cursor()
 
 c.open(filename='/home/nicholasc/projects/dataframe-browser/data/example.csv')
 c.bookmark(name='example')
-c.query('a > 1')
+# c.query('a > 1')
 # c.keep(['area', 'dsi_dg', 'osi_dg', 'g_dsi_dg',])
 c.groupby('a')
 # c.drop(frames=[0])

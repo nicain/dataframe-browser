@@ -39,8 +39,8 @@ class Cursor(object):
     def drop(self, columns=None, frames=None, reload=False):
         return self.run(command='drop', columns=columns, reload=reload, frames=frames)
 
-    def keep(self, columns=None, reload=False):
-        return self.run(command='keep', columns=columns, reload=reload)
+    def keep(self, columns=None, frames=None, reload=False):
+        return self.run(command='keep', columns=columns, frames=frames, reload=reload)
 
     def concat(self, how='vertical', reload=False):
         return self.run(command='concat', how=how, reload=reload)

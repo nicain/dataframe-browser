@@ -16,12 +16,17 @@
                     });
                 </script>
 
-                <div class="card-header">
-                    <form action="/command" method="POST">
-                        <input type="hidden" name='frames' value='{{frame_index}}'>
-                        <button type="submit" class="btn btn-danger" name="command" value="drop">Drop</button> {{active_name}}
-                            
-                        <!-- </div> -->
+                <div class="card-header py-2 pl-1 pr-1">
+                    <form class="form-inline" action="/command" method="POST">
+                        <!-- <form class="form-group"  > -->
+                            <input type="hidden" name='frames' value='{{frame_index}}'>
+                            <button type="submit" class="btn btn-danger btn-sm float-right py-1" name="command" value="drop">
+                                <span class="oi oi-x"></span>
+                            </button> 
+                            <button type="submit" class="btn btn-success btn-sm float-right py-1 ml-1" name="command" value="keep">
+                                <span class="oi oi-check"></span>
+                            </button> 
+                        <!-- </form> -->
                     </form>
                 </div>
 
