@@ -13,7 +13,7 @@ class TextController(object):
         self.app = kwargs['app']
 
 
-    def open_node_from_file(self, filename, bookmark=None, force=False, **kwargs):
+    def open_node_from_file(self, filename, force=False, **kwargs):
 
         if not os.path.exists(filename):
             self.app.view.display_message('Source not found: {0}\n'.format(filename), type='error')
@@ -27,9 +27,10 @@ class TextController(object):
             raise NotImplementedError
 
         node_frame = NodeFrame(df=df, load_time=load_time, metadata={'filename':filename})
-        node = self.create_node((node_frame,), parent=self.app.model.root, name=bookmark, force=force)
-        self.app.model.set_active(node)
-        self.app.view.display_active()
+        node = self.create_node((node_frame,), parent=self.app.model.root, force=force)
+        return node
+        # self.app.model.set_active(node)
+        # self.app.view.display_active()
 
     def read_node_from_uri_query(self, query=None, uri=None, bookmark=None, force=False):
         

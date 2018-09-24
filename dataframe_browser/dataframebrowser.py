@@ -1,6 +1,6 @@
 import os
 
-from utilities import create_class_logger
+from utilities import create_class_logger, one
 from model import Model
 from view import FlaskViewServer as FlaskView
 from controller import TextController
@@ -24,7 +24,13 @@ class DataFrameBrowser(object):
 
     def open(self, filename=None, bookmark=None):
 
-        self.controller.open_node_from_file(filename=filename, bookmark=bookmark)
+        if not isinstance(filename, (unicode, str)):
+            filename = one(filename)
+
+        new_node = self.controller.open_node_from_file(filename=filename, bookmark=bookmark)
+        self.model.set_active(new_node)
+        if bookmark is not None:
+            self.bookmark(bookmark)
 
     def info(self, bookmark=None):
     
@@ -61,7 +67,9 @@ class DataFrameBrowser(object):
         self.model.set_active(new_node)
 
     def bookmark(self, name=None):
-        self.model.active.rename(name)
+        if not isinstance(name, (unicode, str)):
+            name = one(name)
+        self.model.active.rename(str(name))
         # self.view.display_active()
 
     def merge(self, on=None, how='inner'):
