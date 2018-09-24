@@ -87,11 +87,11 @@ class Model(object):
         return sorted(set.union(*[set(node.columns) for node in self.active.node_frames]))
 
     @property
-    def disable_nav_parent_back(self):
+    def active_is_root(self):
         return self.active == self.root
 
     @property
-    def disable_nav_child_forward(self):
-        return self.active._child_set_from_back_button is None
+    def active_is_leaf(self):
+        return len(self.active.children) == 0
             
         

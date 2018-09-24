@@ -22,8 +22,8 @@ def browser_get():
     return render_template('browser.html', 
                            uuid_table_list=uuid_table_list_frame_index, 
                            header='', # TODO: might remove this
-                           disable_nav_parent_back = str(dfb.model.disable_nav_parent_back).lower(),
-                           disable_nav_child_forward = str(dfb.model.disable_nav_child_forward).lower())
+                           disable_nav_parent_back = str(dfb.model.active_is_root).lower(),
+                           disable_nav_child_forward = str(dfb.model.active_is_leaf).lower())
 
 @app.route("/bookmarks", methods=['POST'])
 def bookmarks():
