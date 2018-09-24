@@ -19,7 +19,7 @@ def browser_get():
     uuid_table_list = dfb.view.display_node()
     uuid_table_list_frame_index = [[fi]+list(f) for fi, f in enumerate(uuid_table_list)]
 
-    return render_template('browser.html', uuid_table_list=uuid_table_list_frame_index, header='') 
+    return render_template('browser.html', uuid_table_list=uuid_table_list_frame_index, header='', disable_nav_parent_back=str(dfb.model.disable_nav_parent_back).lower())
 
 @app.route("/bookmarks", methods=['POST'])
 def bookmarks():

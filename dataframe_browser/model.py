@@ -86,6 +86,8 @@ class Model(object):
     def all_active_columns(self):
         return sorted(set.union(*[set(node.columns) for node in self.active.node_frames]))
 
-
+    @property
+    def disable_nav_parent_back(self):
+        return self.active == self.root
 
         
