@@ -19,12 +19,18 @@ def browser_get():
     uuid_table_list = dfb.view.display_node()
     uuid_table_list_frame_index = [[fi]+list(f) for fi, f in enumerate(uuid_table_list)]
 
+    if dfb.model.active.name is None:
+        active_name_str = ''
+    else:
+        active_name_str = dfb.model.active.name
+        
     return render_template('browser.html', 
                            uuid_table_list=uuid_table_list_frame_index, 
                            header='', # TODO: might remove this
                            disable_nav_parent_back = str(dfb.model.active_is_root).lower(),
                            disable_nav_child_forward = str(dfb.model.active_is_leaf).lower(),
-                           disable_nav_bookmark_button = str(dfb.model.active_is_bookmarked).lower())
+                           disable_nav_bookmark_button = str(dfb.model.active_is_bookmarked).lower(),
+                           active_name_str=active_name_str)
 
 @app.route("/bookmarks", methods=['POST'])
 def bookmarks():

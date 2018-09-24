@@ -55,20 +55,12 @@ class FlaskViewServer(ConsoleView):
             uuid_table_list = []
             for frame in self.app.model.active.node_frames:
 
-                if self.app.model.active.name is None:
-                    active_name = ''
-                else:
-                    if len(self.app.model.active) > 1:
-                        ni = self.app.model.active.get_key(frame)
-                        active_name = '{active_name}[{ni}]'.format(active_name=self.app.model.active.name, ni=ni)
-                    else:
-                        active_name = self.app.model.active.name
                 common_col_list = self.app.model.common_active_columns
                 table_html = frame.to_html(columns=common_col_list + [c for c in frame.columns if c not in common_col_list])
                 table_html_bs = BeautifulSoup(table_html).table
                 table_uuid = generate_uuid()
                 table_html_bs['id'] = table_uuid
-                uuid_table_list.append((table_uuid, str(table_html_bs), page_length, active_name))
+                uuid_table_list.append((table_uuid, str(table_html_bs), page_length))
 
 
         self.logger.info(json.dumps(['DISPLAY_NODE'], indent=4))
