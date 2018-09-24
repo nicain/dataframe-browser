@@ -26,7 +26,7 @@ class Node(object):
 
 
         if self.parent is None:
-            assert self.name == 'root'
+            assert self.name is None
         else:
             assert isinstance(self.parent, Node)
             self.parent._children.append(self)

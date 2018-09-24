@@ -9,7 +9,7 @@ class Model(object):
         self.logger = create_class_logger(self.__class__, **kwargs.get('logging_settings', {}))
         
         self.app = kwargs['app']
-        self._root = Node(tuple(), name='root')
+        self._root = Node(tuple())
         self._active = self.root
 
     @property

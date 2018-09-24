@@ -37,7 +37,7 @@ class ConsoleView(object):
     def display_tree(self):
 
 
-        root = self.app.model.get_node_by_name('root')
+        root = self.app.model.root
         print asciitree.LeftAligned()({root:OD(root.items())})
 
 class FlaskViewServer(ConsoleView):
@@ -101,5 +101,5 @@ class FlaskViewServer(ConsoleView):
     
 #         super(FlaskViewClient, self).display_tree()
 
-#         root = self.app.model.get_node_by_name('root')
+#         root = self.app.model.root
 #         response = requests.post(self.POST_ROUTE_GRAPH, json=json.dumps(root.to_graph_dict()))
