@@ -69,7 +69,7 @@ class Node(object):
     def __str__(self):
 
         if self.name is None:
-            name_prefix = '<anon>'.format(anon=dfb.ANON_DEFAULT)
+            name_prefix = '<anon>'.format(anon='')
         else:
             name_prefix = self.name
 

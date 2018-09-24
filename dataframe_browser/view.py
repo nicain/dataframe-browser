@@ -27,7 +27,7 @@ class ConsoleView(object):
 
     def display_node_info(self, node):
 
-        print '\nGroup info: ({anon} if group not bookmarked)'.format(anon=dfb.ANON_DEFAULT)
+        print '\nGroup info: ({anon} if group not bookmarked)'.format(anon='')
 
         print node
 
@@ -56,7 +56,7 @@ class FlaskViewServer(ConsoleView):
             for frame in self.app.model.active.node_frames:
 
                 if self.app.model.active.name is None:
-                    active_name = dfb.ANON_DEFAULT
+                    active_name = ''
                 else:
                     if len(self.app.model.active) > 1:
                         ni = self.app.model.active.get_key(frame)

@@ -1,1 +1,0 @@
-ANON_DEFAULT='<anon>'
