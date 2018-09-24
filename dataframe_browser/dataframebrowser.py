@@ -80,6 +80,9 @@ class DataFrameBrowser(object):
 
     def query(self, query=None):
     
+        if isinstance(query, (list, tuple)):
+            query = one(query)
+
         new_node_list = self.active.query(query=query)
         self.model.set_active(new_node_list[0])
         self.view.display_active()
