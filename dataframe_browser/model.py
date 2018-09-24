@@ -97,5 +97,18 @@ class Model(object):
     @property
     def active_is_bookmarked(self):
         return not self.active.name is None
+
+    @property
+    def number_of_active_frames(self):
+        return len(self.active.node_frames)
+
+
+
+    @property
+    def groupable_columns(self):
+        if self.number_of_active_frames != 1:
+            return []
+        else:
+            return [c for c in self.active.node_frames[0].df.columns if len(self.active.node_frames[0].df[c].unique()) < 5]
             
         
