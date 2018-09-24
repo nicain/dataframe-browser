@@ -93,5 +93,9 @@ class Model(object):
     @property
     def active_is_leaf(self):
         return len(self.active.children) == 0
+
+    @property
+    def active_is_bookmarked(self):
+        return not self.active.name is None
             
         

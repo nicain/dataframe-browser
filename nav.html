@@ -26,6 +26,18 @@
         </li>
         </ul>
 
+        <!-- <form class="form-inline my-2 my-lg-0" action="/command" method="POST">             -->
+        <button class="btn btn-primary btn-sm my-2 my-sm-0 mx-1 px-2 disabled" id="nav-bookmark-btn">
+            <span class="oi oi-bookmark"></span>
+        </button>
+        <script>
+            $(function(){
+                if(!{{disable_nav_bookmark_button}}){
+                    $('#nav-bookmark-btn').removeClass('disabled');
+                }
+            });
+        </script>
+
         <!-- Go back to parent of browser active state -->
         <form class="form-inline my-2 my-lg-0" action="/command" method="POST">            
             <button type="submit" class="btn btn-primary btn-sm my-2 my-sm-0 disabled" name="command" value="back" id="nav-parent-back">

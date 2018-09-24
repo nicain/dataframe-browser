@@ -3,10 +3,10 @@ from dataframe_browser.client import Cursor
 c = Cursor()
 
 c.open(filename='/home/nicholasc/projects/dataframe-browser/data/example.csv')
-c.bookmark(name='example')
 # c.query('a > 1')
 # c.keep(['area', 'dsi_dg', 'osi_dg', 'g_dsi_dg',])
 c.groupby('a')
+c.bookmark(name='example')
 # c.drop(frames=[0])
 # c.back()
 # c.reload()
