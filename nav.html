@@ -28,28 +28,28 @@
 
         <!-- Go back to parent of browser active state -->
         <form class="form-inline my-2 my-lg-0" action="/command" method="POST">            
-            <button type="submit" class="btn btn-primary btn-sm my-2 my-sm-0" name="command" value="back" id="nav-parent-back">
+            <button type="submit" class="btn btn-primary btn-sm my-2 my-sm-0 disabled" name="command" value="back" id="nav-parent-back">
                 <span class="oi oi-arrow-circle-left"></span>
             </button>
         </form>
         <script>
             $(function(){
-                if({{disable_nav_parent_back}}){
-                    $('#nav-parent-back').addClass('disabled');
+                if(!{{disable_nav_parent_back}}){
+                    $('#nav-parent-back').removeClass('disabled');
                 }
             });
         </script>
 
 
         <form class="form-inline my-2 my-lg-0" action="/command" method="POST">            
-            <button type="submit" class="btn btn-primary btn-sm my-2 my-sm-0 mr-sm-2 ml-sm-1" name="command" value="forward" id="nav-parent-forward">
+            <button type="submit" class="btn btn-primary btn-sm my-2 my-sm-0 mr-sm-2 ml-sm-1 disabled" name="command" value="forward" id="nav-parent-forward">
                 <span class="oi oi-arrow-circle-right"></span>
             </button>
         </form>
         <script>
             $(function(){
-                if({{disable_nav_child_forward}}){
-                    $('#nav-parent-forward').addClass('disabled');
+                if(!{{disable_nav_child_forward}}){
+                    $('#nav-parent-forward').removeClass('disabled');
                 }
             });
         </script>
