@@ -105,10 +105,10 @@ class Model(object):
 
 
     @property
-    def groupable_columns(self):
+    def groupable_columns_dict(self):
         if self.number_of_active_frames != 1:
-            return []
+            return {}
         else:
-            return [c for c in self.active.node_frames[0].df.columns if len(self.active.node_frames[0].df[c].unique()) < 5]
+            return {c:len(self.active.node_frames[0].df[c].unique()) for c in self.active.node_frames[0].df.columns if len(self.active.node_frames[0].df[c].unique()) < 5}
             
         

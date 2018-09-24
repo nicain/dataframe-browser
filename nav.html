@@ -24,24 +24,11 @@
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown2" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Actions</a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdown2">
-                    <button type="submit" class="dropdown-item" name="command" value="open" data-toggle="modal" data-target="#create-bookmark-modal">Group By</button>
+                    <button class="dropdown-item" data-toggle="collapse" data-target="#collapseExample">Group By</button>
+                    <button class="dropdown-item" data-toggle="collapse" data-target="#collapseExample">Other</button>
                 </div>
             </li>
         </ul>
-        <!-- <form class="px-4 py-3">
-                <div class="form-group">
-                    <label for="exampleDropdownFormEmail1">Columns/Groups</label>
-                    <select class="custom-select" multiple>
-                        {% for col in groupable_columns %}
-                            <option value="{{col}}">{{col}}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-            </form> -->
-
-
-
-
 
         <button class="btn btn-primary btn-sm my-2 my-sm-0 mx-1 pr-2 disabled" id="nav-create-bookmark-btn" type="button" data-toggle="modal" data-target="#create-bookmark-modal">
             <span class="oi oi-bookmark"></span>
@@ -99,6 +86,25 @@
         </form>
     </div>
 </nav>
+
+<div class="collapse" id="collapseExample">
+    <div class="card card-body">
+        <form class="form-inline my-2 my-lg-0" action="/command" method="POST">
+            <label class="mr-2">Select columns to group-by:</label>
+            
+            <div class="btn-group btn-group-toggle" data-toggle="buttons" role="group" aria-label="First group">
+                {% for col, num_unique_elem in groupable_columns_dict.items()|default({}, false) %}
+                <label class="btn btn-outline-primary btn-sm" data-toggle="tooltip" data-placement="top" title="Unique: {{num_unique_elem}}">
+                    <input type="checkbox" name="by" value={{col}}> {{col}}
+                </label>
+                {% endfor %}
+            </div>
+            
+            <button type="submit" class="btn btn-outline-success btn-sm ml-2" name="command" value="groupby" data-toggle="tooltip" data-placement="top" title="Submit"><span class="oi oi-check"></span></button>
+            <button type="button" class="btn btn-outline-danger btn-sm " data-toggle="collapse" data-target="#collapseExample" data-toggle="tooltip" data-placement="top" title="Cancel"><span class="oi oi-x"></span></button>
+        </form>
+    </div>
+</div>
 
 {% endblock %}
 
