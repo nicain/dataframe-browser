@@ -23,18 +23,17 @@
         </ul>
 
 
-        <!-- <form class="form-inline my-2 my-lg-0" action="/command" method="POST">             -->
         <button class="btn btn-primary btn-sm my-2 my-sm-0 mx-1 pr-2 disabled" id="nav-create-bookmark-btn" type="button" data-toggle="modal" data-target="#create-bookmark-modal">
             <span class="oi oi-bookmark"></span>
             {{active_name_str}}
         </button>
         <script>
             $(function(){
-                if(!{{disable_nav_bookmark_button}})
+                if(!{{disable_nav_bookmark_button|default("true", false)}})
                 {
                     $('#nav-create-bookmark-btn').removeClass('disabled');
                 } else {
-                    $('#nav-create-bookmark-btn').removeAttr('data-toggle');
+                    $('#nav-create-bookmark-btn').prop('disabled',"disabled");
                 };
             });
         </script>
@@ -50,8 +49,10 @@
         </form>
         <script>
             $(function(){
-                if(!{{disable_nav_parent_back}}){
+                if(!{{disable_nav_parent_back|default("true", false)}}){
                     $('#nav-parent-back').removeClass('disabled');
+                } else {
+                    $('#nav-parent-back').prop('disabled',"disabled");
                 }
             });
         </script>
@@ -64,8 +65,10 @@
         </form>
         <script>
             $(function(){
-                if(!{{disable_nav_child_forward}}){
+                if(!{{disable_nav_child_forward|default("true", false)}}){
                     $('#nav-parent-forward').removeClass('disabled');
+                } else {
+                    $('#nav-parent-forward').prop('disabled',"disabled");
                 }
             });
         </script>
