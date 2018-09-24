@@ -10,5 +10,6 @@ pgpasslib
 matplotlib
 gunicorn
 requests
+sqlalchemy
 
 # conda install -c conda-forge phantomjs
