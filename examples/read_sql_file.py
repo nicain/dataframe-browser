@@ -12,9 +12,6 @@ c = Cursor()
 filename1 = '/home/nicholasc/projects/allensdk_internal/allensdk/internal/api/queries/pre_release_sql/container_pre_release_query.sql'
 filename2 = '/home/nicholasc/projects/allensdk_internal/allensdk/internal/api/queries/pre_release_sql/experiment_pre_release_query.sql'
 
-# c.read(uri='postgresql://limsreader:{password}@limsdb2:5432/lims2'.format(password=pgpasslib.getpass('limsdb2', 5432, 'lims2', 'limsreader')), 
-#        filename=[filename1, filename2])
-
 c.read(uri='postgresql://limsreader@limsdb2:5432/lims2',
        password=pgpasslib.getpass('limsdb2', 5432, 'lims2', 'limsreader'), 
        filename=[filename1, filename2])

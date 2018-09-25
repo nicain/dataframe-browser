@@ -177,16 +177,16 @@ class Node(object):
 
     def query(self, **kwargs):
 
-        new_nodes = []
-        for ni, node_frame in enumerate(self.node_frames):
+        node_frame_list = []
+        for node_frame in self.node_frames:
             df, load_time = node_frame.query(**kwargs)
-            
-            node_frame = NodeFrame(df=df, load_time=load_time)
+            if len(df) > 0:
+                node_frame = NodeFrame(df=df, load_time=load_time)
+                node_frame_list.append(node_frame)
 
-            new_node = Node((node_frame,), name=None, parent=self, force=False)
-            new_nodes.append(new_node)
+        new_node = Node(tuple(node_frame_list), name=None, parent=self)
 
-        return new_nodes
+        return new_node
 
     def apply(self, **kwargs):
 
