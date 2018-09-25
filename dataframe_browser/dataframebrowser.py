@@ -105,7 +105,7 @@ class DataFrameBrowser(object):
      
         if isinstance(filename, (list, tuple)):
             for fn in filename:
-                q = open(filename, 'r').read()
+                q = open(fn, 'r').read()
                 all_query_list.append(q)
         elif isinstance(filename, (str, unicode)):
             q = open(filename, 'r').read()
