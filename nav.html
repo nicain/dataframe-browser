@@ -202,17 +202,25 @@
 </div>
 
 <div class="collapse" id="ApplyCollapse">
-    <div class="card card-body">
-        <form class="form-inline my-2 my-lg-0" action="/sandbox2" method="POST">
-            <label class="mr-2">Apply:</label>
+    <div class="card card-body col-lg-4">
+        <form class="form my-2 my-lg-0 " action="/sandbox2" method="POST">
+            <div class="form-row">
+                <div class="col">
+                    <label class="mr-2">Apply Mapper:</label>
+                </div>
+                <div class="col">
+                    <button type="submit" class="btn btn-outline-success btn-sm mx-1 float-right" name="command" value="apply" data-toggle="tooltip" data-placement="top" title="Submit"><span class="oi oi-check"></span></button>
+                    <button type="button" class="btn btn-outline-danger btn-sm mx-0 float-right" data-toggle="collapse" data-target="#ApplyCollapse" data-toggle="tooltip" data-placement="top" title="Cancel"><span class="oi oi-x"></span></button>
+                </div>
+            </div>
+
+
             <select class="form-control" id="exampleFormControlSelect1" name='mapper'>
                 {% for mapper in mapper_list %}
                     <option>{{mapper}}</option>
                 {% endfor %}
             </select>
             
-            <button type="submit" class="btn btn-outline-success btn-sm ml-2" name="command" value="apply" data-toggle="tooltip" data-placement="top" title="Submit"><span class="oi oi-check"></span></button>
-            <button type="button" class="btn btn-outline-danger btn-sm " data-toggle="collapse" data-target="#ApplyCollapse" data-toggle="tooltip" data-placement="top" title="Cancel"><span class="oi oi-x"></span></button>
         </form>
     </div>
 </div>

@@ -38,7 +38,8 @@ import pandas as pd
 mapper_library_dict = {}
 for module in [brain_observatory, load_test, widgets]:
     for name, fcn in [o for o in getmembers(module) if isfunction(o[1])]:
-        path = "{0}.{1}".format(module.__name__, name)
+        model_name_short = module.__name__.split('.')[-1]
+        path = "{0}.{1}".format(model_name_short, name)
         mapper_library_dict[str(path)] = fcn
 
 def squeeze(input_list):
@@ -67,9 +68,3 @@ def to_df(series):
 for curr_fnc in [squeeze, to_df]:
     mapper_library_dict[str(curr_fnc.__name__)] = curr_fnc
 
-    # df = df.describe(include='all').T
-    # df.index.name = 'column'
-    # df = df.reset_index()
-
-    # table_class = "display"
-    # html = df.to_html(classes=[table_class], index=False, escape=False, justify='center').replace('\n', '')
