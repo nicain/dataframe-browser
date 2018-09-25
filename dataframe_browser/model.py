@@ -141,8 +141,4 @@ class Model(object):
             return True
         else:
             return False
-        
-    @property
-    def droppable_column_list(self):
-        return self.all_active_columns
 

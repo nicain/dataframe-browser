@@ -165,8 +165,8 @@
             <label class="mr-2">Drop columns:</label>
             
             <div class="btn-group btn-group-toggle" data-toggle="buttons" role="group" aria-label="First group">
-                {% for col in droppable_column_list %}
-                <label class="btn btn-outline-primary btn-sm" data-toggle="tooltip" data-placement="top" title="Unique: {{num_unique_elem}}">
+                {% for col in all_active_columns %}
+                <label class="btn btn-outline-danger btn-sm" data-toggle="tooltip" data-placement="top" title="Unique: {{num_unique_elem}}">
                     <input type="checkbox" name="columns" value={{col}}> {{col}}
                 </label>
                 {% endfor %}
@@ -177,6 +177,25 @@
         </form>
     </div>
 </div>
+
+<div class="collapse" id="KeepColumnsByCollapse">
+        <div class="card card-body">
+            <form class="form-inline my-2 my-lg-0" action="/command" method="POST">
+                <label class="mr-2">Drop columns:</label>
+                
+                <div class="btn-group btn-group-toggle" data-toggle="buttons" role="group" aria-label="First group">
+                    {% for col in all_active_columns %}
+                    <label class="btn btn-outline-success btn-sm" data-toggle="tooltip" data-placement="top" title="Unique: {{num_unique_elem}}">
+                        <input type="checkbox" name="columns" value={{col}}> {{col}}
+                    </label>
+                    {% endfor %}
+                </div>
+                
+                <button type="submit" class="btn btn-outline-success btn-sm ml-2" name="command" value="keep" data-toggle="tooltip" data-placement="top" title="Submit"><span class="oi oi-check"></span></button>
+                <button type="button" class="btn btn-outline-danger btn-sm " data-toggle="collapse" data-target="#KeepColumnsByCollapse" data-toggle="tooltip" data-placement="top" title="Cancel"><span class="oi oi-x"></span></button>
+            </form>
+        </div>
+    </div>
 
 
 {% endblock %}

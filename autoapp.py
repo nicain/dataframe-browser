@@ -34,7 +34,7 @@ def browser_get():
                            groupable_columns_dict=dfb.model.groupable_columns_dict,
                            disable_groupby_menu_button=str(not dfb.model.groupable_state).lower(),
                            disable_concatenate_menu_button=str(not dfb.model.can_concatenate).lower(),
-                           droppable_column_list=dfb.model.droppable_column_list)
+                           all_active_columns=dfb.model.all_active_columns)
 
 @app.route("/active/<ii>", methods=['POST', 'GET']) 
 def get_active_ii(ii):
