@@ -161,11 +161,11 @@
 
 <div class="collapse" id="DropColumnsByCollapse">
     <div class="card card-body">
-        <form class="form-inline my-2 my-lg-0" action="/sandbox2" method="POST">
+        <form class="form-inline my-2 my-lg-0" action="/command" method="POST">
             <label class="mr-2">Drop columns:</label>
             
             <div class="btn-group btn-group-toggle" data-toggle="buttons" role="group" aria-label="First group">
-                {% for col, num_unique_elem in (groupable_columns_dict or dict()).items() %}
+                {% for col in droppable_column_list %}
                 <label class="btn btn-outline-primary btn-sm" data-toggle="tooltip" data-placement="top" title="Unique: {{num_unique_elem}}">
                     <input type="checkbox" name="columns" value={{col}}> {{col}}
                 </label>

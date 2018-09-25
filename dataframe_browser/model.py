@@ -12,6 +12,8 @@ class Model(object):
         self._root = Node(tuple()) # Not build with create_node
         self._active = self.root
 
+        self.groupable_max_unique = 10
+
     @property
     def active(self):
         return self._active
@@ -80,11 +82,19 @@ class Model(object):
 
     @property
     def common_active_columns(self):
-        return sorted(set.intersection(*[set(node.columns) for node in self.active.node_frames]))
+        L = [set(node_frame.columns) for node_frame in self.active.node_frames]
+        if len(L) == 0:
+            return []
+        else:
+            return sorted(set.intersection(*L))
 
     @property
     def all_active_columns(self):
-        return sorted(set.union(*[set(node.columns) for node in self.active.node_frames]))
+        L = [set(node_frame.columns) for node_frame in self.active.node_frames]
+        if len(L) == 0:
+            return []
+        else:
+            return sorted(set.union(*L))
 
     @property
     def active_is_root(self):
@@ -119,7 +129,7 @@ class Model(object):
             for c in self.active.node_frames[0].df.columns:
                 try:
                     n_unique = len(self.active.node_frames[0].df[c].unique())
-                    if n_unique < 5:
+                    if n_unique < self.groupable_max_unique:
                         return_dict[c] = n_unique
                 except TypeError:
                     pass
@@ -132,3 +142,7 @@ class Model(object):
         else:
             return False
         
+    @property
+    def droppable_column_list(self):
+        return self.all_active_columns
+
