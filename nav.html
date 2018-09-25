@@ -32,6 +32,23 @@
                 <div class="dropdown-menu" aria-labelledby="navbarDropdown2">
                     <button class="dropdown-item" data-toggle="collapse" data-target="#QueryCollapse">Query</button>
                     <button class="dropdown-item disabled" data-toggle="collapse" data-target="#GroupByCollapse" id='groupby-menu-item-button'>Group By</button>
+                    
+                    
+                    <form action="/command" method="POST">
+                        <button class="dropdown-item disabled" data-toggle="collapse" data-target="#ConcatenateCollapse" id='concatenate-menu-item-button' name='command' value='concat'>Concatenate</button>
+                    </form>
+                    <script>
+                        $(function(){
+                            if(!{{disable_concatenate_menu_button|default("true", false)}}){
+                                $('#concatenate-menu-item-button').removeClass('disabled');
+                            } else {
+                                $('#concatenate-menu-item-button').prop('disabled',"disabled");
+                            }
+                        });
+                    </script>
+                    
+                    
+                    
                 </div>
             </li>
         </ul>

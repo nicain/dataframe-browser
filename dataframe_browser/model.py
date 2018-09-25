@@ -124,5 +124,11 @@ class Model(object):
                 except TypeError:
                     pass
             return return_dict
-            
+    
+    @property
+    def can_concatenate(self):
+        if self.number_of_active_frames > 1:
+            return True
+        else:
+            return False
         

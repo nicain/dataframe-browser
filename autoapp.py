@@ -32,7 +32,8 @@ def browser_get():
                            disable_nav_bookmark_button = str(dfb.model.active_is_bookmarked or dfb.model.active==dfb.model.root).lower(),
                            active_name_str=active_name_str,
                            groupable_columns_dict=dfb.model.groupable_columns_dict,
-                           disable_groupby_menu_button=str(not dfb.model.groupable_state).lower())
+                           disable_groupby_menu_button=str(not dfb.model.groupable_state).lower(),
+                           disable_concatenate_menu_button=str(not dfb.model.can_concatenate).lower())
 
 @app.route("/active/<ii>", methods=['POST', 'GET']) 
 def get_active_ii(ii):
