@@ -4,6 +4,9 @@
 <nav class="navbar navbar-expand-lg navbar-light sticky-top bg-light border-bottom border-dark py-1 mb-2">
     <a class="navbar-brand" href="/browser">Dataframe-Browser</a>
 
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
@@ -47,45 +50,47 @@
                 };
             });
         </script>
+        
+
+        <div class="btn-group" role="group" aria-label="Navigation buttons">
+
+            <!-- Go back to parent of browser active state -->
+            <form class="form-inline my-2 my-lg-0" action="/command" method="POST">            
+                <button type="submit" class="btn btn-primary btn-sm my-2 my-sm-0 disabled" name="command" value="back" id="nav-parent-back">
+                    <span class="oi oi-arrow-circle-left"></span>
+                </button>
+            </form>
+            <script>
+                $(function(){
+                    if(!{{disable_nav_parent_back|default("true", false)}}){
+                        $('#nav-parent-back').removeClass('disabled');
+                    } else {
+                        $('#nav-parent-back').prop('disabled',"disabled");
+                    }
+                });
+            </script>
 
 
+            <form class="form-inline my-2 my-lg-0" action="/command" method="POST">            
+                <button type="submit" class="btn btn-primary btn-sm my-2 mr-sm-2 ml-sm-1 disabled" name="command" value="forward" id="nav-parent-forward">
+                    <span class="oi oi-arrow-circle-right"></span>
+                </button>
+            </form>
+            <script>
+                $(function(){
+                    if(!{{disable_nav_child_forward|default("true", false)}}){
+                        $('#nav-parent-forward').removeClass('disabled');
+                    } else {
+                        $('#nav-parent-forward').prop('disabled',"disabled");
+                    }
+                });
+            </script>
 
-
-        <!-- Go back to parent of browser active state -->
-        <form class="form-inline my-2 my-lg-0" action="/command" method="POST">            
-            <button type="submit" class="btn btn-primary btn-sm my-2 my-sm-0 disabled" name="command" value="back" id="nav-parent-back">
-                <span class="oi oi-arrow-circle-left"></span>
-            </button>
-        </form>
-        <script>
-            $(function(){
-                if(!{{disable_nav_parent_back|default("true", false)}}){
-                    $('#nav-parent-back').removeClass('disabled');
-                } else {
-                    $('#nav-parent-back').prop('disabled',"disabled");
-                }
-            });
-        </script>
-
-
-        <form class="form-inline my-2 my-lg-0" action="/command" method="POST">            
-            <button type="submit" class="btn btn-primary btn-sm my-2 my-sm-0 mr-sm-2 ml-sm-1 disabled" name="command" value="forward" id="nav-parent-forward">
-                <span class="oi oi-arrow-circle-right"></span>
-            </button>
-        </form>
-        <script>
-            $(function(){
-                if(!{{disable_nav_child_forward|default("true", false)}}){
-                    $('#nav-parent-forward').removeClass('disabled');
-                } else {
-                    $('#nav-parent-forward').prop('disabled',"disabled");
-                }
-            });
-        </script>
+        </div>
 
         <form class="form-inline my-2 my-lg-0" action="/bookmarks" method="POST">
             <input class="form-control mr-sm-2" type="search" name='q'  placeholder="Search" aria-label="Search">
-            <button class="btn btn-primary my-2 my-sm-0" type="submit">Search</button>
+            <button class="btn btn-primary my-2" type="submit">Search</button>
         </form>
     </div>
 </nav>

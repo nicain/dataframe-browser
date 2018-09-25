@@ -12,6 +12,8 @@ c.read(uri='postgresql://limsreader:{password}@limsdb2:5432/lims2'.format(passwo
             WHERE osp.code = 'C600' AND ec.workflow_state NOT IN ('failed')
             AND ec.workflow_state = 'published';''')
 
+c.apply(column='nwb_file', mapper='dataframe_browser.mappers.brain_observatory.nwb_file_to_max_projection', new_column='max_projection', lazy=True, axis=0)
+
     # # dfb = DataFrameBrowser()
     # # dfb.read(query=query, uri='postgresql://limsreader:{password}@limsdb2:5432/lims2'.format(password=pgpasslib.getpass('limsdb2', 5432, 'lims2', 'limsreader')))
 
@@ -31,7 +33,7 @@ c.read(uri='postgresql://limsreader:{password}@limsdb2:5432/lims2'.format(passwo
     # # dfb.apply(column='nwb_file', mapper='nwb_file_to_max_projection', mapper_library='dataframe_browser.mappers.brain_observatory', new_column='max_projection', lazy=True)
     # dfb = DataFrameBrowser()
     # dfb.read(query=query, uri='postgresql://limsreader:{password}@limsdb2:5432/lims2'.format(password=password))
-    # # dfb.apply(column='nwb_file', mapper='test_apply', mapper_library='dataframe_browser.mappers.load_test', new_column='test')
+    # dfb.apply(column='nwb_file', mapper='test_apply', mapper_library='dataframe_browser.mappers.load_test', new_column='test')
     # dfb.apply(column='nwb_file', mapper='nwb_file_to_dff_traces_heatmap', mapper_library='dataframe_browser.mappers.brain_observatory', new_column='max_projection', lazy=True)
 
     # # example_df_path = '/home/nicholasc/projects/dataframe-browser/tests/example.csv'

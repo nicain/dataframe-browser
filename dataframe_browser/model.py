@@ -109,6 +109,14 @@ class Model(object):
         if self.number_of_active_frames != 1:
             return {}
         else:
-            return {c:len(self.active.node_frames[0].df[c].unique()) for c in self.active.node_frames[0].df.columns if len(self.active.node_frames[0].df[c].unique()) < 5}
+            return_dict = {}
+            for c in self.active.node_frames[0].df.columns:
+                try:
+                    n_unique = len(self.active.node_frames[0].df[c].unique())
+                    if n_unique < 5:
+                        return_dict[c] = n_unique
+                except TypeError:
+                    pass
+            return return_dict
             
         

@@ -131,7 +131,7 @@ class Node(object):
     def keep(self, columns=None, frames=None):
 
         if frames is None:
-            frames_to_keep = []
+            frames_to_keep = range(len(self.node_frames))
         else:
             frames_to_keep = [int(ii) for ii in frames]
         

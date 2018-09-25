@@ -105,9 +105,9 @@ class DataFrameBrowser(object):
         
         self.controller.read_node_from_uri_query(query=query, uri=uri)
 
-    def apply(self, column=None, mapper=None, new_column=None, lazy=False, drop=False):
+    def apply(self, column=None, mapper=None, new_column=None, lazy=False, drop=False, axis=0):
 
-        new_node_list = self.active.apply(column=column, mapper=mapper, new_column=new_column, lazy=lazy, drop=drop)
+        new_node_list = self.active.apply(column=column, mapper=mapper, new_column=new_column, lazy=lazy, drop=drop, axis=axis)
         self.model.set_active(new_node_list[0])
         self.view.display_active()
 

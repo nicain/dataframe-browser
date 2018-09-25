@@ -162,7 +162,11 @@ class NodeFrame(object):
         else:
             apply_fcn = mapper_library_dict[kwargs['mapper']]
 
-        result_series = self.df[kwargs['column']].apply(apply_fcn, axis=1)
+
+        if isinstance(kwargs['column'], (list,tuple)) and len(kwargs['column']) > 1:
+            result_series = self.df[kwargs['column']].apply(apply_fcn, axis=kwargs['axis'])
+        else:
+            result_series = self.df[kwargs['column']].apply(apply_fcn)
 
         df = pd.DataFrame({kwargs['new_column']:result_series})
 
