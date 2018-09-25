@@ -86,6 +86,10 @@
                 });
             </script>
 
+            <button type="button" class="btn btn-secondary btn-sm my-2 mr-sm-2 ml-sm-1 btn-copy js-tooltip js-copy" data-toggle="tooltip" data-placement="bottom" data-copy='data = {key:pandas.DataFrame(val) for key, val in requests.post("http://localhost:5000/active").json().items()}'>
+                <span class="oi oi-clipboard"></span>
+            </button>
+
         </div>
 
         <form class="form-inline my-2 my-lg-0" action="/bookmarks" method="POST">

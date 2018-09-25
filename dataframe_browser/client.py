@@ -21,8 +21,8 @@ class Cursor(object):
             result.raise_for_status()
         return self
 
-    def open(self, filename=None, bookmark=None, reload=False):
-        return self.run(command='open', filename=filename, bookmark=bookmark, reload=reload)
+    def open(self, filename=None, reload=False):
+        return self.run(command='open', filename=filename, reload=reload)
 
     def read(self, query=None, uri=None, reload=False, password=None):
         return self.run(command='read', query=query, uri=uri, reload=reload)

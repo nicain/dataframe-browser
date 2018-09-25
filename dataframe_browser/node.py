@@ -95,7 +95,7 @@ class Node(object):
                 key_list.append(key)
                 nodeframe_list.append(NodeFrame(df=df, load_time=load_time))
             
-            curr_node = Node(tuple(nodeframe_list), name=None, parent=self, force=False)
+            curr_node = Node(tuple(nodeframe_list), name=None, parent=self, force=False) # Not built using create node
             new_nodes.append(curr_node)
 
         return new_nodes

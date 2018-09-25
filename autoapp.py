@@ -34,6 +34,14 @@ def browser_get():
                            groupable_columns_dict=dfb.model.groupable_columns_dict,
                            disable_groupby_menu_button=str(not dfb.model.groupable_state).lower())
 
+@app.route("/active/<ii>", methods=['POST', 'GET']) 
+def get_active_ii(ii):
+    return dfb.active.node_frames[int(ii)].df.to_json()
+
+@app.route("/active", methods=['POST', 'GET']) 
+def get_active():
+    return json.dumps({str(ii):dfb.active.node_frames[int(ii)].df.to_dict() for ii in range(len(dfb.active.node_frames))})
+
 @app.route("/bookmarks", methods=['POST'])
 def bookmarks():
 
@@ -98,18 +106,6 @@ def cmd_post():
 @app.route('/')
 def hello_world():
     return 'Hello, World!'
-
-# Achieves persistence:
-data = {'active':None}
-
-@app.route("/active", methods=['GET', 'POST'])
-def active():
-
-
-    if request.method == 'POST': 
-        data['active'] = (request.form['data'], request.form['header'], request.form['table_id'])
-
-    return render_template('view.html', table_id=data['active'][2], table=data['active'][0], header=data['active'][1])
 
 @app.route("/multi", methods=['GET']) 
 def multi():  
