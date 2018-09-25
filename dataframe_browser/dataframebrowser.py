@@ -5,6 +5,7 @@ from model import Model
 from view import FlaskViewServer as FlaskView
 from controller import TextController
 from customexceptions import BookmarkAlreadyExists
+import urlparse
 
 class DataFrameBrowser(object):
 
@@ -87,7 +88,20 @@ class DataFrameBrowser(object):
         self.model.set_active(new_node_list[0])
         self.view.display_active()
 
-    def read(self, query=None, uri=None):
+    def read(self, query=None, uri=None, password=None):
+
+        if isinstance(query, (list, tuple)):
+            query = one(query)
+
+        if isinstance(uri, (list, tuple)):
+            uri = one(uri)
+
+        if password is not None:
+            if isinstance(password, (list, tuple)):
+                password = one(password)
+            url_obj = urlparse.urlparse(uri)
+
+            uri = '%s://%s:%s@%s:%s%s' % (url_obj.scheme, url_obj.username, password, url_obj.hostname, url_obj.port, url_obj.path)
         
         self.controller.read_node_from_uri_query(query=query, uri=uri)
 

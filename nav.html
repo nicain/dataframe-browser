@@ -10,14 +10,17 @@
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Start Here</a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    
+
+                    <button class="dropdown-item" type="button" data-toggle="modal" data-target="#input-read-query-modal">Read Query</button>
+
+                    <div class="dropdown-divider"></div>
+
                     <form action="/command" method="POST">
                         <input type="hidden" name='filename' value='/home/nicholasc/projects/dataframe-browser/data/example.csv'>
                         <input type="hidden" name='bookmark' value='Hello World'>
                         <button type="submit" class="dropdown-item" name="command" value="open">Hello World</button>
                     </form>
                     
-                    <!-- <div class="dropdown-divider"></div> -->
                 </div>
             </li>
 
@@ -93,7 +96,7 @@
             <label class="mr-2">Select columns to group-by:</label>
             
             <div class="btn-group btn-group-toggle" data-toggle="buttons" role="group" aria-label="First group">
-                {% for col, num_unique_elem in groupable_columns_dict.items()|default({}, false) %}
+                {% for col, num_unique_elem in (groupable_columns_dict or dict()).items() %}
                 <label class="btn btn-outline-primary btn-sm" data-toggle="tooltip" data-placement="top" title="Unique: {{num_unique_elem}}">
                     <input type="checkbox" name="by" value={{col}}> {{col}}
                 </label>

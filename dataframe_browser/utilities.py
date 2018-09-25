@@ -7,6 +7,7 @@ from customexceptions import UnrecognizedFileTypeException
 from bs4 import BeautifulSoup as BeautifulSoupPre
 from future.utils import raise_from
 import sqlalchemy
+import sqlparse
 
 def generate_uuid(length=32):
     '''https://gist.github.com/admiralobvious/d2dcc76a63df866be17f'''
@@ -52,6 +53,7 @@ def load_file(filename, **kwargs):
 @fn_timer
 def read_file_query_uri(query=None, uri=None):
     query = ''.join([i if ord(i) < 128 else ' ' for i in query])
+    query = sqlparse.format(query, strip_comments=True).strip() # Comments with % can also break pandas :/
     query = sqlalchemy.text(query)
     return pd.read_sql_query(query,con=uri)
 

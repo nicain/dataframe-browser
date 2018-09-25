@@ -11,5 +11,5 @@ matplotlib
 gunicorn
 requests
 sqlalchemy
-
+sqlparse
 # conda install -c conda-forge phantomjs

@@ -24,7 +24,7 @@ class Cursor(object):
     def open(self, filename=None, bookmark=None, reload=False):
         return self.run(command='open', filename=filename, bookmark=bookmark, reload=reload)
 
-    def read(self, query=None, uri=None, reload=False):
+    def read(self, query=None, uri=None, reload=False, password=None):
         return self.run(command='read', query=query, uri=uri, reload=reload)
 
     def query(self, query=None, reload=False):
