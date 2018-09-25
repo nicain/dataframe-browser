@@ -46,8 +46,11 @@
                             }
                         });
                     </script>
-                    
-                    
+
+                    <div class="dropdown-divider"></div>
+
+                    <button class="dropdown-item" data-toggle="collapse" data-target="#DropColumnsByCollapse" id='drop-columns-menu-item-button'>Drop Columns</button>
+                    <button class="dropdown-item" data-toggle="collapse" data-target="#KeepColumnsByCollapse" id='keep-columns-menu-item-button'>Keep Columns</button>
                     
                 </div>
             </li>
@@ -145,16 +148,36 @@
 </script>
 
 <div class="collapse" id="QueryCollapse">
-        <div class="card card-body">
-            <form class="form-inline my-2 my-lg-0" action="/command" method="POST">
-                <label class="mr-2">Query:</label>
-                <input type="text" class="form-control" id="formGroupExampleInput" name='query'>
-                
-                <button type="submit" class="btn btn-outline-success btn-sm ml-2" name="command" value="query" data-toggle="tooltip" data-placement="top" title="Submit"><span class="oi oi-check"></span></button>
-                <button type="button" class="btn btn-outline-danger btn-sm " data-toggle="collapse" data-target="#QueryCollapse" data-toggle="tooltip" data-placement="top" title="Cancel"><span class="oi oi-x"></span></button>
-            </form>
-        </div>
+    <div class="card card-body">
+        <form class="form-inline my-2 my-lg-0" action="/command" method="POST">
+            <label class="mr-2">Query:</label>
+            <input type="text" class="form-control" id="formGroupExampleInput" name='query'>
+            
+            <button type="submit" class="btn btn-outline-success btn-sm ml-2" name="command" value="query" data-toggle="tooltip" data-placement="top" title="Submit"><span class="oi oi-check"></span></button>
+            <button type="button" class="btn btn-outline-danger btn-sm " data-toggle="collapse" data-target="#QueryCollapse" data-toggle="tooltip" data-placement="top" title="Cancel"><span class="oi oi-x"></span></button>
+        </form>
     </div>
+</div>
+
+<div class="collapse" id="DropColumnsByCollapse">
+    <div class="card card-body">
+        <form class="form-inline my-2 my-lg-0" action="/sandbox2" method="POST">
+            <label class="mr-2">Drop columns:</label>
+            
+            <div class="btn-group btn-group-toggle" data-toggle="buttons" role="group" aria-label="First group">
+                {% for col, num_unique_elem in (groupable_columns_dict or dict()).items() %}
+                <label class="btn btn-outline-primary btn-sm" data-toggle="tooltip" data-placement="top" title="Unique: {{num_unique_elem}}">
+                    <input type="checkbox" name="columns" value={{col}}> {{col}}
+                </label>
+                {% endfor %}
+            </div>
+            
+            <button type="submit" class="btn btn-outline-success btn-sm ml-2" name="command" value="drop" data-toggle="tooltip" data-placement="top" title="Submit"><span class="oi oi-check"></span></button>
+            <button type="button" class="btn btn-outline-danger btn-sm " data-toggle="collapse" data-target="#DropColumnsByCollapse" data-toggle="tooltip" data-placement="top" title="Cancel"><span class="oi oi-x"></span></button>
+        </form>
+    </div>
+</div>
+
 
 {% endblock %}
 
