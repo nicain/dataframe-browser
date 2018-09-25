@@ -54,7 +54,12 @@ def load_file(filename, **kwargs):
 def read_file_query_uri(query=None, uri=None):
     query = ''.join([i if ord(i) < 128 else ' ' for i in query])
     query = sqlparse.format(query, strip_comments=True).strip() # Comments with % can also break pandas :/
+    if len(query) == 0:
+        raise RuntimeError('Cannot read an empty query!')
     query = sqlalchemy.text(query)
+
+
+
     return pd.read_sql_query(query,con=uri)
 
 def one(x, exc_tp=TypeError):

@@ -93,9 +93,26 @@
                     <label for="bookmark-input" class="col-form-label">Password:</label>
                     <input type='password' class="form-control" value="" name='password'>
 
-                    <label for="bookmark-input" class="col-form-label">SQL Query:</label>
-                    <textarea class="form-control" rows="5" name='query'></textarea>
+                    <label for="bookmark-input" class="col-form-label">Enter SQL Query:</label>
+                    <textarea class="form-control" rows="5" name='query' id='sql-query-textarea'></textarea>
+                    
+
+                    <!-- WIP
+                    <div class="custom-file">
+                        <input type="file" class="custom-file-input" id="customFile">
+                        <label class="custom-file-label" for="customFile">...or choose file</label>
+                    </div>
+                    <script>
+                    var reader = new FileReader();
+                        reader.onload = function (e) {
+                            var textArea = document.getElementById("myTextArea");
+                            textArea.value = e.target.result;
+                        };
+                        reader.readAsText(file);
+                    </script> -->
+
                 </div>
+
                 </form>
             </div>
             <div class="modal-footer">
@@ -108,10 +125,7 @@
     <script>$('#input-read-query-modal').on('shown.bs.modal', function() {$(this).find('textarea:first').focus();});</script>
 
 
-    <!-- <div class="custom-file">
-            <input type="file" class="custom-file-input" id="customFile">
-            <label class="custom-file-label" for="customFile">Choose file</label>
-          </div> -->
+
 
 </head>
 <!-- ================================================================== -->
