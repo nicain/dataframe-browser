@@ -3,7 +3,6 @@ from cssutils import parseStyle
 from utilities import BeautifulSoup, fn_timer, generate_uuid, one
 import json
 from flask import flash
-from dataframe_browser.mappers import mapper_library_dict
 
 # TODO: Move to utilities
 def memory_usage(df, deep=True):
@@ -87,7 +86,7 @@ class NodeFrame(object):
         return self.df.query(query, **kwargs)
 
     @fn_timer
-    def pivot(self, by=None, reduce=None):
+    def pivot(self, by=None, reduce=None, mapper_library_dict=None):
 
         if reduce is None:
             reduce = dict()
@@ -127,6 +126,8 @@ class NodeFrame(object):
 
     @fn_timer
     def apply(self, **kwargs):
+
+        mapper_library_dict = kwargs['mapper_library_dict']
 
         if kwargs.get('lazy', True):
 

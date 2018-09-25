@@ -34,7 +34,8 @@ def browser_get():
                            groupable_columns_dict=dfb.model.groupable_columns_dict,
                            disable_groupby_menu_button=str(not dfb.model.groupable_state).lower(),
                            disable_concatenate_menu_button=str(not dfb.model.can_concatenate).lower(),
-                           all_active_columns=dfb.model.all_active_columns)
+                           all_active_columns=dfb.model.all_active_columns,
+                           mapper_list=dfb.mapper_library_dict.keys())
 
 @app.route("/active/<ii>", methods=['POST', 'GET']) 
 def get_active_ii(ii):
@@ -147,12 +148,12 @@ def graph_get():
 def graph_json():
     return json.dumps(data['graph'])
 
-from dataframe_browser.mappers import mapper_library_dict
+
 
 @app.route('/lazy_formatting', methods=['POST'])
 def lazy_formatting():
     data = request.json
-    result = mapper_library_dict[data['mapper']](*data.get('args',[]), **data.get('kwargs', {}))
+    result = dfb.mapper_library_dict[data['mapper']](*data.get('args',[]), **data.get('kwargs', {}))
     return json.dumps({'result':result})
 
 @app.route('/sandbox')

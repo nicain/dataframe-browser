@@ -47,6 +47,8 @@
                         });
                     </script>
 
+                    <button class="dropdown-item" data-toggle="collapse" data-target="#ApplyCollapse">Apply</button>
+
                     <div class="dropdown-divider"></div>
 
                     <button class="dropdown-item" data-toggle="collapse" data-target="#DropColumnsByCollapse" id='drop-columns-menu-item-button'>Drop Columns</button>
@@ -54,14 +56,6 @@
                     
                 </div>
             </li>
-
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown3" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Apply</a>
-                <div class="dropdown-menu" aria-labelledby="navbarDropdown3">
-                    <button class="dropdown-item" data-toggle="collapse" data-target="#ApplyCollapse">Query</button>
-                </div>
-            </li>
-
 
 
         </ul>
@@ -209,12 +203,16 @@
 
 <div class="collapse" id="ApplyCollapse">
     <div class="card card-body">
-        <form class="form-inline my-2 my-lg-0" action="/sandbox" method="POST">
+        <form class="form-inline my-2 my-lg-0" action="/sandbox2" method="POST">
             <label class="mr-2">Apply:</label>
-            <input type="text" class="form-control" id="formGroupExampleInput" name='query'>
+            <select class="form-control" id="exampleFormControlSelect1" name='mapper'>
+                {% for mapper in mapper_list %}
+                    <option>{{mapper}}</option>
+                {% endfor %}
+            </select>
             
-            <button type="submit" class="btn btn-outline-success btn-sm ml-2" name="command" value="query" data-toggle="tooltip" data-placement="top" title="Submit"><span class="oi oi-check"></span></button>
-            <button type="button" class="btn btn-outline-danger btn-sm " data-toggle="collapse" data-target="#QueryCollapse" data-toggle="tooltip" data-placement="top" title="Cancel"><span class="oi oi-x"></span></button>
+            <button type="submit" class="btn btn-outline-success btn-sm ml-2" name="command" value="apply" data-toggle="tooltip" data-placement="top" title="Submit"><span class="oi oi-check"></span></button>
+            <button type="button" class="btn btn-outline-danger btn-sm " data-toggle="collapse" data-target="#ApplyCollapse" data-toggle="tooltip" data-placement="top" title="Cancel"><span class="oi oi-x"></span></button>
         </form>
     </div>
 </div>

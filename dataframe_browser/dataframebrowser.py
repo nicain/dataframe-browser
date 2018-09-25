@@ -7,6 +7,7 @@ from controller import TextController
 from nodeframe import NodeFrame
 from customexceptions import BookmarkAlreadyExists
 import urlparse
+from mappers import mapper_library_dict
 
 class DataFrameBrowser(object):
 
@@ -23,6 +24,7 @@ class DataFrameBrowser(object):
         controller_kwargs = kwargs.get('controller_kwargs', {})
         self.controller = kwargs.get('controller_class', TextController)(app=self, **controller_kwargs)
 
+        self.mapper_library_dict = mapper_library_dict
 
     def open(self, filename=None, bookmark=None):
 
@@ -138,7 +140,7 @@ class DataFrameBrowser(object):
 
     def apply(self, column=None, mapper=None, new_column=None, lazy=False, drop=False, axis=0):
 
-        new_node_list = self.active.apply(column=column, mapper=mapper, new_column=new_column, lazy=lazy, drop=drop, axis=axis)
+        new_node_list = self.active.apply(column=column, mapper=mapper, new_column=new_column, lazy=lazy, drop=drop, axis=axis, mapper_library_dict=self.mapper_library_dict)
         self.model.set_active(new_node_list[0])
         self.view.display_active()
 
@@ -168,7 +170,7 @@ class DataFrameBrowser(object):
         self.model.set_active(new_node_list[0]) # TODO: this borks when there is no node returned
 
     def groupfold(self, by=None):
-        new_node = self.active.groupfold(by=by)
+        new_node = self.active.groupfold(by=by, mapper_library_dict=self.mapper_library_dict)
         self.model.set_active(new_node)
 
     def drop(self, columns=None, frames=None):
