@@ -138,9 +138,9 @@ class DataFrameBrowser(object):
         node = self.controller.create_node(tuple(node_frame_list), parent=self.model.root)
         self.model.set_active(node)
 
-    def apply(self, column=None, mapper=None, new_column=None, lazy=False, drop=False, axis=0):
+    def apply(self, column=None, mapper=None, new_column=None, lazy=False, drop=False):
 
-        new_node_list = self.active.apply(column=column, mapper=mapper, new_column=new_column, lazy=lazy, drop=drop, axis=axis, mapper_library_dict=self.mapper_library_dict)
+        new_node_list = self.active.apply(column=column, mapper=mapper, new_column=new_column, lazy=lazy, drop=drop, mapper_library_dict=self.mapper_library_dict)
         self.model.set_active(new_node_list[0])
         self.view.display_active()
 
@@ -154,7 +154,6 @@ class DataFrameBrowser(object):
 
     def forward(self):
     
-        original_active_before_going_forward = self.active
         self.model.set_active(self.active._child_set_from_back_button)
 
 

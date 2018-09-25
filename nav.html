@@ -204,9 +204,10 @@
 <div class="collapse" id="ApplyCollapse">
     <div class="card card-body col-lg-4">
         <form class="form my-2 my-lg-0 " action="/sandbox2" method="POST">
+
             <div class="form-row">
                 <div class="col">
-                    <label class="mr-2">Apply Mapper:</label>
+                    <label class="ml-2">Apply Mapper:</label>
                 </div>
                 <div class="col">
                     <button type="submit" class="btn btn-outline-success btn-sm mx-1 float-right" name="command" value="apply" data-toggle="tooltip" data-placement="top" title="Submit"><span class="oi oi-check"></span></button>
@@ -215,12 +216,39 @@
             </div>
 
 
-            <select class="form-control" id="exampleFormControlSelect1" name='mapper'>
+            <select class="form-control my-1 active" id="exampleFormControlSelect1" name='mapper'>
                 {% for mapper in mapper_list %}
                     <option>{{mapper}}</option>
                 {% endfor %}
             </select>
-            
+
+
+            <div class="col">
+                <label class="ml-0">Columns:</label>
+            </div>
+
+
+            <div class="form-row">
+                <div class="col">
+                    <div class="btn-group btn-group-toggle" data-toggle="buttons" role="group" aria-label="First group">
+                        {% for col in all_active_columns %}
+                        <label class="btn btn-outline-success btn-sm">
+                            <input type="checkbox" name="columns" value={{col}}> {{col}}
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="btn-group-toggle" data-toggle="buttons" data-toggle="tooltip" data-placement="top" title='Drop the columns after applying function'>
+                        <label class="btn btn-outline-danger btn-sm pt-1 float-right">
+                            <input name='drop' type="checkbox" autocomplete="off" > Drop Sources
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <input type="text" class="form-control mt-2" placeholder="New column" name="new_column">
+
         </form>
     </div>
 </div>

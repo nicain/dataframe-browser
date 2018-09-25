@@ -174,7 +174,7 @@ class NodeFrame(object):
 
 
         if isinstance(kwargs['column'], (list,tuple)) and len(kwargs['column']) > 1:
-            result_series = self.df[kwargs['column']].apply(apply_fcn, axis=kwargs['axis'])
+            result_series = self.df[kwargs['column']].apply(apply_fcn, axis=1)
         else:
             result_series = self.df[kwargs['column']].apply(apply_fcn)
 
