@@ -31,7 +31,8 @@ def browser_get():
                            disable_nav_child_forward = str(dfb.model.active_is_leaf).lower(),
                            disable_nav_bookmark_button = str(dfb.model.active_is_bookmarked or dfb.model.active==dfb.model.root).lower(),
                            active_name_str=active_name_str,
-                           groupable_columns_dict=dfb.model.groupable_columns_dict)
+                           groupable_columns_dict=dfb.model.groupable_columns_dict,
+                           disable_groupby_menu_button=str(not dfb.model.groupable_state).lower())
 
 @app.route("/bookmarks", methods=['POST'])
 def bookmarks():

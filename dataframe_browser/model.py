@@ -102,6 +102,12 @@ class Model(object):
     def number_of_active_frames(self):
         return len(self.active.node_frames)
 
+    @property
+    def groupable_state(self):
+        if self.number_of_active_frames == 1 and len(self.groupable_columns_dict) > 0:
+            return True
+        else:
+            return False
 
 
     @property

@@ -31,7 +31,7 @@
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown2" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Actions</a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdown2">
                     <button class="dropdown-item" data-toggle="collapse" data-target="#QueryCollapse">Query</button>
-                    <button class="dropdown-item" data-toggle="collapse" data-target="#GroupByCollapse">Group By</button>
+                    <button class="dropdown-item disabled" data-toggle="collapse" data-target="#GroupByCollapse" id='groupby-menu-item-button'>Group By</button>
                 </div>
             </li>
         </ul>
@@ -113,6 +113,15 @@
         </form>
     </div>
 </div>
+<script>
+    $(function(){
+        if(!{{disable_groupby_menu_button|default("true", false)}}){
+            $('#groupby-menu-item-button').removeClass('disabled');
+        } else {
+            $('#groupby-menu-item-button').prop('disabled',"disabled");
+        }
+    });
+</script>
 
 <div class="collapse" id="QueryCollapse">
         <div class="card card-body">
