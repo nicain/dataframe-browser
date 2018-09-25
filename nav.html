@@ -119,7 +119,7 @@
 <div class="collapse" id="GroupByCollapse">
     <div class="card card-body">
         <form class="form-inline my-2 my-lg-0" action="/command" method="POST">
-            <label class="mr-2">Select columns to group-by:</label>
+            <label class="mr-2">Group columns:</label>
             
             <div class="btn-group btn-group-toggle" data-toggle="buttons" role="group" aria-label="First group">
                 {% for col, num_unique_elem in (groupable_columns_dict or dict()).items() %}
@@ -147,7 +147,7 @@
 <div class="collapse" id="QueryCollapse">
         <div class="card card-body">
             <form class="form-inline my-2 my-lg-0" action="/command" method="POST">
-                <label class="mr-2">Input Query:</label>
+                <label class="mr-2">Query:</label>
                 <input type="text" class="form-control" id="formGroupExampleInput" name='query'>
                 
                 <button type="submit" class="btn btn-outline-success btn-sm ml-2" name="command" value="query" data-toggle="tooltip" data-placement="top" title="Submit"><span class="oi oi-check"></span></button>
