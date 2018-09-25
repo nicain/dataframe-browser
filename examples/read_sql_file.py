@@ -12,21 +12,11 @@ c = Cursor()
 filename1 = '/home/nicholasc/projects/allensdk_internal/allensdk/internal/api/queries/pre_release_sql/container_pre_release_query.sql'
 filename2 = '/home/nicholasc/projects/allensdk_internal/allensdk/internal/api/queries/pre_release_sql/experiment_pre_release_query.sql'
 
-# query = open(filename, 'r').read()
+# c.read(uri='postgresql://limsreader:{password}@limsdb2:5432/lims2'.format(password=pgpasslib.getpass('limsdb2', 5432, 'lims2', 'limsreader')), 
+#        filename=[filename1, filename2])
 
-# query = sqlparse.format(query, strip_comments=True).strip()
-
-# query = str(sqlalchemy.text(query))
-# query = ''.join([i if ord(i) < 128 else ' ' for i in query])
-# query = query.encode('ascii')
-
-# query_result = lu.query(query)
-# print 'OK'
-
-# print type(query)
-
-
-c.read(uri='postgresql://limsreader:{password}@limsdb2:5432/lims2'.format(password=pgpasslib.getpass('limsdb2', 5432, 'lims2', 'limsreader')), 
+c.read(uri='postgresql://limsreader@limsdb2:5432/lims2',
+       password=pgpasslib.getpass('limsdb2', 5432, 'lims2', 'limsreader'), 
        filename=[filename1, filename2])
 
 
