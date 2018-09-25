@@ -4,6 +4,7 @@ from io import BytesIO
 import base64
 import matplotlib.pyplot as plt
 from dataframe_browser.utilities import one
+import json
 
 def image_formatter_mpl(image_base64):
     format_string = '<img style="height: {height}px; width: {width}px" src="data:image/png;base64,{img}">'

@@ -3,7 +3,6 @@ from cssutils import parseStyle
 from utilities import BeautifulSoup, fn_timer, generate_uuid, one
 import json
 from flask import flash
-
 from dataframe_browser.mappers import mapper_library_dict
 
 # TODO: Move to utilities
@@ -134,7 +133,17 @@ class NodeFrame(object):
 
             def apply_fcn(col_val):
 
-                payload = {'mapper':str(kwargs['mapper']), 'args':[str(col_val)], 'kwargs':{}}
+                # Marshalling to prepare for payload dumps:
+                if isinstance(col_val, (str, unicode)):
+                    args = [str(col_val)]       # Only a single column specified, need to wrap to unpack with *args in tgt function
+                elif isinstance(col_val, (pd.Series, pd.DataFrame)):
+                    args = [col_val.to_dict()]
+                else:
+                    args = col_val
+
+                # print args
+                # raise
+                payload = {'mapper':str(kwargs['mapper']), 'args':args, 'kwargs':{}}
 
                 id = generate_uuid()
                 div_txt = '<div id="{id}"></div>'.format(id=id)
@@ -145,12 +154,12 @@ class NodeFrame(object):
                                                                                                         data: JSON.stringify({payload}, null, "\t"),\
                                                                                                         contentType: "application/json;charset=UTF-8",\
                                                                                                         success: function(result) {{\
-                                                                                                                                    document.getElementById("{id}").innerHTML = JSON.parse(result)["result"];\
+                                                                                                                                $("#{id}").html(JSON.parse(result)["result"]);\
                                                                                                                                     console.log("HW");\
                                                                                                                                     }}\
                                                                                                         }});\
                                                                                                 }};\
-                                                                }});'.format(id=id, payload=payload)
+                                                                }});'.format(id=id, payload=json.dumps(payload))
     
                 
                 js_txt = """<script>{js}</script>""".format(js=js)

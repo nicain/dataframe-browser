@@ -54,6 +54,16 @@
                     
                 </div>
             </li>
+
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown3" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Apply</a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown3">
+                    <button class="dropdown-item" data-toggle="collapse" data-target="#ApplyCollapse">Query</button>
+                </div>
+            </li>
+
+
+
         </ul>
 
         <button class="btn btn-primary btn-sm my-2 my-sm-0 mx-1 pr-2 disabled" id="nav-create-bookmark-btn" type="button" data-toggle="modal" data-target="#create-bookmark-modal">
@@ -179,23 +189,35 @@
 </div>
 
 <div class="collapse" id="KeepColumnsByCollapse">
-        <div class="card card-body">
-            <form class="form-inline my-2 my-lg-0" action="/command" method="POST">
-                <label class="mr-2">Drop columns:</label>
-                
-                <div class="btn-group btn-group-toggle" data-toggle="buttons" role="group" aria-label="First group">
-                    {% for col in all_active_columns %}
-                    <label class="btn btn-outline-success btn-sm" data-toggle="tooltip" data-placement="top" title="Unique: {{num_unique_elem}}">
-                        <input type="checkbox" name="columns" value={{col}}> {{col}}
-                    </label>
-                    {% endfor %}
-                </div>
-                
-                <button type="submit" class="btn btn-outline-success btn-sm ml-2" name="command" value="keep" data-toggle="tooltip" data-placement="top" title="Submit"><span class="oi oi-check"></span></button>
-                <button type="button" class="btn btn-outline-danger btn-sm " data-toggle="collapse" data-target="#KeepColumnsByCollapse" data-toggle="tooltip" data-placement="top" title="Cancel"><span class="oi oi-x"></span></button>
-            </form>
-        </div>
+    <div class="card card-body">
+        <form class="form-inline my-2 my-lg-0" action="/command" method="POST">
+            <label class="mr-2">Drop columns:</label>
+            
+            <div class="btn-group btn-group-toggle" data-toggle="buttons" role="group" aria-label="First group">
+                {% for col in all_active_columns %}
+                <label class="btn btn-outline-success btn-sm" data-toggle="tooltip" data-placement="top" title="Unique: {{num_unique_elem}}">
+                    <input type="checkbox" name="columns" value={{col}}> {{col}}
+                </label>
+                {% endfor %}
+            </div>
+            
+            <button type="submit" class="btn btn-outline-success btn-sm ml-2" name="command" value="keep" data-toggle="tooltip" data-placement="top" title="Submit"><span class="oi oi-check"></span></button>
+            <button type="button" class="btn btn-outline-danger btn-sm " data-toggle="collapse" data-target="#KeepColumnsByCollapse" data-toggle="tooltip" data-placement="top" title="Cancel"><span class="oi oi-x"></span></button>
+        </form>
     </div>
+</div>
+
+<div class="collapse" id="ApplyCollapse">
+    <div class="card card-body">
+        <form class="form-inline my-2 my-lg-0" action="/sandbox" method="POST">
+            <label class="mr-2">Apply:</label>
+            <input type="text" class="form-control" id="formGroupExampleInput" name='query'>
+            
+            <button type="submit" class="btn btn-outline-success btn-sm ml-2" name="command" value="query" data-toggle="tooltip" data-placement="top" title="Submit"><span class="oi oi-check"></span></button>
+            <button type="button" class="btn btn-outline-danger btn-sm " data-toggle="collapse" data-target="#QueryCollapse" data-toggle="tooltip" data-placement="top" title="Cancel"><span class="oi oi-x"></span></button>
+        </form>
+    </div>
+</div>
 
 
 {% endblock %}

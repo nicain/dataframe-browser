@@ -165,7 +165,7 @@ class DataFrameBrowser(object):
 
     def groupby(self, by=None):
         new_node_list = self.active.groupby(by=by)
-        self.model.set_active(new_node_list[0])
+        self.model.set_active(new_node_list[0]) # TODO: this borks when there is no node returned
 
     def groupfold(self, by=None):
         new_node = self.active.groupfold(by=by)

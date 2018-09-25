@@ -9,7 +9,11 @@ import json
 
 def xy_compare(series, width=200, size = 9, color = "#31AADE"):
 
-    df = pd.DataFrame(series.to_dict())
+    # Dict when lazy because of json encoding of arg
+    if isinstance(series, dict):
+        df = pd.DataFrame(series)
+    else:
+        df = pd.DataFrame(series.to_dict())
 
     columns = list(df.columns)
     initial_x_key = columns[0]
