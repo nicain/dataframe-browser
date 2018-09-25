@@ -32,14 +32,14 @@ class TextController(object):
         # self.app.model.set_active(node)
         # self.app.view.display_active()
 
-    def read_node_from_uri_query(self, query=None, uri=None, bookmark=None, force=False):
+    # def read_node_from_uri_query(self, query=None, uri=None, bookmark=None, force=False):
         
-        df, load_time = read_file_query_uri(query=query, uri=uri)
+    #     df, load_time = read_file_query_uri(query=query, uri=uri)
 
-        node_frame = NodeFrame(df=df, load_time=load_time, metadata={'query':query, 'uri':uri})
-        node = self.create_node((node_frame,), parent=self.app.model.root, name=bookmark, force=force)
-        self.app.model.set_active(node)
-        self.app.view.display_active()
+    #     node_frame = NodeFrame(df=df, load_time=load_time, metadata={'query':query, 'uri':uri})
+    #     node = self.create_node((node_frame,), parent=self.app.model.root, name=bookmark, force=force)
+    #     self.app.model.set_active(node)
+    #     self.app.view.display_active()
 
 
 

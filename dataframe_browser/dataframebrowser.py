@@ -1,9 +1,10 @@
 import os
 
-from utilities import create_class_logger, one
+from utilities import create_class_logger, one, read_file_query_uri
 from model import Model
 from view import FlaskViewServer as FlaskView
 from controller import TextController
+from nodeframe import NodeFrame
 from customexceptions import BookmarkAlreadyExists
 import urlparse
 
@@ -88,10 +89,31 @@ class DataFrameBrowser(object):
         self.model.set_active(new_node_list[0])
         self.view.display_active()
 
-    def read(self, query=None, uri=None, password=None):
+    def read(self, query=None, filename=None, uri=None, password=None):
 
+        all_query_list = []        
         if isinstance(query, (list, tuple)):
-            query = one(query)
+            for q in query:
+                all_query_list.append(q)
+        elif isinstance(query, (str, unicode)):
+            q = query
+            all_query_list.append(str(q))
+        elif query is None:
+            pass
+        else: 
+            raise RuntimeError
+     
+        if isinstance(filename, (list, tuple)):
+            for fn in filename:
+                q = open(filename, 'r').read()
+                all_query_list.append(q)
+        elif isinstance(filename, (str, unicode)):
+            q = open(filename, 'r').read()
+            all_query_list.append(str(q))
+        elif filename is None:
+            pass
+        else: 
+            raise RuntimeError
 
         if isinstance(uri, (list, tuple)):
             uri = one(uri)
@@ -101,9 +123,19 @@ class DataFrameBrowser(object):
                 password = one(password)
             url_obj = urlparse.urlparse(uri)
 
-            uri = '%s://%s:%s@%s:%s%s' % (url_obj.scheme, url_obj.username, password, url_obj.hostname, url_obj.port, url_obj.path)
+            uri_pwd = '%s://%s:%s@%s:%s%s' % (url_obj.scheme, url_obj.username, password, url_obj.hostname, url_obj.port, url_obj.path)
+        else:
+            uri_pwd = uri
+
+        node_frame_list = []
+        for q in all_query_list:
+            df, load_time = read_file_query_uri(query=q, uri=uri_pwd)
+
+            node_frame = NodeFrame(df=df, load_time=load_time, metadata={'query':query, 'uri':uri_pwd})
+            node_frame_list.append(node_frame)
         
-        self.controller.read_node_from_uri_query(query=query, uri=uri)
+        node = self.controller.create_node(tuple(node_frame_list), parent=self.model.root)
+        self.model.set_active(node)
 
     def apply(self, column=None, mapper=None, new_column=None, lazy=False, drop=False, axis=0):
 

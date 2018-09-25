@@ -15,7 +15,6 @@ class Cursor(object):
         return 'http://{hostname}:{port}/command'.format(hostname=self.hostname, port=self.port)
 
     def run(self, **kwargs):
-        print kwargs
         result = requests.post(self.command, json=json.dumps(kwargs))
         if result.status_code != 200:
             result.raise_for_status()
@@ -24,8 +23,8 @@ class Cursor(object):
     def open(self, filename=None, reload=False):
         return self.run(command='open', filename=filename, reload=reload)
 
-    def read(self, query=None, uri=None, reload=False, password=None):
-        return self.run(command='read', query=query, uri=uri, reload=reload)
+    def read(self, query=None, uri=None, filename=None, reload=False, password=None):
+        return self.run(command='read', filename=filename, query=query, uri=uri, reload=reload)
 
     def query(self, query=None, reload=False):
         return self.run(command='query', query=query, reload=reload)
