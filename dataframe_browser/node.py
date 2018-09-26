@@ -35,14 +35,19 @@ class Node(object):
             self._formatter_dict = {}
         else:
             self._formatter_dict = formatters
+
+        self._formatter_dict['test'] = lambda x: 'HW'
     
     @property
     def formatters(self):
 
-        D = {key:val for key, val in self.parent.formatters.items()}
-
+        if self.parent is not None:
+            D = {key:val for key, val in self.parent.formatters.items()}
+        else:
+            D = {}
+        
         D.update(self._formatter_dict)
-
+        
         return D
     
     def __getitem__(self, key):

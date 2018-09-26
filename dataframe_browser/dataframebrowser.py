@@ -138,6 +138,7 @@ class DataFrameBrowser(object):
         node = self.controller.create_node(tuple(node_frame_list), parent=self.model.root)
         self.model.set_active(node)
 
+    # TODO Make lazy a button on web form
     def apply(self, columns=None, mapper=None, new_column=None, lazy=True, drop=False):
 
         if isinstance(new_column, (list, tuple)):
