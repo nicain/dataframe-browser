@@ -44,8 +44,8 @@ class Cursor(object):
     def concat(self, how='vertical', reload=False):
         return self.run(command='concat', how=how, reload=reload)
     
-    def apply(self, column=None, mapper=None, new_column=None, lazy=True, reload=False, drop=False):
-        return self.run(command='apply', column=column, mapper=mapper, new_column=new_column, lazy=lazy, reload=reload, drop=drop)
+    def apply(self, columns=None, mapper=None, new_column=None, lazy=True, reload=False, drop=False):
+        return self.run(command='apply', columns=columns, mapper=mapper, new_column=new_column, lazy=lazy, reload=reload, drop=drop)
 
     def reload(self):
         return self.run(command='reload', reload=True)

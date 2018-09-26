@@ -173,15 +173,17 @@ class NodeFrame(object):
             apply_fcn = mapper_library_dict[kwargs['mapper']]
 
 
-        if isinstance(kwargs['column'], (list,tuple)) and len(kwargs['column']) > 1:
-            result_series = self.df[kwargs['column']].apply(apply_fcn, axis=1)
+        if isinstance(kwargs['columns'], (list,tuple)) and len(kwargs['columns']) > 1:
+            result_series = self.df[kwargs['columns']].apply(apply_fcn, axis=1)
+        elif isinstance(kwargs['columns'], (list,tuple)) and len(kwargs['columns']) == 1:
+            result_series = self.df[one(kwargs['columns'])].apply(apply_fcn)
         else:
-            result_series = self.df[kwargs['column']].apply(apply_fcn)
+            result_series = self.df[kwargs['columns']].apply(apply_fcn)
 
         df = pd.DataFrame({kwargs['new_column']:result_series})
 
         df = df.join(self.df)
         if kwargs['drop'] == True:
-            df = df.drop(kwargs['column'], axis=1)
+            df = df.drop(kwargs['columns'], axis=1)
 
         return df

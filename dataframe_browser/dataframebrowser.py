@@ -138,9 +138,18 @@ class DataFrameBrowser(object):
         node = self.controller.create_node(tuple(node_frame_list), parent=self.model.root)
         self.model.set_active(node)
 
-    def apply(self, column=None, mapper=None, new_column=None, lazy=False, drop=False):
+    def apply(self, columns=None, mapper=None, new_column=None, lazy=True, drop=False):
 
-        new_node_list = self.active.apply(column=column, mapper=mapper, new_column=new_column, lazy=lazy, drop=drop, mapper_library_dict=self.mapper_library_dict)
+        if isinstance(new_column, (list, tuple)):
+            new_column = one(new_column)
+
+        if isinstance(mapper, (list, tuple)):
+            mapper = one(mapper)
+
+        if isinstance(drop, (list, tuple)):
+            drop = bool(one(drop))
+
+        new_node_list = self.active.apply(columns=columns, mapper=mapper, new_column=new_column, lazy=lazy, drop=drop, mapper_library_dict=self.mapper_library_dict)
         self.model.set_active(new_node_list[0])
         self.view.display_active()
 

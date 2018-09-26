@@ -12,7 +12,7 @@ c.read(uri='postgresql://limsreader:{password}@limsdb2:5432/lims2'.format(passwo
             WHERE osp.code = 'C600' AND ec.workflow_state NOT IN ('failed')
             AND ec.workflow_state = 'published';''')
 
-c.apply(column='nwb_file', mapper='brain_observatory.nwb_file_to_max_projection', new_column='max_projection', lazy=True)
+c.apply(columns='nwb_file', mapper='brain_observatory.nwb_file_to_max_projection', new_column='max_projection', lazy=True)
 
     # # dfb = DataFrameBrowser()
     # # dfb.read(query=query, uri='postgresql://limsreader:{password}@limsdb2:5432/lims2'.format(password=pgpasslib.getpass('limsdb2', 5432, 'lims2', 'limsreader')))

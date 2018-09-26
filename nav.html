@@ -25,13 +25,18 @@
                         <button type="submit" class="dropdown-item" name="command" value="open" >Hello World</button>
                     </form>
 
-
                     <form class="form" action="/command" method="POST">
                         <input type="hidden" name='filename' value='/home/nicholasc/projects/dataframe-browser/data/cell_counting.csv'>
-                        <input type="hidden" name='bookmark' value='Hello World'>
+                        <input type="hidden" name='bookmark' value='Cell Counting'>
                         <button type="submit" class="dropdown-item" name="command" value="open" id='cell-counting-button'>Cell Counting</button>
                     </form>
-                    
+
+                    <form class="form" action="/command" method="POST">
+                        <input type="hidden" name='filename' value='/home/nicholasc/projects/dataframe-browser/data/load_images.csv'>
+                        <input type="hidden" name='bookmark' value='Brain Observatory'>
+                        <button type="submit" class="dropdown-item" name="command" value="open">Brain Observatory</button>
+                    </form>
+
                 </div>
             </li>
 
@@ -212,7 +217,7 @@
 
 <div class="collapse" id="ApplyCollapse">
     <div class="card card-body col-lg-4">
-        <form class="form my-2 my-lg-0 " action="/sandbox2" method="POST">
+        <form class="form my-2 my-lg-0 " action="/command" method="POST">
 
             <div class="form-row">
                 <div class="col">
