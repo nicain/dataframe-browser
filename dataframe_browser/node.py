@@ -6,7 +6,7 @@ import pandas as pd
 
 class Node(object):
 
-    def __init__(self, nodeframes, name=None, parent=None, force=True, keys=None):
+    def __init__(self, nodeframes, name=None, parent=None, force=True, keys=None, formatters=None):
         assert isinstance(nodeframes, tuple)
 
         self._name = name
@@ -30,6 +30,20 @@ class Node(object):
         else:
             assert isinstance(self.parent, Node)
             self.parent._children.append(self)
+
+        if formatters is None:
+            self._formatter_dict = {}
+        else:
+            self._formatter_dict = formatters
+    
+    @property
+    def formatters(self):
+
+        D = {key:val for key, val in self.parent.formatters.items()}
+
+        D.update(self._formatter_dict)
+
+        return D
     
     def __getitem__(self, key):
         return self._key_dict[key]

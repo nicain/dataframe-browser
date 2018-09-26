@@ -44,14 +44,15 @@ class NodeFrame(object):
     @property
     def load_time(self):
         return self._load_time
-    
-
 
     @property
     def table(self):
         return self.df
 
-    def to_html(self, columns=None, max_size=5000000):
+    def to_html(self, columns=None, max_size=5000000, formatters=None):
+
+        if formatters is None:
+            formatters = {}
 
         if columns is None:
             columns = self.df.columns
@@ -73,7 +74,7 @@ class NodeFrame(object):
             df_to_render = df_to_render.reset_index()
         else:
             df_to_render = df
-        table_html = df_to_render.to_html(classes=[table_class], index=False, escape=False, justify='center')
+        table_html = df_to_render.to_html(classes=[table_class], index=False, escape=False, justify='center', formatters=formatters)
 
         pd.set_option('display.max_colwidth', old_width)
 
