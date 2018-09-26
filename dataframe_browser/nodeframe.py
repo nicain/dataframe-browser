@@ -8,6 +8,26 @@ from flask import flash
 def memory_usage(df, deep=True):
     return df.memory_usage(deep=deep).sum()
 
+
+# TODO: Move to utilities
+def hashable(v):
+    """Determine whether `v` can be hashed."""
+    try:
+        hash(v)
+    except TypeError:
+        return False
+    return True
+
+# TODO: Move to utilities
+def series_is_index_candidate(s):
+    for x in s:
+        if not hashable(x):
+            return False
+        elif not isinstance(s, (str, unicode)):
+            return False
+    
+    return True
+
 class NodeFrame(object):
 
     def __init__(self, df=None, load_time=None, metadata=None):
@@ -141,16 +161,22 @@ class NodeFrame(object):
             def apply_fcn(col_val):
 
                 # Marshalling to prepare for payload dumps:
-                if isinstance(col_val, (str, unicode)):
-                    args = [str(col_val)]       # Only a single column specified, need to wrap to unpack with *args in tgt function
-                elif isinstance(col_val, (pd.Series, pd.DataFrame)):
+                if isinstance(col_val, (pd.Series, pd.DataFrame)):
                     args = [col_val.to_dict()]
-                else:
-                    args = col_val
+                else:#if isinstance(col_val, (str, unicode)):
+                    args = [str(col_val)]       # Only a single column specified, need to wrap to unpack with *args in tgt function
+                # else:
+                    # raise
+                    # args = col_val
 
                 # print args
                 # raise
                 payload = {'mapper':str(kwargs['mapper']), 'args':args, 'kwargs':{}}
+
+                # print kwargs
+                # print col_val
+                # print payload
+                # raise
 
                 id = generate_uuid()
                 div_txt = '<div id="{id}"></div>'.format(id=id)
@@ -209,5 +235,14 @@ class NodeFrame(object):
     @property
     def index_cols(self):
 
-        desc = self.df.describe(include='all').T
-        return [str(c) for c in desc[desc['count']==desc['unique']].index]
+        return [col for col, values in self.df.iteritems() if series_is_index_candidate(values) and len(values.unique()) == len(values)]
+        # ...:     print name, len(values.unique())
+
+
+
+        # print self.df
+        # print self.df.columns
+        # print self.df.dtypes
+        # self.df['area'].dtype = str
+        # desc = self.df.describe( include=['category']).T
+        # return [str(c) for c in desc[desc['count']==desc['unique']].index]

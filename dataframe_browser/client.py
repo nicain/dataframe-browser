@@ -60,7 +60,7 @@ class Cursor(object):
         return self.run(command='bookmark', name=name, reload=reload)
 
     def transpose(self, index=None, reload=False):
-        return self.run(command='transpose', index_column=index_column, reload=reload)
+        return self.run(command='transpose', index=index, reload=reload)
 
 
     @property

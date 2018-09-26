@@ -16,6 +16,8 @@ dfb = DataFrameBrowser()
 @app.route("/browser", methods=['GET']) 
 def browser_get():  
 
+    # TODO: Protect with Try excetp that flashes error message
+
     uuid_table_list = dfb.view.display_node()
     uuid_table_list_frame_index = [[fi]+list(f) for fi, f in enumerate(uuid_table_list)]
 
@@ -160,6 +162,7 @@ def graph_json():
 @app.route('/lazy_formatting', methods=['POST'])
 def lazy_formatting():
     data = request.json
+    print data
     result = dfb.mapper_library_dict[data['mapper']](*data.get('args',[]), **data.get('kwargs', {}))
     return json.dumps({'result':result})
 
