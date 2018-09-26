@@ -17,32 +17,40 @@ dfb = DataFrameBrowser()
 def browser_get():  
 
     # TODO: Protect with Try excetp that flashes error message
+    try:
 
-    uuid_table_list = dfb.view.display_node()
-    uuid_table_list_frame_index = [[fi]+list(f) for fi, f in enumerate(uuid_table_list)]
+        uuid_table_list = dfb.view.display_node()
+        uuid_table_list_frame_index = [[fi]+list(f) for fi, f in enumerate(uuid_table_list)]
 
-    if dfb.model.active.name is None:
-        active_name_str = ''
-    else:
-        active_name_str = dfb.model.active.name
+        if dfb.model.active.name is None:
+            active_name_str = ''
+        else:
+            active_name_str = dfb.model.active.name
 
-    print len(dfb.model.all_index_columns), str(not len(dfb.model.all_index_columns)>0).lower()
+        print len(dfb.model.all_index_columns), str(not len(dfb.model.all_index_columns)>0).lower()
 
-    return render_template('browser.html', 
-                           uuid_table_list=uuid_table_list_frame_index, 
-                           header='', # TODO: might remove this
-                           disable_nav_parent_back = str(dfb.model.active_is_root).lower(),
-                           disable_nav_child_forward = str(dfb.model.active_is_leaf).lower(),
-                           disable_nav_bookmark_button = str(dfb.model.active_is_bookmarked or dfb.model.active==dfb.model.root).lower(),
-                           active_name_str=active_name_str,
-                           groupable_columns_dict=dfb.model.groupable_columns_dict,
-                           disable_groupby_menu_button=str(not dfb.model.groupable_state).lower(),
-                           disable_concatenate_menu_button=str(not dfb.model.can_concatenate).lower(),
-                           all_active_columns=dfb.model.all_active_columns,
-                           mapper_list=dfb.mapper_library_dict.keys(),
-                           disable_fold_menu_button=str(not dfb.model.foldable_state).lower(),
-                           all_index_columns=dfb.model.all_index_columns,
-                           disable_transpose_menu_button=str(not len(dfb.model.all_index_columns)>0).lower(),)
+        return render_template('browser.html', 
+                            uuid_table_list=uuid_table_list_frame_index, 
+                            header='', # TODO: might remove this
+                            disable_nav_parent_back = str(dfb.model.active_is_root).lower(),
+                            disable_nav_child_forward = str(dfb.model.active_is_leaf).lower(),
+                            disable_nav_bookmark_button = str(dfb.model.active_is_bookmarked or dfb.model.active==dfb.model.root).lower(),
+                            active_name_str=active_name_str,
+                            groupable_columns_dict=dfb.model.groupable_columns_dict,
+                            disable_groupby_menu_button=str(not dfb.model.groupable_state).lower(),
+                            disable_concatenate_menu_button=str(not dfb.model.can_concatenate).lower(),
+                            all_active_columns=dfb.model.all_active_columns,
+                            mapper_list=dfb.mapper_library_dict.keys(),
+                            disable_fold_menu_button=str(not dfb.model.foldable_state).lower(),
+                            all_index_columns=dfb.model.all_index_columns,
+                            disable_transpose_menu_button=str(not len(dfb.model.all_index_columns)>0).lower(),)
+    
+    except Exception as e:
+
+        # TODO: Make error read, include support message:
+        flash('ERROR: %s' % str(e.message), category='warning')
+        dfb.model.set_active(dfb.model.root)
+        return render_template('browser.html')
 
 @app.route("/active/<ii>", methods=['POST', 'GET']) 
 def get_active_ii(ii):
