@@ -57,4 +57,22 @@ socket.on('reload', function() {
 }); 
 </script> 
 
+<script>
+$(document).ready(function(){ 
+    
+    $(".form-inline, .form").on("submit", function(){
+        console.log("I showed up");
+    $('.loader').show()
+    });
+
+ });
+</script>
+
+<script>
+$(document).ready(function(){ 
+    $('.loader').hide()
+    });
+</script>
+
+
 {% endblock %}
