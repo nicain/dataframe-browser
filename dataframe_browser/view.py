@@ -55,8 +55,10 @@ class FlaskViewServer(ConsoleView):
             uuid_table_list = []
             for frame in self.app.model.active.node_frames:
 
-                common_col_list = self.app.model.common_active_columns
-                table_html = frame.to_html(columns=common_col_list + [c for c in frame.columns if c not in common_col_list])
+                # common_col_list = self.app.model.common_active_columns
+                # print common_col_list, [c for c in frame.columns if c not in common_col_list]
+                # print frame.columns
+                table_html = frame.to_html()#columns=common_col_list + [str(c) for c in frame.columns if c not in common_col_list])
                 table_html_bs = BeautifulSoup(table_html).table
                 table_uuid = generate_uuid()
                 table_html_bs['id'] = table_uuid

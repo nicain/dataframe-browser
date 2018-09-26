@@ -151,6 +151,7 @@ class DataFrameBrowser(object):
 
         new_node_list = self.active.apply(columns=columns, mapper=mapper, new_column=new_column, lazy=lazy, drop=drop, mapper_library_dict=self.mapper_library_dict)
         self.model.set_active(new_node_list[0])
+        # THIS IS BUSTED, should not arbitratily pick node 0
         self.view.display_active()
 
     def back(self, N=1):
@@ -192,6 +193,15 @@ class DataFrameBrowser(object):
     def concat(self, how='vertical'):
         new_node = self.active.concat(how=how)
         self.model.set_active(new_node)
+
+    def transpose(self, index=None):
+
+        if isinstance(index, (list, tuple)):
+            index = one(index)
+
+        new_node = self.active.transpose(index=index)
+        self.model.set_active(new_node)
+
 
 
 if __name__ == "__main__":    

@@ -82,7 +82,7 @@ class Model(object):
 
     @property
     def common_active_columns(self):
-        L = [set(node_frame.columns) for node_frame in self.active.node_frames]
+        L = [set([str(x) for x in node_frame.columns]) for node_frame in self.active.node_frames]
         if len(L) == 0:
             return []
         else:
@@ -114,7 +114,14 @@ class Model(object):
 
     @property
     def groupable_state(self):
-        if self.number_of_active_frames == 1 and len(self.groupable_columns_dict) > 0:
+        if self.number_of_active_frames == 1 and self.foldable_state:
+            return True
+        else:
+            return False
+
+    @property
+    def foldable_state(self):
+        if len(self.groupable_columns_dict) > 0:
             return True
         else:
             return False
@@ -122,18 +129,19 @@ class Model(object):
 
     @property
     def groupable_columns_dict(self):
-        if self.number_of_active_frames != 1:
-            return {}
-        else:
-            return_dict = {}
-            for c in self.active.node_frames[0].df.columns:
-                try:
-                    n_unique = len(self.active.node_frames[0].df[c].unique())
-                    if n_unique < self.groupable_max_unique:
-                        return_dict[c] = n_unique
-                except TypeError:
-                    pass
+        return_dict = {}
+
+        if len(self.active.node_frames) == 0:
             return return_dict
+
+        for c in self.active.node_frames[0].df.columns:
+            try:
+                n_unique = len(self.active.node_frames[0].df[c].unique())
+                if n_unique < self.groupable_max_unique:
+                    return_dict[c] = n_unique
+            except TypeError:
+                pass
+        return return_dict
     
     @property
     def can_concatenate(self):
@@ -142,3 +150,11 @@ class Model(object):
         else:
             return False
 
+    @property
+    def all_index_columns(self):
+
+        L = [set([str(x) for x in node_frame.index_cols]) for node_frame in self.active.node_frames]
+        if len(L) == 0:
+            return []
+        else:
+            return list(set.intersection(*L))

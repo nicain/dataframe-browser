@@ -44,6 +44,9 @@
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown2" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Actions</a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdown2">
                     <button class="dropdown-item" data-toggle="collapse" data-target="#QueryCollapse">Query</button>
+
+                    <form action="/command" method="POST"></form>
+                    <button class="dropdown-item" data-toggle="collapse" data-target="#FoldCollapse" id='fold-menu-item-button'>Fold</button>
                     <button class="dropdown-item disabled" data-toggle="collapse" data-target="#GroupByCollapse" id='groupby-menu-item-button'>Group By</button>
                     
                     
@@ -61,7 +64,8 @@
                     </script>
 
                     <button class="dropdown-item" data-toggle="collapse" data-target="#ApplyCollapse">Apply</button>
-                    <button class="dropdown-item" data-toggle="collapse" data-target="#FoldCollapse" id='fold-menu-item-button'>Fold</button>
+                    <button class="dropdown-item" data-toggle="collapse" data-target="#TransposeColumnsByCollapse" id="transpose-menu-item-button">Transpose</button>
+                    
 
                     <div class="dropdown-divider"></div>
 
@@ -271,7 +275,7 @@
 <div class="collapse" id="FoldCollapse">
     <div class="card card-body">
         <form class="form-inline my-2 my-lg-0" action="/command" method="POST">
-            <label class="mr-2">Group columns:</label>
+            <label class="mr-2">Fold Groups:</label>
             
             <div class="btn-group btn-group-toggle" data-toggle="buttons" role="group" aria-label="First group">
                 {% for col, num_unique_elem in (groupable_columns_dict or dict()).items() %}
@@ -288,7 +292,7 @@
 </div>
 <script>
     $(function(){
-        if(!{{disable_groupby_menu_button|default("true", false)}}){
+        if(!{{disable_fold_menu_button|default("true", false)}}){
             $('#fold-menu-item-button').removeClass('disabled');
         } else {
             $('#fold-menu-item-button').prop('disabled',"disabled");
@@ -296,7 +300,33 @@
     });
 </script>
 
-
+<div class="collapse" id="TransposeColumnsByCollapse">
+    <div class="card card-body">
+        <form class="form-inline my-2 my-lg-0" action="/command" method="POST">
+            <label class="mr-2">Transpose Table:</label>
+            
+            <div class="btn-group btn-group-toggle" data-toggle="buttons" role="group" aria-label="First group">
+                {% for col in all_index_columns %}
+                <label class="btn btn-outline-success btn-sm" data-toggle="tooltip" data-placement="top" title="Unique: {{num_unique_elem}}">
+                    <input type="checkbox" name="index" value={{col}}> {{col}}
+                </label>
+                {% endfor %}
+            </div>
+            
+            <button type="submit" class="btn btn-outline-success btn-sm ml-2" name="command" value="transpose" data-toggle="tooltip" data-placement="top" title="Submit"><span class="oi oi-check"></span></button>
+            <button type="button" class="btn btn-outline-danger btn-sm " data-toggle="collapse" data-target="#TransposeColumnsByCollapse" data-toggle="tooltip" data-placement="top" title="Cancel"><span class="oi oi-x"></span></button>
+        </form>
+    </div>
+</div>
+<script>
+    $(function(){
+        if(!{{disable_transpose_menu_button|default("true", false)}}){
+            $('#transpose-menu-item-button').removeClass('disabled');
+        } else {
+            $('#transpose-menu-item-button').prop('disabled',"disabled");
+        }
+    });
+</script>
 {% endblock %}
 
 

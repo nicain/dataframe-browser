@@ -193,3 +193,21 @@ class NodeFrame(object):
             df = df.drop(kwargs['columns'], axis=1)
 
         return df
+
+    @fn_timer
+    def transpose(self, index=None, transpose_column_name='fields'):
+
+        if index is None:
+            res = (self.df.T).reset_index()
+        else:
+            res = (self.df.set_index(index).T).reset_index()
+            res.columns.name = None
+        
+        print res.rename(columns={'index':transpose_column_name})
+        return res.rename(columns={'index':transpose_column_name})
+
+    @property
+    def index_cols(self):
+
+        desc = self.df.describe(include='all').T
+        return [str(c) for c in desc[desc['count']==desc['unique']].index]

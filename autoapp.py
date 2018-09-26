@@ -24,6 +24,8 @@ def browser_get():
     else:
         active_name_str = dfb.model.active.name
 
+    print len(dfb.model.all_index_columns), str(not len(dfb.model.all_index_columns)>0).lower()
+
     return render_template('browser.html', 
                            uuid_table_list=uuid_table_list_frame_index, 
                            header='', # TODO: might remove this
@@ -35,7 +37,10 @@ def browser_get():
                            disable_groupby_menu_button=str(not dfb.model.groupable_state).lower(),
                            disable_concatenate_menu_button=str(not dfb.model.can_concatenate).lower(),
                            all_active_columns=dfb.model.all_active_columns,
-                           mapper_list=dfb.mapper_library_dict.keys())
+                           mapper_list=dfb.mapper_library_dict.keys(),
+                           disable_fold_menu_button=str(not dfb.model.foldable_state).lower(),
+                           all_index_columns=dfb.model.all_index_columns,
+                           disable_transpose_menu_button=str(not len(dfb.model.all_index_columns)>0).lower(),)
 
 @app.route("/active/<ii>", methods=['POST', 'GET']) 
 def get_active_ii(ii):
@@ -92,6 +97,8 @@ def cmd_post():
         dfb.forward(**data)
     elif command == 'bookmark':
         dfb.bookmark(**data)
+    elif command == 'transpose':
+        dfb.transpose(**data)
     elif command == 'reload':
         reload_bool = True
     else:

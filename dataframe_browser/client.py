@@ -59,6 +59,9 @@ class Cursor(object):
     def bookmark(self, name=None, reload=False):
         return self.run(command='bookmark', name=name, reload=reload)
 
+    def transpose(self, index=None, reload=False):
+        return self.run(command='transpose', index_column=index_column, reload=reload)
+
 
     @property
     def help(self):

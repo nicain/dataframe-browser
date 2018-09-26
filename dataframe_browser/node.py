@@ -194,10 +194,23 @@ class Node(object):
         for node_frame in self.node_frames:
             df, load_time = node_frame.apply(**kwargs)
             node_frame = NodeFrame(df=df, load_time=load_time)
-            new_node = Node((node_frame,), name=None, parent=self, force=False)
+            new_node = Node((node_frame,), name=None, parent=self, force=False) # TODO THIS SEEMS STRANGE
             new_nodes.append(new_node)
 
         return new_nodes
+
+    def transpose(self, **kwargs):
+    
+        node_frame_list = []
+        for node_frame in self.node_frames:
+            df, load_time = node_frame.transpose(**kwargs)
+            if len(df) > 0:
+                node_frame = NodeFrame(df=df, load_time=load_time)
+                node_frame_list.append(node_frame)
+
+        new_node = Node(tuple(node_frame_list), name=None, parent=self)
+        return new_node
+
             
     def to_graph_dict(self):
         children = [x.to_graph_dict() for x in self.children]
