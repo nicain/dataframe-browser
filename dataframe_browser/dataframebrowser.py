@@ -177,8 +177,8 @@ class DataFrameBrowser(object):
         new_node_list = self.active.groupby(by=by)
         self.model.set_active(new_node_list[0]) # TODO: this borks when there is no node returned
 
-    def groupfold(self, by=None):
-        new_node = self.active.groupfold(by=by, mapper_library_dict=self.mapper_library_dict)
+    def fold(self, by=None):
+        new_node = self.active.fold(by=by, mapper_library_dict=self.mapper_library_dict)
         self.model.set_active(new_node)
 
     def drop(self, columns=None, frames=None):

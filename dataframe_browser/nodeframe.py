@@ -86,26 +86,32 @@ class NodeFrame(object):
         return self.df.query(query, **kwargs)
 
     @fn_timer
-    def pivot(self, by=None, reduce=None, mapper_library_dict=None):
+    def fold(self, by=None, reduce=None, mapper_library_dict=None):
 
+        # TODO: Not complete, could have reduce keys separate from by keys... Also need consistent squeezing
         if reduce is None:
             reduce = dict()
 
-        data_dict = {}
-        for key, df in self.df.groupby(by):
-            data_dict[key] = df.T.apply(lambda x: list(x), axis=1).drop(by)
+        if by is None or len(by) == 0:
+    
+            tmp = pd.DataFrame({'x':self.df.T.apply(lambda x: list(x), axis=1)})
+            return tmp.T.reset_index(drop=True)
 
-        for key, val in data_dict.items():
-            data_dict[key] = pd.Series([mapper_library_dict[reduce.get(key, 'squeeze')](x) for x in val], index=val.index)
+        else:
+            data_dict = {}
+            for key, df in self.df.groupby(by):
+                data_dict[key] = df.T.apply(lambda x: list(x), axis=1).drop(by)
 
+            for key, val in data_dict.items():
+                data_dict[key] = pd.Series([mapper_library_dict[reduce.get(key, 'squeeze')](x) for x in val], index=val.index)
 
-        tmp = pd.DataFrame(data_dict)
-        if isinstance(by, list) and len(by) == 1:
-            by=one(by)
+            tmp = pd.DataFrame(data_dict)
+            if isinstance(by, list) and len(by) == 1:
+                by=one(by)
 
-        tmp.columns = tmp.columns.rename(by)
+            tmp.columns = tmp.columns.rename(by)
 
-        return tmp.T.reset_index()
+            return tmp.T.reset_index()
 
     @fn_timer
     def drop(self, columns=None):

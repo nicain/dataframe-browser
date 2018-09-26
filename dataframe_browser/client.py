@@ -32,8 +32,8 @@ class Cursor(object):
     def groupby(self, by=None, reload=False):
         return self.run(command='groupby', by=by, reload=reload)
 
-    def groupfold(self, by=None, reload=False):
-        return self.run(command='groupfold', by=by, reload=reload)
+    def fold(self, by=None, reload=False):
+        return self.run(command='fold', by=by, reload=reload)
 
     def drop(self, columns=None, frames=None, reload=False):
         return self.run(command='drop', columns=columns, reload=reload, frames=frames)

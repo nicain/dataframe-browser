@@ -61,6 +61,7 @@
                     </script>
 
                     <button class="dropdown-item" data-toggle="collapse" data-target="#ApplyCollapse">Apply</button>
+                    <button class="dropdown-item" data-toggle="collapse" data-target="#FoldCollapse" id='fold-menu-item-button'>Fold</button>
 
                     <div class="dropdown-divider"></div>
 
@@ -266,6 +267,34 @@
         </form>
     </div>
 </div>
+
+<div class="collapse" id="FoldCollapse">
+    <div class="card card-body">
+        <form class="form-inline my-2 my-lg-0" action="/command" method="POST">
+            <label class="mr-2">Group columns:</label>
+            
+            <div class="btn-group btn-group-toggle" data-toggle="buttons" role="group" aria-label="First group">
+                {% for col, num_unique_elem in (groupable_columns_dict or dict()).items() %}
+                <label class="btn btn-outline-primary btn-sm" data-toggle="tooltip" data-placement="top" title="Unique: {{num_unique_elem}}">
+                    <input type="checkbox" name="by" value={{col}}> {{col}}
+                </label>
+                {% endfor %}
+            </div>
+            
+            <button type="submit" class="btn btn-outline-success btn-sm ml-2" name="command" value="fold" data-toggle="tooltip" data-placement="top" title="Submit"><span class="oi oi-check"></span></button>
+            <button type="button" class="btn btn-outline-danger btn-sm " data-toggle="collapse" data-target="#FoldCollapse" data-toggle="tooltip" data-placement="top" title="Cancel"><span class="oi oi-x"></span></button>
+        </form>
+    </div>
+</div>
+<script>
+    $(function(){
+        if(!{{disable_groupby_menu_button|default("true", false)}}){
+            $('#fold-menu-item-button').removeClass('disabled');
+        } else {
+            $('#fold-menu-item-button').prop('disabled',"disabled");
+        }
+    });
+</script>
 
 
 {% endblock %}
