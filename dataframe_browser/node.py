@@ -4,18 +4,9 @@ from utilities import one
 from collections import OrderedDict as OD
 import pandas as pd
 
-class Formatter(object):
-
-    pass
-
-class FoldFormatter(Formatter):
-    
-    def __call__(self, col):
-        return str(pd.DataFrame({'':col}).describe(percentiles=[], include='all').to_html())
-
 class Node(object):
 
-    def __init__(self, nodeframes, name=None, parent=None, force=True, keys=None, formatters=None):
+    def __init__(self, nodeframes, name=None, parent=None, force=True, keys=None):
         assert isinstance(nodeframes, tuple)
 
         self._name = name
@@ -39,26 +30,17 @@ class Node(object):
         else:
             assert isinstance(self.parent, Node)
             self.parent._children.append(self)
+    
 
-        if formatters is None:
-            self._formatter_dict = {}
-        else:
-            self._formatter_dict = formatters
-
-        self._formatter_dict['test'] = lambda x: 'HW'
     
     @property
-    def formatters(self):
-
-        if self.parent is not None:
-            D = {key:val for key, val in self.parent.formatters.items()}
+    def all_columns(self):
+        L = [set(node_frame.columns) for node_frame in self.node_frames]
+        if len(L) == 0:
+            return []
         else:
-            D = {}
-        
-        D.update(self._formatter_dict)
-        
-        return D
-    
+            return sorted(set.union(*L))
+
     def __getitem__(self, key):
         return self._key_dict[key]
 
@@ -130,17 +112,12 @@ class Node(object):
 
     def fold(self, by=None, mapper_library_dict=None):
 
-
-    
-        formatters = {}
         node_frame_list = []
         for _, node_frame in enumerate(self.node_frames):
-            (df, folded_columns), load_time = node_frame.fold(by=by, mapper_library_dict=mapper_library_dict)
-            for col in folded_columns:
-                formatters[col] = FoldFormatter()
+            df, load_time = node_frame.fold(by=by, mapper_library_dict=mapper_library_dict)
             node_frame = NodeFrame(df=df, load_time=load_time)
             node_frame_list.append(node_frame)
-        new_node = Node(tuple(node_frame_list), name=None, parent=self, force=False, formatters=formatters)
+        new_node = Node(tuple(node_frame_list), name=None, parent=self, force=False)
 
         return new_node
 
@@ -234,7 +211,9 @@ class Node(object):
 
     def transpose(self, **kwargs):
 
-        assert isinstance(kwargs['index'], (str, unicode))
+        if not isinstance(kwargs['index'], (str, unicode)):
+            print kwargs['index']
+            raise
 
         node_frame_list = []
         for node_frame in self.node_frames:

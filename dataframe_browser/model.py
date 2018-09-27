@@ -90,11 +90,7 @@ class Model(object):
 
     @property
     def all_active_columns(self):
-        L = [set(node_frame.columns) for node_frame in self.active.node_frames]
-        if len(L) == 0:
-            return []
-        else:
-            return sorted(set.union(*L))
+        return self.active.all_columns
 
     @property
     def active_is_root(self):

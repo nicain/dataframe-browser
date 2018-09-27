@@ -5,6 +5,8 @@ import json
 from flask_socketio import SocketIO 
 from dataframe_browser.dataframebrowser import DataFrameBrowser
 from dataframe_browser.utilities import one
+import traceback
+
 
 
 app = Flask(__name__, template_folder='.')
@@ -47,6 +49,7 @@ def browser_get():
 
         # TODO: Make error read, include support message:
         flash('ERROR: %s' % str(e.message), category='warning')
+        traceback.print_exc()
         dfb.model.set_active(dfb.model.root)
         return render_template('browser.html')
 
@@ -126,6 +129,9 @@ def cmd_post():
 
         # TODO: Make error read, include support message: MOVE BUTTON TO LEFT
         flash('ERROR: %s' % str(e.message), category='warning')
+
+        traceback.print_exc()
+
         return redirect('/browser')
         # return render_template('browser.html')
 

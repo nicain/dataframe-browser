@@ -9,6 +9,18 @@ def memory_usage(df, deep=True):
     return df.memory_usage(deep=deep).sum()
 
 
+class InteriorSeries(object):
+
+    def __init__(self, series):
+        self.series = series
+
+    def summary_html(self):
+        return pd.DataFrame({'':self.series}).describe(percentiles=[], include='all').to_html()
+
+    def to_dict(self):
+        return self.series.to_dict()
+
+
 # TODO: Move to utilities
 def hashable(v):
     """Determine whether `v` can be hashed."""
@@ -47,10 +59,33 @@ class NodeFrame(object):
     def table(self):
         return self.df
 
-    def to_html(self, columns=None, max_size=5000000, formatters=None):
+    @property
+    def formatters(self):
+        
+        def f(x):
+            # print type(x)
+            # return str(type(x))+'hi'
+            if isinstance(x, InteriorSeries):
+                return x.summary_html()
+            else:
+                return str(x)
 
-        if formatters is None:
-            formatters = {}
+            # if isinstance(x, list):
+            #     print 'A2'
+            #     return pd.DataFrame({'':x[0]}).describe(percentiles=[], include='all').T.to_html()
+
+            # else:
+            #     print 'B'
+            #     return str(x)
+
+        D = {}
+        for key in self.df.columns:
+            # D[str(key)] = f
+            D[unicode(key)] = f
+
+        return D
+
+    def to_html(self, columns=None, max_size=5000000):
 
         if columns is None:
             columns = self.df.columns
@@ -60,10 +95,7 @@ class NodeFrame(object):
         old_width = pd.get_option('display.max_colwidth')
         pd.set_option('display.max_colwidth', -1)
 
-        df = self.df[columns]
-
-        print memory_usage(df, deep=True)
-        
+        df = self.df[columns]        
 
         if memory_usage(df, deep=True) > max_size:
             flash('Warning: table too large to render; showing summary table instead', category='warning')
@@ -72,7 +104,8 @@ class NodeFrame(object):
             df_to_render = df_to_render.reset_index()
         else:
             df_to_render = df
-        table_html = df_to_render.to_html(classes=[table_class], index=False, escape=False, justify='center', formatters=formatters)
+        
+        table_html = df_to_render.to_html(classes=[table_class], index=False, escape=False, justify='center', formatters=self.formatters)
 
         pd.set_option('display.max_colwidth', old_width)
 
@@ -120,14 +153,25 @@ class NodeFrame(object):
 
         if by is None or len(by) == 0:
     
-            tmp = pd.DataFrame({'x':self.df.T.apply(lambda x: list(x), axis=1)})
-            final_df = tmp.T.reset_index(drop=True)
-            return final_df, final_df.columns
+            def f(x):
+                # print x
+                return pd.Series(list(x))
+
+            # print '---'
+            # blah = self.df.T.apply(f, axis=1)
+            # print blah
+            # print type(blah)
+            # print '===='
+
+            # tmp = pd.DataFrame({'x':[x for x in self.df.iteritems()]})
+            final_df = pd.DataFrame({key:[InteriorSeries(col)] for key, col in self.df.iteritems()})
+            # final_df = tmp.T.reset_index(drop=True)
+            return final_df
 
         else:
             data_dict = {}
             for key, df in self.df.groupby(by):
-                data_dict[key] = df.T.apply(lambda x: list(x), axis=1).drop(by)            
+                data_dict[key] = df.T.apply(lambda x: InteriorSeries(pd.Series(list(x))), axis=1).drop(by)            
 
             tmp = pd.DataFrame(data_dict)
             if isinstance(by, list) and len(by) == 1:
@@ -137,14 +181,7 @@ class NodeFrame(object):
 
             final_df = tmp.T.reset_index()
 
-            if isinstance(by, (str,unicode)):
-                exclude_columns = [by]
-            else:
-                exclude_columns = by
-
-            columns_to_format = [x for x in final_df.columns if x not in exclude_columns]
-
-            return final_df, columns_to_format
+            return final_df
 
     @fn_timer
     def drop(self, columns=None):
@@ -171,25 +208,34 @@ class NodeFrame(object):
         if kwargs.get('lazy', True):
 
 
-            def apply_fcn(col_val):
+            def apply_fcn(args):
+
+
 
                 # Marshalling to prepare for payload dumps:
-                if isinstance(col_val, (pd.Series, pd.DataFrame)):
-                    args = [col_val.to_dict()]
-                else:#if isinstance(col_val, (str, unicode)):
-                    args = [str(col_val)]       # Only a single column specified, need to wrap to unpack with *args in tgt function
-                # else:
-                    # raise
-                    # args = col_val
+                if isinstance(args, (pd.Series,)):
 
-                # print args
-                # raise
+                    # Multi column; arranged as a series:
+                    new_args = [{}]
+                    for key, val in args.iteritems():
+                        try:
+                            new_args[0][key] = val.to_dict()
+                        except AttributeError:
+                            new_args[0][key] = val
+
+                    args = new_args
+
+                elif isinstance(args, (InteriorSeries,)):
+                    args = [args.to_dict()]
+
+                else:
+                    
+                    # usually a single column with simple data i.e. filename;  need to wrap to unpack with *args in tgt function
+                    args = [str(args)]  # str is a unicode guard
+
+
+
                 payload = {'mapper':str(kwargs['mapper']), 'args':args, 'kwargs':{}}
-
-                # print kwargs
-                # print col_val
-                # print payload
-                # raise
 
                 id = generate_uuid()
                 div_txt = '<div id="{id}"></div>'.format(id=id)
