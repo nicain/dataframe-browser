@@ -27,8 +27,6 @@ def browser_get():
         else:
             active_name_str = dfb.model.active.name
 
-        print len(dfb.model.all_index_columns), str(not len(dfb.model.all_index_columns)>0).lower()
-
         return render_template('browser.html', 
                             uuid_table_list=uuid_table_list_frame_index, 
                             header='', # TODO: might remove this
@@ -71,57 +69,65 @@ def bookmarks():
 @app.route("/command", methods=['POST'])
 def cmd_post():
 
-    if not request.json:
-        data = dict(request.form)
-        command = one(data.pop('command'))
-        reload_bool = False
-        redirect_to_main = True
+    try:
 
-    else:
-        data = json.loads(request.json)
-        command = data.pop('command')
-        reload_bool = data.pop('reload', True)
-        redirect_to_main = False
+        if not request.json:
+            data = dict(request.form)
+            command = one(data.pop('command'))
+            reload_bool = False
+            redirect_to_main = True
 
-    if command == 'read':
-        dfb.read(**data)
-    elif command == 'open':
-        dfb.open(**data)
-    elif command == 'groupby':
-        dfb.groupby(**data)
-    elif command == 'fold':
-        dfb.fold(**data)
-    elif command == 'query':
-        dfb.query(**data)
-    elif command == 'drop':
-        dfb.drop(**data)
-    elif command == 'keep':
-        dfb.keep(**data)
-    elif command == 'concat':
-        dfb.concat(**data)
-    elif command == 'apply':
-        dfb.apply(**data)
-    elif command == 'back':
-        dfb.back(**data)
-    elif command == 'forward':
-        dfb.forward(**data)
-    elif command == 'bookmark':
-        dfb.bookmark(**data)
-    elif command == 'transpose':
-        dfb.transpose(**data)
-    elif command == 'reload':
-        reload_bool = True
-    else:
-        print 'COMMAND NOT RECOGNIZED', command, reload_bool, data
-        return json.dumps('COMMAND NOT RECOGNIZED')    
+        else:
+            data = json.loads(request.json)
+            command = data.pop('command')
+            reload_bool = data.pop('reload', True)
+            redirect_to_main = False
 
-    if reload_bool:
-        socketio.emit('reload')
+        if command == 'read':
+            dfb.read(**data)
+        elif command == 'open':
+            dfb.open(**data)
+        elif command == 'groupby':
+            dfb.groupby(**data)
+        elif command == 'fold':
+            dfb.fold(**data)
+        elif command == 'query':
+            dfb.query(**data)
+        elif command == 'drop':
+            dfb.drop(**data)
+        elif command == 'keep':
+            dfb.keep(**data)
+        elif command == 'concat':
+            dfb.concat(**data)
+        elif command == 'apply':
+            dfb.apply(**data)
+        elif command == 'back':
+            dfb.back(**data)
+        elif command == 'forward':
+            dfb.forward(**data)
+        elif command == 'bookmark':
+            dfb.bookmark(**data)
+        elif command == 'transpose':
+            dfb.transpose(**data)
+        elif command == 'reload':
+            reload_bool = True
+        else:
+            raise Exception('COMMAND NOT RECOGNIZED: %s' % command)
+
+        if reload_bool:
+            socketio.emit('reload')
+        
+        if redirect_to_main:
+            return redirect('/browser')
+        else:
+            return json.dumps(True)
     
-    if redirect_to_main:
+    except Exception as e:
+
+        # TODO: Make error read, include support message: MOVE BUTTON TO LEFT
+        flash('ERROR: %s' % str(e.message), category='warning')
         return redirect('/browser')
-    else:
-        return json.dumps(True)
+        # return render_template('browser.html')
 
 @app.route('/')
 def hello_world():
@@ -170,7 +176,6 @@ def graph_json():
 @app.route('/lazy_formatting', methods=['POST'])
 def lazy_formatting():
     data = request.json
-    print data
     result = dfb.mapper_library_dict[data['mapper']](*data.get('args',[]), **data.get('kwargs', {}))
     return json.dumps({'result':result})
 

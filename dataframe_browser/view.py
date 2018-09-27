@@ -42,7 +42,15 @@ class ConsoleView(object):
 
 class FlaskViewServer(ConsoleView):
 
+    def __init__(self, **kwargs):
+
+        super(FlaskViewServer, self).__init__(**kwargs)
+        self._html_cache = {}
+
     def display_node(self, page_length=None):
+
+        if self.app.model.active in self._html_cache:
+            return self._html_cache[self.app.model.active]
     
 
         if self.app.model.active is None or len(self.app.model.active) < 1:
@@ -64,8 +72,8 @@ class FlaskViewServer(ConsoleView):
                 table_html_bs['id'] = table_uuid
                 uuid_table_list.append((table_uuid, str(table_html_bs), page_length))
 
-
         self.logger.info(json.dumps(['DISPLAY_NODE'], indent=4))
+        self._html_cache[self.app.model.active] = uuid_table_list
         return uuid_table_list
 
 # class FlaskViewClient(ConsoleView):

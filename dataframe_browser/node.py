@@ -4,6 +4,15 @@ from utilities import one
 from collections import OrderedDict as OD
 import pandas as pd
 
+class Formatter(object):
+
+    pass
+
+class FoldFormatter(Formatter):
+    
+    def __call__(self, col):
+        return str(pd.DataFrame({'':col}).describe(percentiles=[], include='all').to_html())
+
 class Node(object):
 
     def __init__(self, nodeframes, name=None, parent=None, force=True, keys=None, formatters=None):
@@ -120,13 +129,18 @@ class Node(object):
         return new_nodes
 
     def fold(self, by=None, mapper_library_dict=None):
+
+
     
+        formatters = {}
         node_frame_list = []
         for _, node_frame in enumerate(self.node_frames):
-            df, load_time = node_frame.fold(by=by, mapper_library_dict=mapper_library_dict)
+            (df, folded_columns), load_time = node_frame.fold(by=by, mapper_library_dict=mapper_library_dict)
+            for col in folded_columns:
+                formatters[col] = FoldFormatter()
             node_frame = NodeFrame(df=df, load_time=load_time)
             node_frame_list.append(node_frame)
-        new_node = Node(tuple(node_frame_list), name=None, parent=self, force=False)
+        new_node = Node(tuple(node_frame_list), name=None, parent=self, force=False, formatters=formatters)
 
         return new_node
 
@@ -219,7 +233,9 @@ class Node(object):
         return new_nodes
 
     def transpose(self, **kwargs):
-    
+
+        assert isinstance(kwargs['index'], (str, unicode))
+
         node_frame_list = []
         for node_frame in self.node_frames:
             df, load_time = node_frame.transpose(**kwargs)

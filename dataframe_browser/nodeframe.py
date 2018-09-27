@@ -21,9 +21,7 @@ def hashable(v):
 # TODO: Move to utilities
 def series_is_index_candidate(s):
     for x in s:
-        if not hashable(x):
-            return False
-        elif not isinstance(s, (str, unicode)):
+        if not isinstance(x, (str, unicode)):
             return False
     
     return True
@@ -110,21 +108,26 @@ class NodeFrame(object):
     def fold(self, by=None, reduce=None, mapper_library_dict=None):
 
         # TODO: Not complete, could have reduce keys separate from by keys... Also need consistent squeezing
+        # Old code...
+        # for key, val in data_dict.items():
+        #     data_dict[key] = pd.Series([mapper_library_dict[reduce.get(key, None)](x) for x in val], index=val.index)
+        #     print
+        #     print key
+        #     print data_dict[key]
+        #     print
         if reduce is None:
             reduce = dict()
 
         if by is None or len(by) == 0:
     
             tmp = pd.DataFrame({'x':self.df.T.apply(lambda x: list(x), axis=1)})
-            return tmp.T.reset_index(drop=True)
+            final_df = tmp.T.reset_index(drop=True)
+            return final_df, final_df.columns
 
         else:
             data_dict = {}
             for key, df in self.df.groupby(by):
-                data_dict[key] = df.T.apply(lambda x: list(x), axis=1).drop(by)
-
-            for key, val in data_dict.items():
-                data_dict[key] = pd.Series([mapper_library_dict[reduce.get(key, 'squeeze')](x) for x in val], index=val.index)
+                data_dict[key] = df.T.apply(lambda x: list(x), axis=1).drop(by)            
 
             tmp = pd.DataFrame(data_dict)
             if isinstance(by, list) and len(by) == 1:
@@ -132,7 +135,16 @@ class NodeFrame(object):
 
             tmp.columns = tmp.columns.rename(by)
 
-            return tmp.T.reset_index()
+            final_df = tmp.T.reset_index()
+
+            if isinstance(by, (str,unicode)):
+                exclude_columns = [by]
+            else:
+                exclude_columns = by
+
+            columns_to_format = [x for x in final_df.columns if x not in exclude_columns]
+
+            return final_df, columns_to_format
 
     @fn_timer
     def drop(self, columns=None):
@@ -230,7 +242,6 @@ class NodeFrame(object):
             res = (self.df.set_index(index).T).reset_index()
             res.columns.name = None
         
-        print res.rename(columns={'index':transpose_column_name})
         return res.rename(columns={'index':transpose_column_name})
 
     @property
