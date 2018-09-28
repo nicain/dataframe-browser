@@ -43,6 +43,7 @@ for module in [brain_observatory, load_test, widgets]:
         mapper_library_dict[str(path)] = fcn
 
 def squeeze(input_list):
+    input_list = [x for x in input_list]
     set_val = set(tuple(input_list))
     if len(set_val) == 1:
         ret_val = one(set_val)

@@ -20,6 +20,15 @@ class InteriorSeries(object):
     def to_dict(self):
         return self.series.to_dict()
 
+    def __getitem__(self, ii):
+        return self.series[ii]
+
+    def next(self):
+        return self.series.next()
+
+    def __iter__(self):
+        return self.series.__iter__()
+
 
 # TODO: Move to utilities
 def hashable(v):
