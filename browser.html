@@ -48,10 +48,15 @@
 
 <script>
     $(function(){
-        $('.col-btn').on('click', function (e) {
-            console.log('col click!'); 
-            e.stopPropagation();
-        });
+        // $('.col-btn').on('click', function (e) {
+
+
+            var table = $('.dataframe').DataTable();
+            table.on( 'click', function ( e, diff, edit ){ e.preventDefault();
+                                                                                             console.log('HW');
+                                                                                             });
+            // $(this).next('.dropdown-menu').toggle();
+        // });
     });
 </script>
 
@@ -59,7 +64,7 @@
 <script> 
 $(document).ready(function(){ 
 var socket = io.connect('http://' + document.domain + ':' + location.port); 
-socket.on('reload', function() { 
+socket.on('reload', function() {
     console.log('reload request received'); 
     window.location.reload(true);  
     }); 

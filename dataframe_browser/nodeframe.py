@@ -3,6 +3,7 @@ from cssutils import parseStyle
 from utilities import BeautifulSoup, fn_timer, generate_uuid, one
 import json
 from flask import flash
+import numpy as np
 
 # TODO: Move to utilities
 def memory_usage(df, deep=True):
@@ -15,7 +16,21 @@ class InteriorSeries(object):
         self.series = series
 
     def summary_html(self):
-        return pd.DataFrame({'':self.series}).describe(percentiles=[], include='all').to_html()
+
+        ddf = pd.DataFrame({'':self.series}).describe(percentiles=[], include='all').T
+        for col in ['top', 'std', '50%', 'mean']:
+            if col in ddf.columns:
+                ddf.drop(col, axis=1, inplace=True)
+        ddf['count'] = ddf['count'].apply(lambda x: '%i' % x)
+        for col in ['max', 'min']:
+            if col in ddf.columns:
+                if self.series.dtype in [int, np.int]:
+                    ddf[col] = ddf[col].apply(lambda x: "{0: 3d}".format(int(x)))
+                else:
+                    ddf[col] = ddf[col].apply(lambda x: "{0: 3.2f}".format(x))
+            html = ddf.T.to_html(classes=['interior-series'])
+
+        return html
 
     def to_dict(self):
         return self.series.to_dict()
@@ -116,7 +131,25 @@ class NodeFrame(object):
         
         table_html = df_to_render.to_html(classes=[table_class], index=False, escape=False, justify='center', formatters=self.formatters)
 
-        table_html = table_html.replace('</th>', '<div><button type="button" class="btn btn-success btn-sm py-1 ml-1 col-btn"><span class="oi oi-check"></span></button></div></th>')
+        button_load = '''
+        <div class="dropdown">
+            <button data-toggle="dropdown" class="dropdown-toggle btn btn-light btn-sm py-1 ml-1 col-btn"><span class="oi oi-menu"></span></button>
+            <div class="dropdown-menu" id="HW">
+                <a class="dropdown-item" href="#">Action</a>
+                <a class="dropdown-item" href="#">Another action</a>
+                <a class="dropdown-item" href="#">Something else here</a>
+            </div>
+        </div>
+        '''
+
+        
+        si, ei = 0, table_html.index('</thead>')
+        head_chunk = table_html[si:ei]
+        head_chunk = head_chunk.replace('</th>', '{button_load}</th>'.format(button_load=button_load), 1)
+        table_html = head_chunk+table_html[ei:]
+        
+        # print table_html
+
 
         pd.set_option('display.max_colwidth', old_width)
 
