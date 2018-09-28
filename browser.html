@@ -46,6 +46,15 @@
     {% endfor %}
 </div>
 
+<script>
+    $(function(){
+        $('.col-btn').on('click', function (e) {
+            console.log('col click!'); 
+            e.stopPropagation();
+        });
+    });
+</script>
+
 
 <script> 
 $(document).ready(function(){ 

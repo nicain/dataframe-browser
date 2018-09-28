@@ -116,6 +116,8 @@ class NodeFrame(object):
         
         table_html = df_to_render.to_html(classes=[table_class], index=False, escape=False, justify='center', formatters=self.formatters)
 
+        table_html = table_html.replace('</th>', '<div><button type="button" class="btn btn-success btn-sm py-1 ml-1 col-btn"><span class="oi oi-check"></span></button></div></th>')
+
         pd.set_option('display.max_colwidth', old_width)
 
 
