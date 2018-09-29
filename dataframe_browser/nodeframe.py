@@ -132,8 +132,8 @@ class NodeFrame(object):
         table_html = df_to_render.to_html(classes=[table_class], index=False, escape=False, justify='center', formatters=self.formatters)
 
         button_load = '''
-        <div class="dropdown">
-            <button data-toggle="dropdown" class="dropdown-toggle btn btn-light btn-sm py-1 ml-1 col-btn"><span class="oi oi-menu"></span></button>
+        <div class="dropdown" id="idhw">
+            <button data-toggle="collapse" data-target="#idhw" class="dropdown-toggle btn btn-light btn-sm py-1 ml-1 col-btn"><span class="oi oi-menu"></span></button>
             <div class="dropdown-menu" id="HW">
                 <a class="dropdown-item" href="#">Action</a>
                 <a class="dropdown-item" href="#">Another action</a>
