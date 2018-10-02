@@ -4,6 +4,7 @@ from utilities import BeautifulSoup, fn_timer, generate_uuid, one
 import json
 from flask import flash
 import numpy as np
+import copy
 
 # TODO: Move to utilities
 def memory_usage(df, deep=True):
@@ -132,23 +133,28 @@ class NodeFrame(object):
         table_html = df_to_render.to_html(classes=[table_class], index=False, escape=False, justify='center', formatters=self.formatters)
 
         button_load = '''
-        <div class="dropdown" id="idhw">
-            <button data-toggle="collapse" data-target="#idhw" class="dropdown-toggle btn btn-light btn-sm py-1 ml-1 col-btn"><span class="oi oi-menu"></span></button>
-            <div class="dropdown-menu" id="HW">
+        <td><div class="dropdown">
+            <button data-toggle="collapse" data-target="#{col_uuid}" class="dropdown-toggle btn btn-light btn-sm py-1 ml-1 col-btn"><span class="oi oi-menu"></span></button>
+            <div class="dropdown-menu" id="{col_uuid}">
                 <a class="dropdown-item" href="#">Action</a>
                 <a class="dropdown-item" href="#">Another action</a>
                 <a class="dropdown-item" href="#">Something else here</a>
             </div>
-        </div>
+        </div></td>
         '''
 
-        
-        si, ei = 0, table_html.index('</thead>')
-        head_chunk = table_html[si:ei]
-        head_chunk = head_chunk.replace('</th>', '{button_load}</th>'.format(button_load=button_load), 1)
-        table_html = head_chunk+table_html[ei:]
-        
-        # print table_html
+        bs = BeautifulSoup(table_html)
+        table_bs = bs.table
+
+        head = table_bs.thead
+        head_row = head.tr
+
+        head_row.insert_after(copy.copy(head_row))
+
+        for x in head_row.find_all('th'):
+            x.replace_with(BeautifulSoup(button_load.format(col_uuid=generate_uuid())))
+
+        table_html = str(table_bs)
 
 
         pd.set_option('display.max_colwidth', old_width)
