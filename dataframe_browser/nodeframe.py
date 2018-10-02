@@ -134,7 +134,7 @@ class NodeFrame(object):
 
         button_load = '''
         <td><div class="dropdown">
-            <button data-toggle="collapse" data-target="#{col_uuid}" class="dropdown-toggle btn btn-light btn-sm py-1 ml-1 col-btn"><span class="oi oi-menu"></span></button>
+            <button data-toggle="dropdown" data-target="#{col_uuid}" class="dropdown-toggle btn btn-light btn-sm py-1 ml-1 col-btn"><span class="oi oi-menu"></span></button>
             <div class="dropdown-menu" id="{col_uuid}">
                 <a class="dropdown-item" href="#">Action</a>
                 <a class="dropdown-item" href="#">Another action</a>
@@ -142,6 +142,18 @@ class NodeFrame(object):
             </div>
         </div></td>
         '''
+
+        # button_load = '''
+        # <td><div class="dropdown">
+        #     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown2" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Actions</a>
+        #     <div class="dropdown-menu" aria-labelledby="navbarDropdown2">
+        #         <button class="dropdown-item" data-toggle="collapse" data-target="#QueryCollapse">Query</button>
+        #         <button class="dropdown-item" data-toggle="collapse" data-target="#DropColumnsByCollapse" id='drop-columns-menu-item-button'>Drop Columns</button>
+        #         <button class="dropdown-item" data-toggle="collapse" data-target="#KeepColumnsByCollapse" id='keep-columns-menu-item-button'>Keep Columns</button>
+        #     </div>
+        # </div></td>
+        # '''
+
 
         bs = BeautifulSoup(table_html)
         table_bs = bs.table
@@ -152,7 +164,7 @@ class NodeFrame(object):
         head_row.insert_after(copy.copy(head_row))
 
         for x in head_row.find_all('th'):
-            x.replace_with(BeautifulSoup(button_load.format(col_uuid=generate_uuid())))
+            x.replace_with(BeautifulSoup(button_load))
 
         table_html = str(table_bs)
 
