@@ -139,6 +139,9 @@ class NodeFrame(object):
                 <a class="dropdown-item" href="#">Action</a>
                 <a class="dropdown-item" href="#">Another action</a>
                 <a class="dropdown-item" href="#">Something else here</a>
+                <form class="form-inline my-2 my-lg-0" action="/sandbox2" method="POST">
+                    <button type="submit" class="btn btn-danger btn-sm ml-3" data-toggle="collapse" data-target="#TransposeColumnsByCollapse" data-toggle="tooltip" data-placement="top" title="Cancel"><span class="oi oi-x"></span> Drop</button>
+                </form>
             </div>
         </div></td>
         '''
