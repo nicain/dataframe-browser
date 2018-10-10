@@ -110,7 +110,7 @@ class NodeFrame(object):
 
         return D
 
-    def to_html(self, columns=None, max_size=5000000):
+    def to_html(self, frame_index, columns=None, max_size=5000000):
 
         if columns is None:
             columns = self.df.columns
@@ -134,41 +134,29 @@ class NodeFrame(object):
 
         button_load = '''
         <td><div class="dropdown">
-            <button data-toggle="dropdown" data-target="#{col_uuid}" class="dropdown-toggle btn btn-light btn-sm py-1 ml-1 col-btn"><span class="oi oi-menu"></span></button>
-            <div class="dropdown-menu" id="{col_uuid}">
+            <button data-toggle="dropdown" class="dropdown-toggle btn btn-light btn-sm py-1 ml-1 col-btn"><span class="oi oi-menu"></span></button>
+            <div class="dropdown-menu">
                 <a class="dropdown-item" href="#">Action</a>
                 <a class="dropdown-item" href="#">Another action</a>
                 <a class="dropdown-item" href="#">Something else here</a>
-                <form class="form-inline my-2 my-lg-0" action="/sandbox2" method="POST">
+                <form class="form-inline my-2 my-lg-0" action="/command" method="POST">
+                    <input type="hidden" name='columns' value='{column_string}'>
+                    <input type="hidden" name='frames' value='{frame_index}'>
+                    <input type="hidden" name='command' value='drop'>
                     <button type="submit" class="btn btn-danger btn-sm ml-3" data-toggle="collapse" data-target="#TransposeColumnsByCollapse" data-toggle="tooltip" data-placement="top" title="Cancel"><span class="oi oi-x"></span> Drop</button>
                 </form>
             </div>
         </div></td>
         '''
 
-        # button_load = '''
-        # <td><div class="dropdown">
-        #     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown2" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Actions</a>
-        #     <div class="dropdown-menu" aria-labelledby="navbarDropdown2">
-        #         <button class="dropdown-item" data-toggle="collapse" data-target="#QueryCollapse">Query</button>
-        #         <button class="dropdown-item" data-toggle="collapse" data-target="#DropColumnsByCollapse" id='drop-columns-menu-item-button'>Drop Columns</button>
-        #         <button class="dropdown-item" data-toggle="collapse" data-target="#KeepColumnsByCollapse" id='keep-columns-menu-item-button'>Keep Columns</button>
-        #     </div>
-        # </div></td>
-        # '''
-
-
         bs = BeautifulSoup(table_html)
         table_bs = bs.table
-
         head = table_bs.thead
         head_row = head.tr
-
         head_row.insert_after(copy.copy(head_row))
-
         for x in head_row.find_all('th'):
-            x.replace_with(BeautifulSoup(button_load))
-
+            column_string = x.string
+            x.replace_with(BeautifulSoup(button_load.format(column_string=column_string, frame_index=frame_index)))
         table_html = str(table_bs)
 
 

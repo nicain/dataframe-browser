@@ -123,20 +123,38 @@ class Node(object):
 
     def drop(self, columns=None, frames=None):
 
-        if frames is None:
-            frames_to_drop = []
-        else:
+        if columns and frames:
             frames_to_drop = [int(ii) for ii in frames]
-        
-        node_frame_list = []
-        for frame_index, node_frame in enumerate(self.node_frames):
-            if frame_index not in frames_to_drop:
-                df, load_time = node_frame.drop(columns=columns)
+            node_frame_list = []
+            for frame_index, node_frame in enumerate(self.node_frames):
+                if frame_index in frames_to_drop:
+                    cc = columns
+                else:
+                    cc = None
+
+                df, load_time = node_frame.drop(columns=cc)
                 node_frame = NodeFrame(df=df, load_time=load_time)
                 node_frame_list.append(node_frame)
-        new_node = Node(tuple(node_frame_list), name=None, parent=self, force=False)
+            new_node = Node(tuple(node_frame_list), name=None, parent=self, force=False)
 
-        return new_node
+            return new_node
+
+        else:
+
+            if frames is None:
+                frames_to_drop = []
+            else:
+                frames_to_drop = [int(ii) for ii in frames]
+            
+            node_frame_list = []
+            for frame_index, node_frame in enumerate(self.node_frames):
+                if frame_index not in frames_to_drop:
+                    df, load_time = node_frame.drop(columns=columns)
+                    node_frame = NodeFrame(df=df, load_time=load_time)
+                    node_frame_list.append(node_frame)
+            new_node = Node(tuple(node_frame_list), name=None, parent=self, force=False)
+
+            return new_node
 
     def keep(self, columns=None, frames=None):
 
