@@ -1,0 +1,32 @@
+{
+  "name": "dataframe-browser",
+  "version": "0.1.0",
+  "description": "dataframe-browser",
+  "main": "index.js",
+  "directories": {
+    "example": "examples",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "NODE_ENV=production webpack --progress --colors -p"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nicain/dataframe-browser.git"
+  },
+  "author": "Nicholas Cain",
+  "license": "GPL-3.0-only",
+  "bugs": {
+    "url": "https://github.com/nicain/dataframe-browser/issues"
+  },
+  "homepage": "https://github.com/nicain/dataframe-browser#readme",
+  "dependencies": {
+    "bokeh": "^0.5.1",
+    "zmq": "^2.15.3"
+  },
+  "devDependencies": {
+    "webpack": "^4.20.2",
+    "webpack-cli": "^3.1.1"
+  }
+}

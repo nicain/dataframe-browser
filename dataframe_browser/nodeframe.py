@@ -3,6 +3,8 @@ from cssutils import parseStyle
 from utilities import BeautifulSoup, fn_timer, generate_uuid, one
 import json
 from flask import flash
+import numpy as np
+import copy
 
 # TODO: Move to utilities
 def memory_usage(df, deep=True):
@@ -15,7 +17,21 @@ class InteriorSeries(object):
         self.series = series
 
     def summary_html(self):
-        return pd.DataFrame({'':self.series}).describe(percentiles=[], include='all').to_html()
+
+        ddf = pd.DataFrame({'':self.series}).describe(percentiles=[], include='all').T
+        for col in ['top', 'std', '50%', 'mean']:
+            if col in ddf.columns:
+                ddf.drop(col, axis=1, inplace=True)
+        ddf['count'] = ddf['count'].apply(lambda x: '%i' % x)
+        for col in ['max', 'min']:
+            if col in ddf.columns:
+                if self.series.dtype in [int, np.int]:
+                    ddf[col] = ddf[col].apply(lambda x: "{0: 3d}".format(int(x)))
+                else:
+                    ddf[col] = ddf[col].apply(lambda x: "{0: 3.2f}".format(x))
+            html = ddf.T.to_html(classes=['interior-series'])
+
+        return html
 
     def to_dict(self):
         return self.series.to_dict()
@@ -115,6 +131,46 @@ class NodeFrame(object):
             df_to_render = df
         
         table_html = df_to_render.to_html(classes=[table_class], index=False, escape=False, justify='center', formatters=self.formatters)
+
+        button_load = '''
+        <td><div class="dropdown">
+            <button data-toggle="dropdown" data-target="#{col_uuid}" class="dropdown-toggle btn btn-light btn-sm py-1 ml-1 col-btn"><span class="oi oi-menu"></span></button>
+            <div class="dropdown-menu" id="{col_uuid}">
+                <a class="dropdown-item" href="#">Action</a>
+                <a class="dropdown-item" href="#">Another action</a>
+                <a class="dropdown-item" href="#">Something else here</a>
+                <form class="form-inline my-2 my-lg-0" action="/sandbox2" method="POST">
+                    <button type="submit" class="btn btn-danger btn-sm ml-3" data-toggle="collapse" data-target="#TransposeColumnsByCollapse" data-toggle="tooltip" data-placement="top" title="Cancel"><span class="oi oi-x"></span> Drop</button>
+                </form>
+            </div>
+        </div></td>
+        '''
+
+        # button_load = '''
+        # <td><div class="dropdown">
+        #     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown2" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Actions</a>
+        #     <div class="dropdown-menu" aria-labelledby="navbarDropdown2">
+        #         <button class="dropdown-item" data-toggle="collapse" data-target="#QueryCollapse">Query</button>
+        #         <button class="dropdown-item" data-toggle="collapse" data-target="#DropColumnsByCollapse" id='drop-columns-menu-item-button'>Drop Columns</button>
+        #         <button class="dropdown-item" data-toggle="collapse" data-target="#KeepColumnsByCollapse" id='keep-columns-menu-item-button'>Keep Columns</button>
+        #     </div>
+        # </div></td>
+        # '''
+
+
+        bs = BeautifulSoup(table_html)
+        table_bs = bs.table
+
+        head = table_bs.thead
+        head_row = head.tr
+
+        head_row.insert_after(copy.copy(head_row))
+
+        for x in head_row.find_all('th'):
+            x.replace_with(BeautifulSoup(button_load))
+
+        table_html = str(table_bs)
+
 
         pd.set_option('display.max_colwidth', old_width)
 
