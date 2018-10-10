@@ -12,7 +12,7 @@ class Model(object):
         self._root = Node(tuple()) # Not build with create_node
         self._active = self.root
 
-        self.groupable_max_unique = 10
+        self.groupable_max_unique = 250
 
     @property
     def active(self):
