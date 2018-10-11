@@ -143,7 +143,7 @@ class NodeFrame(object):
                     <input type="hidden" name='columns' value='{column_string}'>
                     <input type="hidden" name='frames' value='{frame_index}'>
                     <input type="hidden" name='command' value='drop'>
-                    <button type="submit" class="btn btn-danger btn-sm ml-3" data-toggle="collapse" data-target="#TransposeColumnsByCollapse" data-toggle="tooltip" data-placement="top" title="Cancel"><span class="oi oi-x"></span> Drop</button>
+                    <button type="submit" class="btn btn-danger btn-sm ml-3"><span class="oi oi-x"></span> Drop</button>
                 </form>
             </div>
         </div></td>
