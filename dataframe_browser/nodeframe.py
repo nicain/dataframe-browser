@@ -136,9 +136,6 @@ class NodeFrame(object):
         <td><div class="dropdown">
             <button data-toggle="dropdown" class="dropdown-toggle btn btn-light btn-sm py-1 ml-1 col-btn"><span class="oi oi-menu"></span></button>
             <div class="dropdown-menu">
-                <a class="dropdown-item" href="#">Action</a>
-                <a class="dropdown-item" href="#">Another action</a>
-                <a class="dropdown-item" href="#">Something else here</a>
                 <form class="form-inline my-2 my-lg-0" action="/command/{session_uuid}" method="POST">
                     <input type="hidden" name='columns' value='{column_string}'>
                     <input type="hidden" name='frames' value='{frame_index}'>
