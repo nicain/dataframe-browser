@@ -16,11 +16,9 @@ socketio = SocketIO(app)
 dfb_dict = {}
 
 
-# @app.route('/')
-# def index():
-#     if 'username' in session:
-#         return 'Logged in as %s' % escape(session['username'])
-#     return 'You are not logged in'
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 # @app.route('/login', methods=['GET', 'POST'])
 # def login():
