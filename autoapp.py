@@ -7,6 +7,7 @@ from dataframe_browser.dataframebrowser import DataFrameBrowser
 from dataframe_browser.utilities import one, generate_uuid
 import dataframe_browser
 import traceback
+from dataframe_browser.mappers import mapper_library_dict
 
 
 
@@ -222,9 +223,8 @@ def graph_get():
 
 @app.route('/lazy_formatting/<session_uuid>', methods=['POST'])
 def lazy_formatting(session_uuid):
-    dfb = dfb_dict[session_uuid]
     data = request.json
-    result = dfb.mapper_library_dict[data['mapper']](*data.get('args',[]), **data.get('kwargs', {}))
+    result = mapper_library_dict[data['mapper']](*data.get('args',[]), **data.get('kwargs', {}))
     return json.dumps({'result':result})
 
 @app.route('/sandbox')
