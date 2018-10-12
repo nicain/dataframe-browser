@@ -295,7 +295,7 @@ class NodeFrame(object):
                 js = '$(".dataframe").on("draw.dt", function() {{\
                                                                 if ($("#{id}").is(":visible") && $("#{id}").is(":empty")  ){{\
                                                                                                 $.ajax({{type : "POST",\
-                                                                                                        url : "/lazy_formatting",\
+                                                                                                        url : "/lazy_formatting/{session_uuid}",\
                                                                                                         data: JSON.stringify({payload}, null, "\t"),\
                                                                                                         contentType: "application/json;charset=UTF-8",\
                                                                                                         success: function(result) {{\
@@ -304,7 +304,7 @@ class NodeFrame(object):
                                                                                                                                     }}\
                                                                                                         }});\
                                                                                                 }};\
-                                                                }});'.format(id=id, payload=json.dumps(payload))
+                                                                }});'.format(id=id, payload=json.dumps(payload), session_uuid='{{session_uuid}}')
     
                 
                 js_txt = """<script>{js}</script>""".format(js=js)

@@ -111,6 +111,10 @@ def bookmarks():
 @app.route("/command/<session_uuid>", methods=['POST'])
 def cmd_post(session_uuid):
 
+    # When the client cursor connects for the first time, initialize a session:
+    if session_uuid not in dfb_dict:
+        dfb_dict[session_uuid] = DataFrameBrowser(session_uuid=session_uuid)
+
     dfb = dfb_dict[session_uuid]
 
     try:
