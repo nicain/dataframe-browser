@@ -139,7 +139,7 @@ class NodeFrame(object):
                 <a class="dropdown-item" href="#">Action</a>
                 <a class="dropdown-item" href="#">Another action</a>
                 <a class="dropdown-item" href="#">Something else here</a>
-                <form class="form-inline my-2 my-lg-0" action="/command" method="POST">
+                <form class="form-inline my-2 my-lg-0" action="/command/{session_uuid}" method="POST">
                     <input type="hidden" name='columns' value='{column_string}'>
                     <input type="hidden" name='frames' value='{frame_index}'>
                     <input type="hidden" name='command' value='drop'>
@@ -156,7 +156,7 @@ class NodeFrame(object):
         head_row.insert_after(copy.copy(head_row))
         for x in head_row.find_all('th'):
             column_string = x.string
-            x.replace_with(BeautifulSoup(button_load.format(column_string=column_string, frame_index=frame_index)))
+            x.replace_with(BeautifulSoup(button_load.format(session_uuid='{{session_uuid}}', column_string=column_string, frame_index=frame_index)))
         table_html = str(table_bs)
 
 

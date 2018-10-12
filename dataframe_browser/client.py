@@ -1,18 +1,26 @@
 import requests
 import pgpasslib
 import json
+import uuid
 
 
 class Cursor(object):
 
-    def __init__(self, port=5000, hostname='localhost'):
+    def __init__(self, port=5000, hostname='localhost', session_uuid=None):
+
+        uuid_length = 32
+
+        if session_uuid is None:
+            u = uuid.uuid4()
+            session_uuid = u.hex[:uuid_length]
 
         self.port = port
         self.hostname = hostname
+        self.session_uuid = session_uuid
     
     @property
     def command(self):
-        return 'http://{hostname}:{port}/command'.format(hostname=self.hostname, port=self.port)
+        return 'http://{hostname}:{port}/command/{session_uuid}'.format(hostname=self.hostname, port=self.port, session_uuid=self.session_uuid)
 
     def run(self, **kwargs):
         result = requests.post(self.command, json=json.dumps(kwargs))

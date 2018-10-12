@@ -17,13 +17,13 @@ c.apply(columns='nwb_file', mapper='brain_observatory.nwb_file_to_max_projection
     # # dfb = DataFrameBrowser()
     # # dfb.read(query=query, uri='postgresql://limsreader:{password}@limsdb2:5432/lims2'.format(password=pgpasslib.getpass('limsdb2', 5432, 'lims2', 'limsreader')))
 
-    # requests.post('http://localhost:5000/command', data={
+    # requests.post('http://localhost:5000/command/{session_uuid}', data={
     #     'command':'open',
     #     'filename':'/home/nicholasc/projects/dataframe-browser/tests/example.csv'
     #     })
 
 
-    # requests.post('http://localhost:5000/command', data={
+    # requests.post('http://localhost:5000/command/{session_uuid}', data={
     #     'command':'read',
     #     'query':
     #     'uri':'postgresql://limsreader:{password}@limsdb2:5432/lims2'.format(password=pgpasslib.getpass('limsdb2', 5432, 'lims2', 'limsreader'))
