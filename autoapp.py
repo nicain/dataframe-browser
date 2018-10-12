@@ -5,6 +5,7 @@ import json
 from flask_socketio import SocketIO 
 from dataframe_browser.dataframebrowser import DataFrameBrowser
 from dataframe_browser.utilities import one, generate_uuid
+import dataframe_browser
 import traceback
 
 
@@ -18,7 +19,7 @@ dfb_dict = {}
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html', version=dataframe_browser.__version__)
 
 # @app.route('/login', methods=['GET', 'POST'])
 # def login():
@@ -78,7 +79,8 @@ def browser_get(session_uuid):
                             disable_fold_menu_button=str(not dfb.model.foldable_state).lower(),
                             all_index_columns=dfb.model.all_index_columns,
                             disable_transpose_menu_button=str(not len(dfb.model.all_index_columns)>0).lower(),
-                            session_uuid=session_uuid,)
+                            session_uuid=session_uuid,
+                            version=dataframe_browser.__version__,)
     
     except Exception as e:
 
@@ -86,7 +88,7 @@ def browser_get(session_uuid):
         flash('ERROR: %s' % str(e.message), category='warning')
         traceback.print_exc()
         dfb.model.set_active(dfb.model.root)
-        return render_template('browser.html')
+        return render_template('browser.html', version=dataframe_browser.__version__)
 
 @app.route("/active/<ii>", methods=['POST', 'GET']) 
 def get_active_ii(ii):
