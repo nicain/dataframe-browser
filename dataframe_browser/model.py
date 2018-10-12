@@ -154,3 +154,7 @@ class Model(object):
             return []
         else:
             return list(set.intersection(*L))
+
+    @property
+    def session_uuid(self):
+        return self.app.session_uuid

@@ -1,0 +1,23 @@
+
+{% extends 'nav.html' %}
+
+{% block content %}
+
+<div class="jumbotron">
+
+    <h1>Welcome to the Dataframe Browser pre-alpha</h1>
+
+</div><!-- /.jumbotron -->
+
+<div class="body-content"> 
+    <a class="btn btn-primary btn-lg" href="{{ url_for('browser_base') }}" role=button>Launch new session!</a>
+
+</div>
+
+<script>
+$(document).ready(function(){ 
+    $('.loader').hide()
+    });
+</script>
+
+{% endblock %}
