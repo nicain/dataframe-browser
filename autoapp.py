@@ -76,7 +76,7 @@ def browser_get(session_uuid):
                             disable_groupby_menu_button=str(not dfb.model.groupable_state).lower(),
                             disable_concatenate_menu_button=str(not dfb.model.can_concatenate).lower(),
                             all_active_columns=dfb.model.all_active_columns,
-                            mapper_list=dfb.mapper_library_dict.keys(),
+                            mapper_list=mapper_library_dict.keys(), # TODO get from an endpoint from CORS lazy_loader service
                             disable_fold_menu_button=str(not dfb.model.foldable_state).lower(),
                             all_index_columns=dfb.model.all_index_columns,
                             disable_transpose_menu_button=str(not len(dfb.model.all_index_columns)>0).lower(),
