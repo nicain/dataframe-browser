@@ -292,7 +292,7 @@ class NodeFrame(object):
                 js = '$(".dataframe").on("draw.dt", function() {{\
                                                                 if ($("#{id}").is(":visible") && $("#{id}").is(":empty")  ){{\
                                                                                                 $.ajax({{type : "POST",\
-                                                                                                        url : "/lazy_formatting/{session_uuid}",\
+                                                                                                        url : "http://nicholasc-ubuntu:5050/lazy_formatting/{session_uuid}",\
                                                                                                         data: JSON.stringify({payload}, null, "\t"),\
                                                                                                         contentType: "application/json;charset=UTF-8",\
                                                                                                         success: function(result) {{\
