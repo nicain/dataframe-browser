@@ -1,4 +1,5 @@
 from utilities import create_class_logger, one, generate_uuid, BeautifulSoup
+from .cache import get_cache
 import dataframe_browser as dfb
 import requests
 import json
@@ -45,7 +46,7 @@ class FlaskViewServer(ConsoleView):
     def __init__(self, **kwargs):
 
         super(FlaskViewServer, self).__init__(**kwargs)
-        self._html_cache = {}
+        self._html_cache = get_cache('basic')
 
     def display_node(self, page_length=None):
 

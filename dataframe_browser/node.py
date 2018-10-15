@@ -110,11 +110,11 @@ class Node(object):
 
         return new_nodes
 
-    def fold(self, by=None, mapper_library_dict=None):
+    def fold(self, by=None):
 
         node_frame_list = []
         for _, node_frame in enumerate(self.node_frames):
-            df, load_time = node_frame.fold(by=by, mapper_library_dict=mapper_library_dict)
+            df, load_time = node_frame.fold(by=by)
             node_frame = NodeFrame(df=df, load_time=load_time)
             node_frame_list.append(node_frame)
         new_node = Node(tuple(node_frame_list), name=None, parent=self, force=False)

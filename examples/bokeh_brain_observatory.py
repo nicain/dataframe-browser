@@ -1,6 +1,6 @@
 from dataframe_browser.client import Cursor
 
-c = Cursor()
+c = Cursor(session_uuid='example')
 
 c.open(filename='/home/nicholasc/projects/dataframe-browser/data/cell_specimens.p')
 c.query('area in ["VISpm", "VISl", "VISal"]')

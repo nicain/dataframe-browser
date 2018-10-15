@@ -8,6 +8,7 @@ from dataframe_browser.utilities import one, generate_uuid
 import dataframe_browser
 import traceback
 from dataframe_browser.mappers import mapper_library_dict
+import pgpasslib
 
 
 
@@ -17,10 +18,12 @@ socketio = SocketIO(app)
 
 dfb_dict = {}
 
+lims_password = pgpasslib.getpass('limsdb2', 5432, 'lims2', 'limsreader')
+
 
 @app.route('/')
 def index():
-    return render_template('index.html', version=dataframe_browser.__version__)
+    return render_template('index.html', version=dataframe_browser.__version__, lims_password=lims_password)
 
 # @app.route('/login', methods=['GET', 'POST'])
 # def login():
@@ -76,12 +79,13 @@ def browser_get(session_uuid):
                             disable_groupby_menu_button=str(not dfb.model.groupable_state).lower(),
                             disable_concatenate_menu_button=str(not dfb.model.can_concatenate).lower(),
                             all_active_columns=dfb.model.all_active_columns,
-                            mapper_list=dfb.mapper_library_dict.keys(),
+                            mapper_list=mapper_library_dict.keys(), # TODO get from an endpoint from CORS lazy_loader service
                             disable_fold_menu_button=str(not dfb.model.foldable_state).lower(),
                             all_index_columns=dfb.model.all_index_columns,
                             disable_transpose_menu_button=str(not len(dfb.model.all_index_columns)>0).lower(),
                             session_uuid=session_uuid,
-                            version=dataframe_browser.__version__,)
+                            version=dataframe_browser.__version__,
+                            lims_password=lims_password)
     
     except Exception as e:
 
@@ -89,7 +93,7 @@ def browser_get(session_uuid):
         flash('ERROR: %s' % str(e.message), category='warning')
         traceback.print_exc()
         dfb.model.set_active(dfb.model.root)
-        return render_template('browser.html', version=dataframe_browser.__version__)
+        return render_template('browser.html', version=dataframe_browser.__version__, lims_password=lims_password)
 
 @app.route("/active/<ii>", methods=['POST', 'GET']) 
 def get_active_ii(ii):

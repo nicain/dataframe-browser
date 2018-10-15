@@ -1,6 +1,7 @@
 import pandas as pd
 from cssutils import parseStyle
 from utilities import BeautifulSoup, fn_timer, generate_uuid, one
+from .mappers import mapper_library_dict
 import json
 from flask import flash
 import numpy as np
@@ -188,16 +189,8 @@ class NodeFrame(object):
         return self.df.query(query, **kwargs)
 
     @fn_timer
-    def fold(self, by=None, reduce=None, mapper_library_dict=None):
+    def fold(self, by=None, reduce=None):
 
-        # TODO: Not complete, could have reduce keys separate from by keys... Also need consistent squeezing
-        # Old code...
-        # for key, val in data_dict.items():
-        #     data_dict[key] = pd.Series([mapper_library_dict[reduce.get(key, None)](x) for x in val], index=val.index)
-        #     print
-        #     print key
-        #     print data_dict[key]
-        #     print
         if reduce is None:
             reduce = dict()
 
@@ -253,8 +246,6 @@ class NodeFrame(object):
     @fn_timer
     def apply(self, **kwargs):
 
-        mapper_library_dict = kwargs['mapper_library_dict']
-
         if kwargs.get('lazy', True):
 
 
@@ -292,7 +283,7 @@ class NodeFrame(object):
                 js = '$(".dataframe").on("draw.dt", function() {{\
                                                                 if ($("#{id}").is(":visible") && $("#{id}").is(":empty")  ){{\
                                                                                                 $.ajax({{type : "POST",\
-                                                                                                        url : "/lazy_formatting/{session_uuid}",\
+                                                                                                        url : "http://nicholasc-ubuntu:5050/lazy_formatting/{session_uuid}",\
                                                                                                         data: JSON.stringify({payload}, null, "\t"),\
                                                                                                         contentType: "application/json;charset=UTF-8",\
                                                                                                         success: function(result) {{\
@@ -311,6 +302,8 @@ class NodeFrame(object):
                 return f
 
         else:
+
+            # Will still need for non-server mode (aka lazy=false)
             apply_fcn = mapper_library_dict[kwargs['mapper']]
 
 
