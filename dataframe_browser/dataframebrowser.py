@@ -214,13 +214,13 @@ if __name__ == "__main__":
     # dfb = DataFrameBrowser()
     # dfb.read(query=query, uri='postgresql://limsreader:{password}@limsdb2:5432/lims2'.format(password=pgpasslib.getpass('limsdb2', 5432, 'lims2', 'limsreader')))
 
-    # requests.post('http://localhost:5000/command/{session_uuid}', data={
+    # requests.post('http://localhost:5000/command/{session_uuid}/', data={
     #     'command':'open',
     #     'filename':'/home/nicholasc/projects/dataframe-browser/tests/example.csv'
     #     })
 
 
-    # requests.post('http://localhost:5000/command/{session_uuid}', data={
+    # requests.post('http://localhost:5000/command/{session_uuid}/', data={
     #     'command':'read',
     #     'query':'''SELECT wkfnwb.storage_directory || wkfnwb.filename AS nwb_file, oe.experiment_container_id AS experiment_container_id, oe.ophys_session_id AS ophys_session_id
     #         FROM experiment_containers ec JOIN ophys_experiments oe ON oe.experiment_container_id=ec.id AND oe.workflow_state = 'passed'

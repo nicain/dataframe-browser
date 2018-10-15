@@ -69,7 +69,7 @@
             });
         </script> -->
 
-        <form action="/command/{{session_uuid}}" method="POST">
+        <form action="/command/{{session_uuid}}/" method="POST">
             <button type="submit" class="btn btn-primary" name="command" value="back">Back</button>
         </form>
 
@@ -116,7 +116,7 @@
                         </script>
 
                         <div class="card-header">
-                            <form action="/command/{{session_uuid}}" method="POST">
+                            <form action="/command/{{session_uuid}}/" method="POST">
                                 <input type="hidden" name='frames' value='{{frame_index}}'>
                                 <button type="submit" class="btn btn-danger" name="command" value="drop">Drop</button> {{active_name}}
                                     

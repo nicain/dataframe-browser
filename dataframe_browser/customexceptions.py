@@ -1,4 +1,9 @@
+from six import PY3
 
+if PY3:
+    pass
+else:
+     FileNotFoundError = IOError
 
 class BookmarkAlreadyExists(Exception):
     pass
