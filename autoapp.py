@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, flash, redirect, session, url_for, escape
+from werkzeug.utils import secure_filename
 import pandas as pd
 import os
 import json
@@ -11,8 +12,15 @@ from dataframe_browser.mappers import mapper_library_dict
 import pgpasslib
 
 
+ALLOWED_EXTENSIONS = ['csv', 'p', 'pkl']
+UPLOAD_FOLDER = '/home/nicholasc/tmp/upload'
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 
 app = Flask(__name__, template_folder='.')
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.secret_key = 'super secret key'
 socketio = SocketIO(app) 
 
@@ -25,25 +33,7 @@ lims_password = pgpasslib.getpass('limsdb2', 5432, 'lims2', 'limsreader')
 def index():
     return render_template('index.html', version=dataframe_browser.__version__, lims_password=lims_password)
 
-# @app.route('/login', methods=['GET', 'POST'])
-# def login():
-#     if request.method == 'POST':
-#         session['username'] = request.form['username']
-#         return redirect('/browser')
-#     return '''
-#         <form method="post">
-#             <p><input type=text name=username>
-#             <p><input type=submit value=Login>
-#         </form>
-#     '''
-
-# @app.route('/logout')
-# def logout():
-#     # remove the username from the session if it's there
-#     session.pop('username', None)
-#     return redirect('/browser')
-
-@app.route("/browser") 
+@app.route("/browser/") 
 def browser_base():
 
     session_uuid = generate_uuid()
@@ -63,7 +53,7 @@ def browser_get(session_uuid):
         uuid_table_list = dfb.view.display_node()
         uuid_table_list_frame_index = [[fi]+list(f) for fi, f in enumerate(uuid_table_list)]
 
-        if dfb.model.active.name is None:
+        if dfb.model.active is None or dfb.model.active.name is None:
             active_name_str = ''
         else:
             active_name_str = dfb.model.active.name
@@ -85,7 +75,8 @@ def browser_get(session_uuid):
                             disable_transpose_menu_button=str(not len(dfb.model.all_index_columns)>0).lower(),
                             session_uuid=session_uuid,
                             version=dataframe_browser.__version__,
-                            lims_password=lims_password)
+                            lims_password=lims_password,
+                            upload_folder=app.config['UPLOAD_FOLDER'])
     
     except Exception as e:
 
@@ -140,6 +131,8 @@ def cmd_post(session_uuid):
             dfb.read(**data)
         elif command == 'open':
             dfb.open(**data)
+            if str(os.path.dirname(one(data['filename']))) == str(app.config['UPLOAD_FOLDER']):
+                flash('File uploaded: {filename}'.format(filename=os.path.basename(one(data['filename']))), category='info')
         elif command == 'groupby':
             dfb.groupby(**data)
         elif command == 'fold':
@@ -183,26 +176,6 @@ def cmd_post(session_uuid):
         traceback.print_exc()
 
         return redirect('/browser/{session_uuid}'.format(session_uuid=session_uuid))
-        # return render_template('browser.html')
-
-# @app.route("/multi", methods=['GET']) 
-# def multi():  
-#     return render_template('multi.html', uuid_table_list=data['active'], header='') 
-
-# @app.route("/model", methods=['POST']) 
-# def model(): 
- 
-#     uuid_table_list = json.loads(request.json) 
-#     data['active'] = uuid_table_list 
- 
-#     socketio.emit('reload') 
-
-#     return json.dumps(True)
-
-# @app.route("/reload", methods=['POST']) 
-# def reload(): 
-#     socketio.emit('reload') 
-#     return json.dumps(True)
 
 
 @app.route('/background_process_test')
@@ -219,11 +192,6 @@ def graph_post():
 def graph_get():
     return render_template('graph.html', uuid_table_list=data['graph'], header='') 
 
-# @app.route('/graph_json')
-# def graph_json():
-#     return json.dumps(data['graph'])
-
-
 
 @app.route('/lazy_formatting/<session_uuid>', methods=['POST'])
 def lazy_formatting(session_uuid):
@@ -239,6 +207,31 @@ def sandbox():
 def sandbox2():
     print dict(request.form)
     return json.dumps(dict(request.form))
+
+@app.route('/upload_file/<session_uuid>', methods=['GET', 'POST'])
+def upload_file(session_uuid):
+    if request.method == 'POST':
+
+        # check if the post request has the file part
+        if 'file' not in request.files:
+            flash('No file part', category='error')
+            return redirect(request.url)
+        file = request.files['file']
+        # if user does not select file, browser also
+        # submit an empty part without filename
+        if file.filename == '':
+            flash('No selected file', category='danger')
+            return redirect(request.url)
+
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            return redirect('/command/{session_uuid}/'.format(session_uuid=session_uuid), code=307)
+        else:
+            flash('Filename not allowed: {filename}'.format(filename=file.filename), category='danger')
+            return redirect(request.url)
+
+    return render_template('browser.html') 
 
 if __name__ == "__main__":
     

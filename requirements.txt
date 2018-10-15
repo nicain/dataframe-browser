@@ -14,4 +14,5 @@ requests
 sqlalchemy
 sqlparse
 redis
+six
 # conda install -c conda-forge phantomjs

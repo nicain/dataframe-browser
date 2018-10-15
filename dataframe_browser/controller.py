@@ -1,7 +1,7 @@
 from utilities import create_class_logger, fn_timer, load_file, read_file_query_uri
 import os
 import pandas as pd
-from customexceptions import UnrecognizedFileTypeException
+from customexceptions import UnrecognizedFileTypeException, FileNotFoundError
 from nodeframe import NodeFrame
 from node import Node
 
@@ -16,8 +16,7 @@ class TextController(object):
     def open_node_from_file(self, filename, force=False, **kwargs):
 
         if not os.path.exists(filename):
-            self.app.view.display_message('Source not found: {0}\n'.format(filename), type='error')
-            return
+            raise FileNotFoundError('Source not found: "{0}"\n'.format(os.path.basename(filename)))
 
         try:
             df, load_time = load_file(filename)
