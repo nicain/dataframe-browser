@@ -20,25 +20,25 @@
 
                     <div class="dropdown-divider"></div>
 
-                    <form class="form" action="/command/{{session_uuid}}" method="POST">
+                    <form class="form" action="/command/{{session_uuid}}/" method="POST">
                         <input type="hidden" name='filename' value='/home/nicholasc/projects/dataframe-browser/data/example.csv'>
                         <input type="hidden" name='bookmark' value='Hello World'>
                         <button type="submit" class="dropdown-item" name="command" value="open" >Hello World</button>
                     </form>
 
-                    <form class="form" action="/command/{{session_uuid}}" method="POST">
+                    <form class="form" action="/command/{{session_uuid}}/" method="POST">
                         <input type="hidden" name='filename' value='/home/nicholasc/projects/dataframe-browser/data/visbeh.csv'>
                         <input type="hidden" name='bookmark' value='Visual Behavior'>
                         <button type="submit" class="dropdown-item" name="command" value="open" id='cell-counting-button'>Visual Behavior</button>
                     </form>
 
-                    <form class="form" action="/command/{{session_uuid}}" method="POST">
+                    <form class="form" action="/command/{{session_uuid}}/" method="POST">
                         <input type="hidden" name='filename' value='/home/nicholasc/projects/dataframe-browser/data/cell_counting.csv'>
                         <input type="hidden" name='bookmark' value='Cell Counting'>
                         <button type="submit" class="dropdown-item" name="command" value="open" id='cell-counting-button'>Cell Counting</button>
                     </form>
 
-                    <form class="form" action="/command/{{session_uuid}}" method="POST">
+                    <form class="form" action="/command/{{session_uuid}}/" method="POST">
                         <input type="hidden" name='filename' value='/home/nicholasc/projects/dataframe-browser/data/load_images.csv'>
                         <input type="hidden" name='bookmark' value='Brain Observatory'>
                         <button type="submit" class="dropdown-item" name="command" value="open">Brain Observatory</button>
@@ -52,12 +52,12 @@
                 <div class="dropdown-menu" aria-labelledby="navbarDropdown2">
                     <button class="dropdown-item" data-toggle="collapse" data-target="#QueryCollapse">Query</button>
 
-                    <form action="/command/{{session_uuid}}" method="POST"></form>
+                    <form action="/command/{{session_uuid}}/" method="POST"></form>
                     <button class="dropdown-item" data-toggle="collapse" data-target="#FoldCollapse" id='fold-menu-item-button'>Fold</button>
                     <button class="dropdown-item disabled" data-toggle="collapse" data-target="#GroupByCollapse" id='groupby-menu-item-button'>Group By</button>
                     
                     
-                    <form action="/command/{{session_uuid}}" method="POST">
+                    <form action="/command/{{session_uuid}}/" method="POST">
                         <button class="dropdown-item disabled" data-toggle="collapse" data-target="#ConcatenateCollapse" id='concatenate-menu-item-button' name='command' value='concat'>Concatenate</button>
                     </form>
                     <script>
@@ -105,7 +105,7 @@
         <div class="btn-group" role="group" aria-label="Navigation buttons">
 
             <!-- Go back to parent of browser active state -->
-            <form class="form-inline my-2 my-lg-0" action="/command/{{session_uuid}}" method="POST">            
+            <form class="form-inline my-2 my-lg-0" action="/command/{{session_uuid}}/" method="POST">            
                 <button type="submit" class="btn btn-primary btn-sm my-2 my-sm-0 disabled" name="command" value="back" id="nav-parent-back">
                     <span class="oi oi-arrow-circle-left"></span>
                 </button>
@@ -121,7 +121,7 @@
             </script>
 
 
-            <form class="form-inline my-2 my-lg-0" action="/command/{{session_uuid}}" method="POST">            
+            <form class="form-inline my-2 my-lg-0" action="/command/{{session_uuid}}/" method="POST">            
                 <button type="submit" class="btn btn-primary btn-sm my-2 mr-sm-2 ml-sm-1 disabled" name="command" value="forward" id="nav-parent-forward">
                     <span class="oi oi-arrow-circle-right"></span>
                 </button>
@@ -151,7 +151,7 @@
 
 <div class="collapse" id="GroupByCollapse">
     <div class="card card-body">
-        <form class="form-inline my-2 my-lg-0" action="/command/{{session_uuid}}" method="POST">
+        <form class="form-inline my-2 my-lg-0" action="/command/{{session_uuid}}/" method="POST">
             <label class="mr-2">Group columns:</label>
             
             <div class="btn-group btn-group-toggle" data-toggle="buttons" role="group" aria-label="First group">
@@ -179,7 +179,7 @@
 
 <div class="collapse" id="QueryCollapse">
     <div class="card card-body">
-        <form class="form-inline my-2 my-lg-0" action="/command/{{session_uuid}}" method="POST">
+        <form class="form-inline my-2 my-lg-0" action="/command/{{session_uuid}}/" method="POST">
             <label class="mr-2">Query:</label>
             <input type="text" class="form-control" id="formGroupExampleInput" name='query'>
             
@@ -191,7 +191,7 @@
 
 <div class="collapse" id="DropColumnsByCollapse">
     <div class="card card-body">
-        <form class="form-inline my-2 my-lg-0" action="/command/{{session_uuid}}" method="POST">
+        <form class="form-inline my-2 my-lg-0" action="/command/{{session_uuid}}/" method="POST">
             <label class="mr-2">Drop columns:</label>
             
             <div class="btn-group btn-group-toggle" data-toggle="buttons" role="group" aria-label="First group">
@@ -210,7 +210,7 @@
 
 <div class="collapse" id="KeepColumnsByCollapse">
     <div class="card card-body">
-        <form class="form-inline my-2 my-lg-0" action="/command/{{session_uuid}}" method="POST">
+        <form class="form-inline my-2 my-lg-0" action="/command/{{session_uuid}}/" method="POST">
             <label class="mr-2">Drop columns:</label>
             
             <div class="btn-group btn-group-toggle" data-toggle="buttons" role="group" aria-label="First group">
@@ -229,7 +229,7 @@
 
 <div class="collapse" id="ApplyCollapse">
     <div class="card card-body col-lg-4">
-        <form class="form my-2 my-lg-0 " action="/command/{{session_uuid}}" method="POST">
+        <form class="form my-2 my-lg-0 " action="/command/{{session_uuid}}/" method="POST">
 
             <div class="form-row">
                 <div class="col">
@@ -281,7 +281,7 @@
 
 <div class="collapse" id="FoldCollapse">
     <div class="card card-body">
-        <form class="form-inline my-2 my-lg-0" action="/command/{{session_uuid}}" method="POST">
+        <form class="form-inline my-2 my-lg-0" action="/command/{{session_uuid}}/" method="POST">
             <label class="mr-2">Fold Groups:</label>
             
             <div class="btn-group btn-group-toggle" data-toggle="buttons" role="group" aria-label="First group">
@@ -309,7 +309,7 @@
 
 <div class="collapse" id="TransposeColumnsByCollapse">
     <div class="card card-body">
-        <form class="form-inline my-2 my-lg-0" action="/command/{{session_uuid}}" method="POST">
+        <form class="form-inline my-2 my-lg-0" action="/command/{{session_uuid}}/" method="POST">
             <label class="mr-2">Transpose Table:</label>
             
             <div class="btn-group btn-group-toggle" data-toggle="buttons" role="group" aria-label="First group">

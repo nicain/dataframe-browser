@@ -40,9 +40,9 @@ def browser_base():
     session['uuid'] = session_uuid
     dfb_dict[session_uuid] = DataFrameBrowser(session_uuid=session_uuid)
 
-    return redirect('/browser/{session_uuid}'.format(session_uuid=session_uuid))
+    return redirect('/browser/{session_uuid}/'.format(session_uuid=session_uuid))
 
-@app.route("/browser/<session_uuid>", methods=['GET']) 
+@app.route("/browser/<session_uuid>/", methods=['GET']) 
 def browser_get(session_uuid):  
 
     dfb = dfb_dict[session_uuid]
@@ -86,17 +86,17 @@ def browser_get(session_uuid):
         dfb.model.set_active(dfb.model.root)
         return render_template('browser.html', version=dataframe_browser.__version__, lims_password=lims_password)
 
-@app.route("/active/<ii>", methods=['POST', 'GET']) 
+@app.route("/active/<ii>/", methods=['POST', 'GET']) 
 def get_active_ii(ii):
     raise Exception('BROKEN')
     return dfb.active.node_frames[int(ii)].df.to_json()
 
-@app.route("/active", methods=['POST', 'GET']) 
+@app.route("/active/", methods=['POST', 'GET']) 
 def get_active():
     raise Exception('BROKEN')
     return json.dumps({str(ii):dfb.active.node_frames[int(ii)].df.to_dict() for ii in range(len(dfb.active.node_frames))})
 
-@app.route("/bookmarks", methods=['POST'])
+@app.route("/bookmarks/", methods=['POST'])
 def bookmarks():
 
     print dict(request.form)
@@ -104,7 +104,7 @@ def bookmarks():
 
     return redirect('/sandbox')
 
-@app.route("/command/<session_uuid>", methods=['POST'])
+@app.route("/command/<session_uuid>/", methods=['POST'])
 def cmd_post(session_uuid):
 
     # When the client cursor connects for the first time, initialize a session:
@@ -164,7 +164,7 @@ def cmd_post(session_uuid):
             socketio.emit('reload')
         
         if redirect_to_main:
-            return redirect('/browser/{session_uuid}'.format(session_uuid=session_uuid))
+            return redirect('/browser/{session_uuid}/'.format(session_uuid=session_uuid))
         else:
             return json.dumps(True)
     
@@ -175,7 +175,7 @@ def cmd_post(session_uuid):
 
         traceback.print_exc()
 
-        return redirect('/browser/{session_uuid}'.format(session_uuid=session_uuid))
+        return redirect('/browser/{session_uuid}/'.format(session_uuid=session_uuid))
 
 
 @app.route('/background_process_test')
@@ -208,7 +208,7 @@ def sandbox2():
     print dict(request.form)
     return json.dumps(dict(request.form))
 
-@app.route('/upload_file/<session_uuid>', methods=['GET', 'POST'])
+@app.route('/upload_file/<session_uuid>/', methods=['GET', 'POST'])
 def upload_file(session_uuid):
     if request.method == 'POST':
 

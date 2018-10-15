@@ -20,7 +20,7 @@ class Cursor(object):
     
     @property
     def command(self):
-        return 'http://{hostname}:{port}/command/{session_uuid}'.format(hostname=self.hostname, port=self.port, session_uuid=self.session_uuid)
+        return 'http://{hostname}:{port}/command/{session_uuid}/'.format(hostname=self.hostname, port=self.port, session_uuid=self.session_uuid)
 
     def run(self, **kwargs):
         result = requests.post(self.command, json=json.dumps(kwargs))

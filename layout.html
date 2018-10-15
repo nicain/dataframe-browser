@@ -62,7 +62,7 @@
             </button>
             </div>
             <div class="modal-body">
-                <form action="/command/{{session_uuid}}" method="POST" id='create-bookmark-modal-form'>
+                <form action="/command/{{session_uuid}}/" method="POST" id='create-bookmark-modal-form'>
                 <div class="form-group">
                     <label for="bookmark-input" class="col-form-label">Name of New Bookmark:</label>
 
@@ -89,7 +89,7 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form action="/upload_file/{{session_uuid}}" method="POST" id='input-load-file-modal-form' enctype=multipart/form-data>
+                    <form action="/upload_file/{{session_uuid}}/" method="POST" id='input-load-file-modal-form' enctype=multipart/form-data>
                         <div class="form-group">
                             <h5 class="modal-title" id="exampleModalLabel">Upload File</h5>
                             <div class="custom-file">
@@ -133,7 +133,7 @@
             </button>
             </div>
             <div class="modal-body">
-                <form action="/command/{{session_uuid}}" method="POST" id='input-read-query-modal-form'>
+                <form action="/command/{{session_uuid}}/" method="POST" id='input-read-query-modal-form'>
                 <div class="form-group">
                     <label for="bookmark-input" class="col-form-label">Database URI:</label>
                     <input class="form-control" name='uri' value="postgresql://limsreader@limsdb2:5432/lims2">
