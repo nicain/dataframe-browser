@@ -47,6 +47,10 @@
         {% endif %}
     {% endwith %}
 
+    <script>
+        $('.alert-info').hide().delay(0).fadeIn(100).delay(2000).fadeOut(800)
+    </script>
+
 
     <div class="modal fade" id="create-bookmark-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -58,7 +62,7 @@
             </button>
             </div>
             <div class="modal-body">
-                <form action="/command/{{session_uuid}}" method="POST" id='create-bookmark-modal-form'>
+                <form action="/command/{{session_uuid}}/" method="POST" id='create-bookmark-modal-form'>
                 <div class="form-group">
                     <label for="bookmark-input" class="col-form-label">Name of New Bookmark:</label>
 
@@ -75,6 +79,50 @@
     </div>
     <script>$('#create-bookmark-modal').on('shown.bs.modal', function() {$(this).find('input:first').focus();});</script>
 
+    <div class="modal fade" id="input-load-file-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Upload File</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form action="/upload_file/{{session_uuid}}/" method="POST" id='input-load-file-modal-form' enctype=multipart/form-data>
+                        <div class="form-group">
+                            <h5 class="modal-title" id="exampleModalLabel">Upload File</h5>
+                            <div class="custom-file">
+                                <input type="hidden" name='command' value='open'>
+                                <input type="file" class="custom-file-input" id="customFile" name='file' enctype=multipart/form-data>
+                                <label class="custom-file-label" for="customFile">Choose File</label>
+                                <input id="custom-server-file-name" type="hidden" name='filename' value='tbd'>
+                            </div>
+                        </div>
+                    </form>
+
+                    <script>
+                        $(document).ready(function() {
+                            $('.custom-file-input').on('change', function() {
+                                let fileName = $(this)[0].files[0].name;
+                                $(this).next('.custom-file-label').addClass("selected").html(fileName);
+                                $('#custom-server-file-name')[0].value='{{upload_folder}}' + '/' + fileName;
+                                console.log($('#custom-server-file-name')[0]);
+                                // $(this).next('.custom-server-file-name').val('rockin');
+
+                            });
+                        });
+                    </script>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" form="input-load-file-modal-form" value="Upload">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="modal fade" id="input-read-query-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -85,7 +133,7 @@
             </button>
             </div>
             <div class="modal-body">
-                <form action="/command/{{session_uuid}}" method="POST" id='input-read-query-modal-form'>
+                <form action="/command/{{session_uuid}}/" method="POST" id='input-read-query-modal-form'>
                 <div class="form-group">
                     <label for="bookmark-input" class="col-form-label">Database URI:</label>
                     <input class="form-control" name='uri' value="postgresql://limsreader@limsdb2:5432/lims2">

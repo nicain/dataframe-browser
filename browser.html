@@ -19,7 +19,7 @@
                 {% if uuid_table_list|length > 1 %}
 
                 <div class="card-header py-2 pl-1 pr-1">
-                    <form class="form-inline" action="/command/{{session_uuid}}" method="POST">
+                    <form class="form-inline" action="/command/{{session_uuid}}/" method="POST">
 
                             <input type="hidden" name='frames' value='{{frame_index}}'>
                             <button type="submit" class="btn btn-danger btn-sm float-right py-1 ml-2" name="command" value="drop">

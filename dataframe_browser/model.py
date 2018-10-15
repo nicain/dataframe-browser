@@ -90,6 +90,8 @@ class Model(object):
 
     @property
     def all_active_columns(self):
+        if self.active is None:
+            return []
         return self.active.all_columns
 
     @property
@@ -98,14 +100,21 @@ class Model(object):
 
     @property
     def active_is_leaf(self):
+        if self.active is None:
+            return False
         return len(self.active.children) == 0
 
     @property
     def active_is_bookmarked(self):
+        if self.active is None:
+            return False
         return not self.active.name is None
 
     @property
     def number_of_active_frames(self):
+        if self.active is None:
+            return 0
+
         return len(self.active.node_frames)
 
     @property
@@ -127,7 +136,7 @@ class Model(object):
     def groupable_columns_dict(self):
         return_dict = {}
 
-        if len(self.active.node_frames) == 0:
+        if self.active is None or len(self.active.node_frames) == 0:
             return return_dict
 
         for c in self.active.node_frames[0].df.columns:
@@ -148,6 +157,8 @@ class Model(object):
 
     @property
     def all_index_columns(self):
+        if self.active is None:
+            return []
 
         L = [set([str(x) for x in node_frame.index_cols]) for node_frame in self.active.node_frames]
         if len(L) == 0:
