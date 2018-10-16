@@ -131,7 +131,7 @@ def cmd_post(session_uuid):
             dfb.read(**data)
         elif command == 'open':
             dfb.open(**data)
-            if str(os.path.dirname(one(data['filename']))) == str(app.config['UPLOAD_FOLDER']):
+            if isinstance(data['filename'], (list, tuple)) and str(os.path.dirname(one(data['filename']))) == str(app.config['UPLOAD_FOLDER']):
                 flash('File uploaded: {filename}'.format(filename=os.path.basename(one(data['filename']))), category='info')
         elif command == 'groupby':
             dfb.groupby(**data)

@@ -26,6 +26,8 @@ class Cursor(object):
         result = requests.post(self.command, json=json.dumps(kwargs))
         if result.status_code != 200:
             result.raise_for_status()
+        if reload and kwargs['command'] != 'reload':
+            self.reload()
         return self
 
     def open(self, filename=None, reload=False):
