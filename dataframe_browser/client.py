@@ -2,11 +2,12 @@ import requests
 import pgpasslib
 import json
 import uuid
+from IPython.display import HTML, display
 
 
 class Cursor(object):
 
-    def __init__(self, port=5000, hostname='localhost', session_uuid=None):
+    def __init__(self, port=5000, hostname='nicholasc-ubuntu', session_uuid=None):
 
         uuid_length = 32
 
@@ -19,11 +20,33 @@ class Cursor(object):
         self.session_uuid = session_uuid
     
     @property
-    def command(self):
-        return 'http://{hostname}:{port}/command/{session_uuid}/'.format(hostname=self.hostname, port=self.port, session_uuid=self.session_uuid)
+    def uri_template(self):
+        return 'http://{hostname}:{port}/{base}/{session_uuid}/'.format(base='{base}', hostname=self.hostname, port=self.port, session_uuid=self.session_uuid)
+
+    @property
+    def command_uri(self):
+        return self.uri_template.format(base='command')
+
+    @property
+    def browser_uri(self):
+        return self.uri_template.format(base='browser')
+
+    @staticmethod
+    def cell_width(width='90%'):
+        return display(HTML("<style>.container {{ width:{width} !important; }}</style>".format(width=width)))
+
+    def get_iframe(self, base='browser', height=350, width=None):
+        if width is None:
+            return '''<iframe  style="width: 100%; border: none" src={uri} height={height}></iframe>'''.format(uri=self.uri_template.format(base=base), height=height)
+        else:
+            return '''<iframe  style="border: none" src={uri} width={width} height={height}></iframe>'''.format(uri=self.uri_template.format(base=base), width=width, height=height)
+
+
+    def display(self, base='browser', width=None, height=500):
+        return HTML(self.get_iframe(base=base, width=width, height=height))
 
     def run(self, **kwargs):
-        result = requests.post(self.command, json=json.dumps(kwargs))
+        result = requests.post(self.command_uri, json=json.dumps(kwargs))
         if result.status_code != 200:
             result.raise_for_status()
         if reload and kwargs['command'] != 'reload':
