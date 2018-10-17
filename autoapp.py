@@ -9,7 +9,6 @@ from dataframe_browser.utilities import one, generate_uuid
 import dataframe_browser
 import traceback
 from dataframe_browser.mappers import mapper_library_dict
-from dataframe_browser.client import Cursor
 import pgpasslib
 import io
 import dill
@@ -265,7 +264,13 @@ def cursor_uuid(session_uuid):
 
     url_obj = urlparse.urlparse(request.url_root)
 
-    c = Cursor(port=url_obj.port, hostname=url_obj.hostname, session_uuid=session_uuid)
+    cursor_file_name = os.path.join(os.path.dirname(__file__),'dataframe_browser', 'data', 'cursor.p')
+
+    c = dill.load(open(cursor_file_name, 'r'))
+    c.port = url_obj.port
+    c.hostname = url_obj.hostname
+    c.session_uuid = session_uuid=session_uuid
+
     buf = io.BytesIO()
     dill.dump(c, buf)
 

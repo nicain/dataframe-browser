@@ -1,0 +1,1 @@
+This folder contains cursor objects serialized with dill, to be provided via the api /cursor/session_uuid/ 

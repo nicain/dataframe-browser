@@ -1,15 +1,10 @@
 import requests
-import json
-import pandas as pd
-import uuid
-from IPython.display import HTML, display
-import io
-
 
 class Cursor(object):
 
     def __init__(self, port=5000, hostname='nicholasc-ubuntu', session_uuid=None):
 
+        import uuid
         uuid_length = 32
 
         if session_uuid is None:
@@ -32,6 +27,7 @@ class Cursor(object):
 
     @staticmethod
     def cell_width(width='90%'):
+        from IPython.display import HTML, display
         return display(HTML("<style>.container {{ width:{width} !important; }}</style>".format(width=width)))
 
     def get_iframe(self, base='browser', height=350, width=None):
@@ -42,9 +38,11 @@ class Cursor(object):
 
 
     def display(self, base='browser', width=None, height=500):
+        from IPython.display import HTML
         return HTML(self.get_iframe(base=base, width=width, height=height))
 
     def run(self, **kwargs):
+        import json
         result = requests.post(self.uri(base='command'), json=json.dumps(kwargs))
         if result.status_code != 200:
             result.raise_for_status()
@@ -95,6 +93,8 @@ class Cursor(object):
         return self.run(command='transpose', index=index, reload=reload)
 
     def upload(self, df, reload=True):
+        import json
+        import io
 
         buf = io.BytesIO()
         df.to_csv(buf)
@@ -106,10 +106,14 @@ class Cursor(object):
 
     @property
     def active_uuid(self):
+        import json
         return requests.post(self.uri(base='active_uuid', include_session_uuid=False), json=json.dumps({'session_uuid':self.session_uuid})).json()['active_uuid']
 
     @property
     def data(self):
+        import json
+        import pandas as pd
+
         if self._nodedata_and_uuid is None or self._nodedata_and_uuid[1] != self.active_uuid:
             node_dict = {key:pd.DataFrame(val) for key, val in requests.post(self.uri(base='active')).json().items()}
             if len(node_dict) == 1:
@@ -127,18 +131,17 @@ class Cursor(object):
         print 'HALP' # TODO: rework CLI argparse to print meaningful help
 
 
-
-
 if __name__ == "__main__":
 
-    c = Cursor(session_uuid='dev')
-    c.upload(pd.DataFrame({'a':[1,2], 's':[4,5]}))
+    # This generates a cursor that can be served from the /cursor/<session_uuid>/
+    #  out of the save folder, with only basic dependencies on the client environment
 
-
-    # c.query('area=="VISpm"')
-    # c.keep(['area', 'dsi_dg', 'osi_dg', 'g_dsi_dg',]).reload()
-    # c.groupby('area')
+    c = Cursor(session_uuid=False)
     
+    import dill, os
+    save_file_name = os.path.join(os.path.dirname(__file__), 'data', 'cursor.p')
+
+    dill.dump(c, open(save_file_name, 'w'))
 
 
  
