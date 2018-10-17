@@ -1,6 +1,6 @@
 from nodeframe import NodeFrame
 import dataframe_browser as dfb
-from utilities import one
+from utilities import one, generate_uuid
 from collections import OrderedDict as OD
 import pandas as pd
 
@@ -30,8 +30,12 @@ class Node(object):
         else:
             assert isinstance(self.parent, Node)
             self.parent._children.append(self)
-    
 
+        self._uuid = generate_uuid()
+    
+    @property
+    def uuid(self):
+        return self._uuid
     
     @property
     def all_columns(self):

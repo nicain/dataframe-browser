@@ -86,15 +86,30 @@ def browser_get(session_uuid):
         dfb.model.set_active(dfb.model.root)
         return render_template('browser.html', version=dataframe_browser.__version__, lims_password=lims_password)
 
-@app.route("/active/<ii>/", methods=['POST', 'GET']) 
-def get_active_ii(ii):
-    raise Exception('BROKEN')
-    return dfb.active.node_frames[int(ii)].df.to_json()
+# @app.route("/active/<ii>/", methods=['POST', 'GET']) 
+# def get_active_ii(ii):
+#     raise Exception('BROKEN')
+#     return dfb.active.node_frames[int(ii)].df.to_json()
 
-@app.route("/active/", methods=['POST', 'GET']) 
-def get_active():
-    raise Exception('BROKEN')
+@app.route("/active/<session_uuid>/", methods=['POST', 'GET']) 
+def get_active(session_uuid):
+
+    dfb = dfb_dict[session_uuid]
+
     return json.dumps({str(ii):dfb.active.node_frames[int(ii)].df.to_dict() for ii in range(len(dfb.active.node_frames))})
+
+@app.route("/active_uuid/", methods=['POST', 'GET']) 
+def get_active_uuid():
+
+    session_uuid = json.loads(request.json)['session_uuid']
+    dfb = dfb_dict[session_uuid]
+
+    return json.dumps({'active_uuid':dfb.model.active.uuid})
+
+@app.route("/upload_folder/", methods=['POST', 'GET']) 
+def get_upload_folder():
+
+    return json.dumps({'upload_folder':app.config['UPLOAD_FOLDER']})
 
 @app.route("/bookmarks/", methods=['POST'])
 def bookmarks():
@@ -131,7 +146,7 @@ def cmd_post(session_uuid):
             dfb.read(**data)
         elif command == 'open':
             dfb.open(**data)
-            if str(os.path.dirname(one(data['filename']))) == str(app.config['UPLOAD_FOLDER']):
+            if isinstance(data['filename'], (list, tuple)) and str(os.path.dirname(one(data['filename']))) == str(app.config['UPLOAD_FOLDER']):
                 flash('File uploaded: {filename}'.format(filename=os.path.basename(one(data['filename']))), category='info')
         elif command == 'groupby':
             dfb.groupby(**data)
@@ -208,7 +223,7 @@ def sandbox2():
     print dict(request.form)
     return json.dumps(dict(request.form))
 
-@app.route('/upload_file/<session_uuid>/', methods=['GET', 'POST'])
+@app.route('/upload/<session_uuid>/', methods=['GET', 'POST'])
 def upload_file(session_uuid):
     if request.method == 'POST':
 

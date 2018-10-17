@@ -75,13 +75,13 @@
 
 
 <script> 
-$(document).ready(function(){ 
-var socket = io.connect('http://' + document.domain + ':' + location.port); 
-socket.on('reload', function() {
-    console.log('reload request received'); 
-    window.location.reload(true);  
+    $(document).ready(function(){
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+        socket.on('reload', function() {
+            console.log('reload request received');
+            window.location.reload(true);
+            });
     }); 
-}); 
 </script> 
 
 <script>
