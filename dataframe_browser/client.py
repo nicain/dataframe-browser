@@ -50,8 +50,8 @@ class Cursor(object):
             self.reload()
         return self
 
-    def open(self, filename=None, reload=True):
-        return self.run(command='open', filename=filename, reload=reload)
+    def open(self, filename=None, index_col=None, reload=True):
+        return self.run(command='open', filename=filename, index_col=index_col,reload=reload)
 
     def read(self, query=None, uri=None, filename=None, reload=True, password=None):
         return self.run(command='read', filename=filename, query=query, uri=uri, reload=reload)
