@@ -1,11 +1,9 @@
 import requests
-import pgpasslib
 import json
 import pandas as pd
 import uuid
 from IPython.display import HTML, display
 import io
-import os
 
 
 class Cursor(object):
@@ -102,7 +100,7 @@ class Cursor(object):
         df.to_csv(buf)
         buf.seek(0)
         upload_folder = requests.post(self.uri(base='upload_folder', include_session_uuid=False)).json()['upload_folder']
-        server_file_name = os.path.join(upload_folder, 'file.csv')
+        server_file_name = "{folder}/{file}".format(folder=upload_folder, file='file.csv') # dont use os.path because this is a path on the server not client
         requests.post(self.uri(base='upload'), files={'file':('file.csv', buf)}, data={'filename':[server_file_name], 'command':['open']})
         self.reload()
 

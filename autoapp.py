@@ -9,7 +9,11 @@ from dataframe_browser.utilities import one, generate_uuid
 import dataframe_browser
 import traceback
 from dataframe_browser.mappers import mapper_library_dict
+from dataframe_browser.client import Cursor
 import pgpasslib
+import io
+import dill
+import urlparse
 
 
 ALLOWED_EXTENSIONS = ['csv', 'p', 'pkl']
@@ -247,6 +251,26 @@ def upload_file(session_uuid):
             return redirect(request.url)
 
     return render_template('browser.html') 
+
+@app.route('/cursor/')
+def cursor():
+
+    session_uuid = generate_uuid()
+    dfb_dict[session_uuid] = DataFrameBrowser(session_uuid=session_uuid)
+
+    return redirect(urlparse.urljoin(request.url, session_uuid))
+
+@app.route('/cursor/<session_uuid>/')
+def cursor_uuid(session_uuid):
+
+    url_obj = urlparse.urlparse(request.url_root)
+
+    c = Cursor(port=url_obj.port, hostname=url_obj.hostname, session_uuid=session_uuid)
+    buf = io.BytesIO()
+    dill.dump(c, buf)
+
+    return buf.getvalue()
+
 
 if __name__ == "__main__":
     
