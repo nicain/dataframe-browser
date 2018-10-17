@@ -127,18 +127,17 @@ class Cursor(object):
         print 'HALP' # TODO: rework CLI argparse to print meaningful help
 
 
-
-
 if __name__ == "__main__":
 
-    c = Cursor(session_uuid='dev')
-    c.upload(pd.DataFrame({'a':[1,2], 's':[4,5]}))
+    # This generates a cursor that can be served from the /cursor/<session_uuid>/
+    #  out of the save folder, with only basic dependencies on the client environment
 
-
-    # c.query('area=="VISpm"')
-    # c.keep(['area', 'dsi_dg', 'osi_dg', 'g_dsi_dg',]).reload()
-    # c.groupby('area')
+    c = Cursor(session_uuid=False)
     
+    import dill, os
+    save_file_name = os.path.join(os.path.dirname(__file__), 'data', 'cursor.p')
+
+    dill.dump(c, open(save_file_name, 'w'))
 
 
  
