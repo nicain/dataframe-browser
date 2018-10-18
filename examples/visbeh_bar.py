@@ -2,7 +2,7 @@ from dataframe_browser.client import Cursor
 
 c = Cursor()
 
-c.open(filename='/home/nicholasc/projects/dataframe-browser/data/visbeh.csv')
+c.open(filename='/home/nicholasc/projects/dataframe-browser/data/visbeh.csv', index_col=0)
 c.fold(['driver1_name', 'LabTracks_ID'])
 
 # c.apply(columns=['stage_name'], mapper='widgets.bar_chart', new_column='bokeh', lazy=True).reload()

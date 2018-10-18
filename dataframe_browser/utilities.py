@@ -42,7 +42,7 @@ def fn_timer(function):
 def load_file(filename, **kwargs):
 
     if filename[-4:] == '.csv':
-            df = pd.read_csv(filename, index_col=kwargs.get('index_col', 0))
+        df = pd.read_csv(filename, index_col=kwargs.get('index_col', None))
     elif filename[-2:] == '.p':
         df = pd.read_pickle(filename)
     else:
