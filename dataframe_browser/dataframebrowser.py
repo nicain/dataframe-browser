@@ -24,10 +24,11 @@ class DataFrameBrowser(object):
         controller_kwargs = kwargs.get('controller_kwargs', {})
         self.controller = kwargs.get('controller_class', TextController)(app=self, **controller_kwargs)
 
-    def open(self, filename=None, bookmark=None, index_col=None):
+    def open(self, filename=None, bookmark=None, index_col=None, header=None, sheet_name=0):
 
         if not isinstance(filename, (unicode, str)):
             filename = one(filename)
+
         if isinstance(index_col, (list, tuple)):
             index_col = one(index_col)
             if isinstance(index_col, (unicode, str)):
@@ -37,7 +38,11 @@ class DataFrameBrowser(object):
                 else:
                     index_col = int(index_col)
 
-        new_node = self.controller.open_node_from_file(filename=filename, bookmark=bookmark, index_col=index_col)
+        new_node = self.controller.open_node_from_file(filename=filename, 
+                                                       bookmark=bookmark, 
+                                                       index_col=index_col,
+                                                       header=header,
+                                                       sheet_name=sheet_name)
         self.model.set_active(new_node)
         if bookmark is not None:
             self.bookmark(bookmark)

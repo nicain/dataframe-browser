@@ -19,7 +19,7 @@ class TextController(object):
             raise FileNotFoundError('Source not found: "{0}"\n'.format(os.path.basename(filename)))
 
         try:
-            df, load_time = load_file(filename, index_col=kwargs.get('index_col', None))
+            df, load_time = load_file(filename, **kwargs)
         except UnrecognizedFileTypeException:
                     
             self.app.view.display_message('File extension not in (csv/p): {0}\n'.format(filename), type='error')

@@ -41,10 +41,16 @@ def fn_timer(function):
 @fn_timer
 def load_file(filename, **kwargs):
 
-    if filename[-4:] == '.csv':
-        df = pd.read_csv(filename, index_col=kwargs.get('index_col', None))
-    elif filename[-2:] == '.p':
+    index_col = kwargs.get('index_col', None)
+    sheet_name = kwargs.get('sheet_name', 0)
+    header = kwargs.get('header', 0)
+
+    if filename.endswith('.csv'):
+        df = pd.read_csv(filename, index_col=index_col)
+    elif filename.endswith('.p'):
         df = pd.read_pickle(filename)
+    elif filename.endswith('.xls') or filename.endswith('.xlsx'):
+        df = pd.read_excel(filename, sheet_name=sheet_name, index_col=index_col, header=header)
     else:
         raise UnrecognizedFileTypeException(filename)
     
