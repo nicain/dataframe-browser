@@ -24,12 +24,20 @@ class DataFrameBrowser(object):
         controller_kwargs = kwargs.get('controller_kwargs', {})
         self.controller = kwargs.get('controller_class', TextController)(app=self, **controller_kwargs)
 
-    def open(self, filename=None, bookmark=None):
+    def open(self, filename=None, bookmark=None, index_col=None):
 
         if not isinstance(filename, (unicode, str)):
             filename = one(filename)
+        if isinstance(index_col, (list, tuple)):
+            index_col = one(index_col)
+            if isinstance(index_col, (unicode, str)):
+                index_col = str(index_col)
+                if index_col.lower() in ('none', ''):
+                    index_col = None
+                else:
+                    index_col = int(index_col)
 
-        new_node = self.controller.open_node_from_file(filename=filename, bookmark=bookmark)
+        new_node = self.controller.open_node_from_file(filename=filename, bookmark=bookmark, index_col=index_col)
         self.model.set_active(new_node)
         if bookmark is not None:
             self.bookmark(bookmark)
@@ -206,52 +214,3 @@ class DataFrameBrowser(object):
 if __name__ == "__main__":    
     
     pass
-    # from dataframe_browser.dataframebrowser import DataFrameBrowser
-    # import pgpasslib
-
-
-
-    # dfb = DataFrameBrowser()
-    # dfb.read(query=query, uri='postgresql://limsreader:{password}@limsdb2:5432/lims2'.format(password=pgpasslib.getpass('limsdb2', 5432, 'lims2', 'limsreader')))
-
-    # requests.post('http://localhost:5000/command/{session_uuid}/', data={
-    #     'command':'open',
-    #     'filename':'/home/nicholasc/projects/dataframe-browser/tests/example.csv'
-    #     })
-
-
-    # requests.post('http://localhost:5000/command/{session_uuid}/', data={
-    #     'command':'read',
-    #     'query':'''SELECT wkfnwb.storage_directory || wkfnwb.filename AS nwb_file, oe.experiment_container_id AS experiment_container_id, oe.ophys_session_id AS ophys_session_id
-    #         FROM experiment_containers ec JOIN ophys_experiments oe ON oe.experiment_container_id=ec.id AND oe.workflow_state = 'passed'
-    #         JOIN images mip ON mip.id=oe.maximum_intensity_projection_image_id
-    #         JOIN well_known_files wkfnwb ON wkfnwb.attachable_id=oe.id JOIN well_known_file_types wkft ON wkft.id=wkfnwb.well_known_file_type_id AND wkft.name = 'NWBOphys'
-    #         JOIN ophys_sessions os ON os.id=oe.ophys_session_id JOIN projects osp ON osp.id=os.project_id
-    #         WHERE osp.code = 'C600' AND ec.workflow_state NOT IN ('failed')
-    #         AND ec.workflow_state = 'published';''',
-    #     'uri':'postgresql://limsreader:{password}@limsdb2:5432/lims2'.format(password=pgpasslib.getpass('limsdb2', 5432, 'lims2', 'limsreader'))
-    #     })
-
-
-    # # dfb.apply(column='nwb_file', mapper='nwb_file_to_max_projection', mapper_library='dataframe_browser.mappers.brain_observatory', new_column='max_projection', lazy=True)
-    # dfb = DataFrameBrowser()
-    # dfb.read(query=query, uri='postgresql://limsreader:{password}@limsdb2:5432/lims2'.format(password=password))
-    # # dfb.apply(column='nwb_file', mapper='test_apply', mapper_library='dataframe_browser.mappers.load_test', new_column='test')
-    # dfb.apply(column='nwb_file', mapper='nwb_file_to_dff_traces_heatmap', mapper_library='dataframe_browser.mappers.brain_observatory', new_column='max_projection', lazy=True)
-
-    # example_df_path = '/home/nicholasc/projects/dataframe-browser/tests/example.csv'
-    # example_df_path = '/home/nicholasc/projects/dataframe-browser/data/BOb_data.p'
-    # example2_df_path = '/home/nicholasc/projects/dataframe-browser/tests/example2.csv'
-    # dfb = DataFrameBrowser()
-    # dfb.open(filename=example_df_path, bookmark='A')
-    # dfb.open(filename=example2_df_path, bookmark='B')
-    # dfb.append('A', force=True, new_bookmark='C')
-    # dfb.groupby('c')
-    # dfb.unbookmark('C')
-    # dfb.select('C[0]', 'a')
-    # dfb.append('A')
-    # dfb.bookmark('new')
-    # dfb.merge(['a', 'c'], how='right')
-    # dfb.info()
-    # dfb.query('a==2')
-

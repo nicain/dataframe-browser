@@ -50,8 +50,8 @@ class Cursor(object):
             self.reload()
         return self
 
-    def open(self, filename=None, reload=True):
-        return self.run(command='open', filename=filename, reload=reload)
+    def open(self, filename=None, index_col=None, reload=True):
+        return self.run(command='open', filename=filename, index_col=index_col,reload=reload)
 
     def read(self, query=None, uri=None, filename=None, reload=True, password=None):
         return self.run(command='read', filename=filename, query=query, uri=uri, reload=reload)
@@ -97,11 +97,12 @@ class Cursor(object):
         import io
 
         buf = io.BytesIO()
-        df.to_csv(buf)
+        df.to_pickle(buf)
         buf.seek(0)
+        fname = 'file.p'
         upload_folder = requests.post(self.uri(base='upload_folder', include_session_uuid=False)).json()['upload_folder']
-        server_file_name = "{folder}/{file}".format(folder=upload_folder, file='file.csv') # dont use os.path because this is a path on the server not client
-        requests.post(self.uri(base='upload'), files={'file':('file.csv', buf)}, data={'filename':[server_file_name], 'command':['open']})
+        server_file_name = "{folder}/{file}".format(folder=upload_folder, file=fname) # dont use os.path because this is a path on the server not client
+        requests.post(self.uri(base='upload'), files={'file':(fname, buf)}, data={'filename':[server_file_name], 'command':['open']})
         self.reload()
 
     @property
