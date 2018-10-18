@@ -100,6 +100,12 @@
                                 <input type="file" class="custom-file-input" id="customFile" name='file' enctype=multipart/form-data>
                                 <label class="custom-file-label" for="customFile">Choose File</label>
                                 <input id="custom-server-file-name" type="hidden" name='filename' value='tbd'>
+                                <div class="form-group row">
+                                    <label class="col-form-label mt-2 ml-3" style="display:none" id="input-load-file-modal-index_col-label" for="input-load-file-modal-index_col">Index Column:</label>
+                                    <div class="col-sm-4">
+                                        <input type="text" style="display:none" class="form-control mt-2" placeholder='None' name="index_col" id="input-load-file-modal-index_col">
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </form>
@@ -110,9 +116,14 @@
                                 let fileName = $(this)[0].files[0].name;
                                 $(this).next('.custom-file-label').addClass("selected").html(fileName);
                                 $('#custom-server-file-name')[0].value='{{upload_folder}}' + '/' + fileName;
-                                console.log($('#custom-server-file-name')[0]);
-                                // $(this).next('.custom-server-file-name').val('rockin');
-
+                                let csvFile = $('#custom-server-file-name')[0].value.endsWith(".csv");
+                                if (csvFile) {
+                                    $('#input-load-file-modal-index_col').show();
+                                    $('#input-load-file-modal-index_col-label').show();
+                                } else {
+                                    $('#input-load-file-modal-index_col').hide();
+                                    $('#input-load-file-modal-index_col-label').hide();
+                                };
                             });
                         });
                     </script>
