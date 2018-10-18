@@ -23,24 +23,28 @@
                     <form class="form" action="/command/{{session_uuid}}/" method="POST">
                         <input type="hidden" name='filename' value='/home/nicholasc/projects/dataframe-browser/data/example.csv'>
                         <input type="hidden" name='bookmark' value='Hello World'>
+                        <input type="hidden" name='index_col' value=0>
                         <button type="submit" class="dropdown-item" name="command" value="open" >Hello World</button>
                     </form>
 
                     <form class="form" action="/command/{{session_uuid}}/" method="POST">
                         <input type="hidden" name='filename' value='/home/nicholasc/projects/dataframe-browser/data/visbeh.csv'>
                         <input type="hidden" name='bookmark' value='Visual Behavior'>
+                        <input type="hidden" name='index_col' value=0>
                         <button type="submit" class="dropdown-item" name="command" value="open" id='cell-counting-button'>Visual Behavior</button>
                     </form>
 
                     <form class="form" action="/command/{{session_uuid}}/" method="POST">
                         <input type="hidden" name='filename' value='/home/nicholasc/projects/dataframe-browser/data/cell_counting.csv'>
                         <input type="hidden" name='bookmark' value='Cell Counting'>
+                        <input type="hidden" name='index_col' value=0>
                         <button type="submit" class="dropdown-item" name="command" value="open" id='cell-counting-button'>Cell Counting</button>
                     </form>
 
                     <form class="form" action="/command/{{session_uuid}}/" method="POST">
                         <input type="hidden" name='filename' value='/home/nicholasc/projects/dataframe-browser/data/load_images.csv'>
                         <input type="hidden" name='bookmark' value='Brain Observatory'>
+                        <input type="hidden" name='index_col' value=0>
                         <button type="submit" class="dropdown-item" name="command" value="open">Brain Observatory</button>
                     </form>
 
