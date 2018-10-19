@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name = 'dataframe-browser',
-    version = "version="0.1.2.dev3"",
+    version = "version="0.1.2.dev4"",
     description = """Interactive pandas dataframe browser""",
     author = "Nicholas Cain",
     author_email = "nicain.seattle@gmail.com",
