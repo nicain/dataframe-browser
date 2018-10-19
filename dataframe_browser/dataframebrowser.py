@@ -38,6 +38,22 @@ class DataFrameBrowser(object):
                 else:
                     index_col = int(index_col)
 
+        if isinstance(sheet_name, (list, tuple)):
+            sheet_name = one(sheet_name)
+            if isinstance(sheet_name, (unicode, str)):
+                sheet_name = str(sheet_name)
+                if sheet_name.lower() in ('none', ''):
+                    sheet_name = 0
+
+        if isinstance(header, (list, tuple)):
+            header = one(header)
+            if isinstance(header, (unicode, str)):
+                header = str(header)
+                if header.lower() in ('none', ''):
+                    header = None
+                else:
+                    header = int(header)
+
         new_node = self.controller.open_node_from_file(filename=filename, 
                                                        bookmark=bookmark, 
                                                        index_col=index_col,

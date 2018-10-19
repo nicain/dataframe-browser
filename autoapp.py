@@ -15,7 +15,7 @@ import dill
 import urlparse
 
 
-ALLOWED_EXTENSIONS = ['csv', 'p', 'pkl']
+ALLOWED_EXTENSIONS = ['csv', 'p', 'pkl', 'xls', 'xlsx']
 UPLOAD_FOLDER = '/home/nicholasc/tmp/upload'
 def allowed_file(filename):
     return '.' in filename and \
