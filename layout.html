@@ -106,6 +106,18 @@
                                         <input type="text" style="display:none" class="form-control mt-2" placeholder='None' name="index_col" id="input-load-file-modal-index_col">
                                     </div>
                                 </div>
+                                <div class="form-group row">
+                                    <label class="col-form-label mt-2 ml-3" style="display:none" id="input-load-file-modal-header-label" for="input-load-file-modal-index_col">Header:</label>
+                                    <div class="col-sm-4">
+                                        <input type="text" style="display:none" class="form-control mt-2" placeholder='0' name="header" id="input-load-file-modal-header">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-form-label mt-2 ml-3" style="display:none" id="input-load-file-modal-sheet_name-label" for="input-load-file-modal-index_col">Sheet Name:</label>
+                                    <div class="col-sm-4">
+                                        <input type="text" style="display:none" class="form-control mt-2" placeholder='0' name="sheet_name" id="input-load-file-modal-sheet_name">
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </form>
@@ -117,12 +129,25 @@
                                 $(this).next('.custom-file-label').addClass("selected").html(fileName);
                                 $('#custom-server-file-name')[0].value='{{upload_folder}}' + '/' + fileName;
                                 let csvFile = $('#custom-server-file-name')[0].value.endsWith(".csv");
-                                if (csvFile) {
+                                let xlsFile = $('#custom-server-file-name')[0].value.endsWith(".xlsx");
+                                let xlsxFile = $('#custom-server-file-name')[0].value.endsWith(".xlsx");
+                                if (csvFile || xlsFile || xlsxFile) {
                                     $('#input-load-file-modal-index_col').show();
                                     $('#input-load-file-modal-index_col-label').show();
                                 } else {
                                     $('#input-load-file-modal-index_col').hide();
                                     $('#input-load-file-modal-index_col-label').hide();
+                                };
+                                if (xlsFile || xlsxFile) {
+                                    $('#input-load-file-modal-header').show();
+                                    $('#input-load-file-modal-header-label').show();
+                                    $('#input-load-file-modal-sheet_name').show();
+                                    $('#input-load-file-modal-sheet_name-label').show();
+                                } else {
+                                    $('#input-load-file-modal-header').hide();
+                                    $('#input-load-file-modal-header-label').hide();
+                                    $('#input-load-file-modal-sheet_name').show();
+                                    $('#input-load-file-modal-sheet_name-label').show();
                                 };
                             });
                         });
