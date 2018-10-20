@@ -212,6 +212,8 @@ def cmd_post(session_uuid):
             dfb.bookmark(**data)
         elif command == 'transpose':
             dfb.transpose(**data)
+        elif command == 'mapper':
+            dfb.mapper(**data)
         elif command == 'reload':
             reload_bool = True
         else:

@@ -166,7 +166,7 @@ class DataFrameBrowser(object):
         self.model.set_active(node)
 
     # TODO Make lazy a button on web form
-    def apply(self, columns=None, mapper=None, new_column=None, lazy=True, drop=False):
+    def apply(self, columns=None, mapper=None, new_column=None, lazy=True, drop=False, dillify=False):
 
         if isinstance(new_column, (list, tuple)):
             new_column = one(new_column)
@@ -177,10 +177,9 @@ class DataFrameBrowser(object):
         if isinstance(drop, (list, tuple)):
             drop = bool(one(drop))
 
-        new_node_list = self.active.apply(columns=columns, mapper=mapper, new_column=new_column, lazy=lazy, drop=drop)
+        new_node_list = self.active.apply(columns=columns, mapper=mapper, new_column=new_column, lazy=lazy, drop=drop, dillify=dillify)
         self.model.set_active(new_node_list[0])
         # THIS IS BUSTED, should not arbitratily pick node 0
-        self.view.display_active()
 
     def back(self, N=1):
 

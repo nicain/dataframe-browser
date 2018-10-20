@@ -4,6 +4,7 @@ from dataframe_browser.cache import get_cache
 import json
 from flask_cors import CORS
 import hashlib
+import dill
 
 r = get_cache(cache_type='redis')
 

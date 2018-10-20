@@ -6,6 +6,7 @@ import json
 from flask import flash
 import numpy as np
 import copy
+import dill
 
 # TODO: Move to utilities
 def memory_usage(df, deep=True):
@@ -308,7 +309,10 @@ class NodeFrame(object):
         else:
 
             # Will still need for non-server mode (aka lazy=false)
-            apply_fcn = mapper_library_dict[kwargs['mapper']]
+            if kwargs.get('dillify', False):
+                apply_fcn = dill.loads(kwargs['mapper'].encode('latin1'))
+            else:
+                apply_fcn = mapper_library_dict[kwargs['mapper']]
 
 
         if isinstance(kwargs['columns'], (list,tuple)) and len(kwargs['columns']) > 1:

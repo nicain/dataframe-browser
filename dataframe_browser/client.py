@@ -2,19 +2,23 @@ import requests
 
 class Cursor(object):
 
-    def __init__(self, port=5000, hostname='nicholasc-ubuntu', session_uuid=None):
-
+    @staticmethod
+    def get_new_uuid():
         import uuid
         uuid_length = 32
+        return uuid.uuid4().hex[:uuid_length]
+
+    def __init__(self, port=5000, hostname='nicholasc-ubuntu', session_uuid=None):
 
         if session_uuid is None:
-            u = uuid.uuid4()
-            session_uuid = u.hex[:uuid_length]
+            session_uuid = self.get_new_uuid()
 
         self.port = port
         self.hostname = hostname
         self.session_uuid = session_uuid
         self._nodedata_and_uuid = None
+    
+
     
     def uri_template(self, include_session_uuid=True):
         if include_session_uuid == True:
@@ -46,8 +50,10 @@ class Cursor(object):
         result = requests.post(self.uri(base='command'), json=json.dumps(kwargs))
         if result.status_code != 200:
             result.raise_for_status()
-        if reload and kwargs['command'] != 'reload':
-            self.reload()
+        # if reload and kwargs['command'] != 'reload':
+        #     self.reload()
+
+        # print kwargs['command'], kwargs['reload']
         return self
 
     def open(self, filename=None, index_col=None, reload=True):
@@ -75,7 +81,17 @@ class Cursor(object):
         return self.run(command='concat', how=how, reload=reload)
     
     def apply(self, columns=None, mapper=None, new_column=None, lazy=True, reload=True, drop=False):
-        return self.run(command='apply', columns=columns, mapper=mapper, new_column=new_column, lazy=lazy, reload=reload, drop=drop)
+        import dill
+        
+        if not isinstance(mapper, (str, unicode)):
+            assert callable(mapper)
+            mapper = dill.dumps(mapper).decode('latin1')
+            dillify=True
+            lazy=False
+        else:
+            dillify=False
+
+        return self.run(command='apply', columns=columns, mapper=mapper, new_column=new_column, lazy=lazy, reload=reload, drop=drop, dillify=dillify)
 
     def reload(self):
         return self.run(command='reload', reload=True)
