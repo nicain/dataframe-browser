@@ -94,6 +94,26 @@ def browser_get(session_uuid):
 #     raise Exception('BROKEN')
 #     return dfb.active.node_frames[int(ii)].df.to_json()
 
+@app.route("/stable/<session_uuid>/<node_uuid>/<frame_index>/", methods=['GET']) 
+def stable_get(session_uuid, node_uuid, frame_index):
+
+    frame_index = int(frame_index)
+
+    dfb = dfb_dict[session_uuid]    
+
+
+    # print [n.uuid for n in dfb.model.nodes]
+    node_uuid = [n.uuid for n in dfb.model.nodes][-1]
+    # print dfb.view.display_node()
+    # uuid_table_list_frame_index = [[fi]+list(f) for fi, f in enumerate(uuid_table_list)]
+    # print uuid_table_list
+
+    node =  one([n for n in dfb.model.nodes if n.uuid == node_uuid])
+    # print
+    table_html = node.node_frames[frame_index].to_html(interactive=False)
+
+    return render_template('stable.html', table_html=table_html)
+
 @app.route("/active/<session_uuid>/", methods=['POST', 'GET']) 
 def get_active(session_uuid):
 

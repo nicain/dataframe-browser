@@ -1,0 +1,18 @@
+
+{% extends 'layout.html' %}
+
+{% block content %}
+
+
+<script type="text/javascript" class="init">
+    $(document).ready(function() {
+    $('.display').DataTable({"autoWidth": false, "scrollX": false, "lengthMenu": [5, 10, 25, 50, 75, 100 ], "pageLength": 20});
+    });
+</script>
+
+<div class="card-body">
+    {{table_html|safe}}
+</div>
+
+
+{% endblock %}
