@@ -53,7 +53,8 @@ def render_node(curr_node, session_uuid, disable_nav_bookmark_button):
                         session_uuid=session_uuid,
                         version=dataframe_browser.__version__,
                         lims_password=lims_password,
-                        upload_folder=app.config['UPLOAD_FOLDER'])
+                        upload_folder=app.config['UPLOAD_FOLDER'],
+                        permalink=request.url)
 
 def render_browser(dfb_dict, session_uuid, node_uuid_or_bookmark=None):
 
