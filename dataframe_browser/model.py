@@ -39,8 +39,14 @@ class Model(object):
         return [n for n in self.nodes if n.name is not None]
 
     @property
+    def bookmark_dict(self):
+        return {n.name:n for n in self.nodes}
+
+    @property
     def bookmarks(self):
         return [n.name for n in self.bookmarked_nodes]
+
+    
 
     def get_filtered_node_list(self, filter_fcn):
         return [n for n in self.nodes if filter_fcn(n)]

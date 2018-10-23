@@ -55,14 +55,17 @@ def render_node(curr_node, session_uuid, disable_nav_bookmark_button):
                         lims_password=lims_password,
                         upload_folder=app.config['UPLOAD_FOLDER'])
 
-def render_browser(dfb_dict, session_uuid, node_uuid=None):
+def render_browser(dfb_dict, session_uuid, node_uuid_or_bookmark=None):
 
     dfb = dfb_dict[session_uuid]
 
-    if node_uuid is None:
+    if node_uuid_or_bookmark is None:
         curr_node = dfb.model.active
     else:
-        curr_node =  one([n for n in dfb.model.nodes if n.uuid == node_uuid])
+        if node_uuid_or_bookmark in dfb.model.bookmarks:
+            curr_node = dfb.model.bookmark_dict[node_uuid_or_bookmark]
+        else:
+            curr_node =  one([n for n in dfb.model.nodes if n.uuid == node_uuid_or_bookmark])
 
     disable_nav_bookmark_button = str(curr_node in dfb.model.bookmarked_nodes or curr_node == dfb.model.root).lower()
     try:
@@ -95,10 +98,10 @@ def browser_get(session_uuid):
 
     return render_browser(dfb_dict, session_uuid)
 
-@app.route("/browser/<session_uuid>/<node_uuid>/", methods=['GET']) 
-def browser_get_node(session_uuid, node_uuid): 
+@app.route("/browser/<session_uuid>/<node_uuid_or_bookmark>/", methods=['GET']) 
+def browser_get_node(session_uuid, node_uuid_or_bookmark): 
 
-    return render_browser(dfb_dict, session_uuid, node_uuid=node_uuid)
+    return render_browser(dfb_dict, session_uuid, node_uuid_or_bookmark=node_uuid_or_bookmark)
     
 
 @app.route("/node_uuid/<session_uuid>/", methods=['GET']) 
