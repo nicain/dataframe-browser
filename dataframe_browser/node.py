@@ -1,6 +1,6 @@
 from nodeframe import NodeFrame
 import dataframe_browser as dfb
-from utilities import one, generate_uuid
+from utilities import one, generate_uuid, BeautifulSoup
 from collections import OrderedDict as OD
 import pandas as pd
 
@@ -32,6 +32,7 @@ class Node(object):
             self.parent._children.append(self)
 
         self._uuid = generate_uuid()
+        self.groupable_max_unique = 250
     
     @property
     def uuid(self):
@@ -255,3 +256,78 @@ class Node(object):
         else: 
             return {'name':str(self.name)}
 
+
+    def get_table_list(self, page_length=None, session_uuid=None):
+
+        if page_length is None:
+            page_length = 5 if len(self) > 1 else 20
+
+        table_list = []
+        for frame_index, frame in enumerate(self.node_frames):
+
+            table_html = frame.to_html(frame_index)
+            table_html = table_html.replace('{{session_uuid}}', session_uuid)
+            table_html_bs = BeautifulSoup(table_html).table
+            table_uuid = generate_uuid()
+            table_html_bs['id'] = table_uuid
+            table_list.append((frame_index, table_uuid, str(table_html_bs), page_length))
+
+        return table_list
+
+    @property
+    def groupable_columns_dict(self):
+        return_dict = {}
+
+        if len(self.node_frames) == 0:
+            return return_dict
+
+        for c in self.node_frames[0].df.columns:
+            try:
+                n_unique = len(self.node_frames[0].df[c].unique())
+                if n_unique < self.groupable_max_unique:
+                    return_dict[c] = n_unique
+            except TypeError:
+                pass
+        return return_dict
+
+    @property
+    def groupable_state(self):
+        if self.number_of_active_frames == 1 and self.foldable_state:
+            return True
+        else:
+            return False
+
+    @property
+    def foldable_state(self):
+        if len(self.groupable_columns_dict) > 0:
+            return True
+        else:
+            return False
+
+    @property
+    def number_of_active_frames(self):
+        return len(self.node_frames)
+    
+    @property
+    def can_concatenate(self):
+        if self.number_of_active_frames > 1:
+            return True
+        else:
+            return False
+
+    @property
+    def index_columns(self):
+
+        L = [set([str(x) for x in node_frame.index_cols]) for node_frame in self.node_frames]
+        if len(L) == 0:
+            return []
+        else:
+            return list(set.intersection(*L))
+
+    @property
+    def common_columns(self):
+        L = [set([str(x) for x in node_frame.columns]) for node_frame in self.node_frames]
+        if len(L) == 0:
+            return []
+        else:
+            return sorted(set.intersection(*L))

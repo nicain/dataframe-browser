@@ -54,6 +54,17 @@
         $('.alert-info').hide().delay(0).fadeIn(100).delay(2000).fadeOut(800)
     </script>
 
+    <script> 
+        $(document).ready(function(){
+            var socket = io.connect('http://' + document.domain + ':' + location.port);
+            console.log('reload script');
+            socket.on('reload', function() {
+                window.location.reload(true);
+                console.log('reload request received');
+                });
+        }); 
+    </script>
+
 
     <div class="modal fade" id="create-bookmark-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">

@@ -46,43 +46,6 @@
     {% endfor %}
 </div>
 
-<!-- <script>
-    $(function(){
-        $(document).on('click', function (e) {
-                        //    e.stopPropagation()
-
-            var target = $( e.target );
-            var ddm = $('#HW')
-            console.log(target);
-            console.log(ddm);
-            // if ( target.is( "dropdown" ) ) {
-            //     // $(this).next('.dropdown-menu').toggle();
-            //     console.log('HW');
-            //     // e.preventDefault();
-
-            // };
-
-            // var table = $('.dataframe').DataTable();
-            // table.on( 'user-select', function ( e, dt, type, cell, originalEvent ){ 
-            //                                                                     //    e.preventDefault();
-                                                                                //    console.log(e.target);
-            //                                                                       });
-            // $(this).next('.dropdown-menu').toggle();
-        });
-        // });
-    });
-</script> -->
-
-
-<script> 
-    $(document).ready(function(){
-        var socket = io.connect('http://' + document.domain + ':' + location.port);
-        socket.on('reload', function() {
-            console.log('reload request received');
-            window.location.reload(true);
-            });
-    }); 
-</script> 
 
 <script>
 $(document).ready(function(){ 
