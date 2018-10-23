@@ -107,7 +107,10 @@ def browser_get_node(session_uuid, node_uuid_or_bookmark):
 
 @app.route("/node_uuid/<session_uuid>/", methods=['GET']) 
 def node_uuid(session_uuid):
-    return dfb_dict[session_uuid].model.active.uuid
+    if dfb_dict[session_uuid].model.active.name is not None:
+        return dfb_dict[session_uuid].model.active.name
+    else:
+        return dfb_dict[session_uuid].model.active.uuid
 
 
 @app.route("/stable/<session_uuid>/<node_uuid>/<frame_index>/", methods=['GET']) 
