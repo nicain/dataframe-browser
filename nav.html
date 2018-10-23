@@ -199,7 +199,7 @@
             <label class="mr-2">Drop columns:</label>
             
             <div class="btn-group btn-group-toggle" data-toggle="buttons" role="group" aria-label="First group">
-                {% for col in all_active_columns %}
+                {% for col in columns %}
                 <label class="btn btn-outline-danger btn-sm" data-toggle="tooltip" data-placement="top" title="Unique: {{num_unique_elem}}">
                     <input type="checkbox" name="columns" value={{col}}> {{col}}
                 </label>
@@ -218,7 +218,7 @@
             <label class="mr-2">Drop columns:</label>
             
             <div class="btn-group btn-group-toggle" data-toggle="buttons" role="group" aria-label="First group">
-                {% for col in all_active_columns %}
+                {% for col in columns %}
                 <label class="btn btn-outline-success btn-sm" data-toggle="tooltip" data-placement="top" title="Unique: {{num_unique_elem}}">
                     <input type="checkbox" name="columns" value={{col}}> {{col}}
                 </label>
@@ -261,7 +261,7 @@
             <div class="form-row">
                 <div class="col">
                     <div class="btn-group btn-group-toggle" data-toggle="buttons" role="group" aria-label="First group">
-                        {% for col in all_active_columns %}
+                        {% for col in columns %}
                         <label class="btn btn-outline-success btn-sm">
                             <input type="checkbox" name="columns" value={{col}}> {{col}}
                         </label>

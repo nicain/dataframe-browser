@@ -31,6 +31,51 @@ dfb_dict = {}
 
 lims_password = pgpasslib.getpass('limsdb2', 5432, 'lims2', 'limsreader')
 
+def render_node(curr_node, session_uuid, disable_nav_bookmark_button):
+
+    uuid_table_list = curr_node.get_table_list(page_length=None, session_uuid=session_uuid)
+    active_name_str = curr_node.name if curr_node.name is not None else ''
+
+    return render_template('browser.html', 
+                        uuid_table_list=uuid_table_list, 
+                        disable_nav_parent_back = str(curr_node.parent is None).lower(),
+                        disable_nav_child_forward = str(len(curr_node.children) == 0).lower(),
+                        disable_nav_bookmark_button = disable_nav_bookmark_button,
+                        active_name_str=active_name_str,
+                        groupable_columns_dict=curr_node.groupable_columns_dict,
+                        disable_groupby_menu_button=str(not curr_node.groupable_state).lower(),
+                        disable_concatenate_menu_button=str(not curr_node.can_concatenate).lower(),
+                        columns=curr_node.common_columns,
+                        mapper_list=mapper_library_dict.keys(), # TODO get from an endpoint from CORS lazy_loader service
+                        disable_fold_menu_button=str(not curr_node.foldable_state).lower(),
+                        all_index_columns=curr_node.index_columns,
+                        disable_transpose_menu_button=str(not len(curr_node.index_columns)>0).lower(),
+                        session_uuid=session_uuid,
+                        version=dataframe_browser.__version__,
+                        lims_password=lims_password,
+                        upload_folder=app.config['UPLOAD_FOLDER'])
+
+def render_browser(dfb_dict, session_uuid, node_uuid=None):
+
+    dfb = dfb_dict[session_uuid]
+
+    if node_uuid is None:
+        curr_node = dfb.model.active
+    else:
+        curr_node =  one([n for n in dfb.model.nodes if n.uuid == node_uuid])
+
+    disable_nav_bookmark_button = str(curr_node in dfb.model.bookmarked_nodes or curr_node == dfb.model.root).lower()
+    try:
+        
+        return render_node(curr_node, session_uuid, disable_nav_bookmark_button)
+    
+    except Exception as e:
+
+        # TODO: Make error read, include support message:
+        flash('ERROR: %s' % str(e.message), category='warning')
+        traceback.print_exc()
+        dfb.model.set_active(dfb.model.root)
+        return render_template('browser.html', version=dataframe_browser.__version__, lims_password=lims_password)
 
 @app.route('/')
 def index():
@@ -48,51 +93,18 @@ def browser_base():
 @app.route("/browser/<session_uuid>/", methods=['GET']) 
 def browser_get(session_uuid):  
 
-    dfb = dfb_dict[session_uuid]
+    return render_browser(dfb_dict, session_uuid)
 
-    # TODO: Protect with Try excetp that flashes error message
-    try:
+@app.route("/browser/<session_uuid>/<node_uuid>/", methods=['GET']) 
+def browser_get_node(session_uuid, node_uuid): 
 
-        uuid_table_list = dfb.view.display_node()
-        uuid_table_list_frame_index = [[fi]+list(f) for fi, f in enumerate(uuid_table_list)]
-
-        if dfb.model.active is None or dfb.model.active.name is None:
-            active_name_str = ''
-        else:
-            active_name_str = dfb.model.active.name
-
-        return render_template('browser.html', 
-                            uuid_table_list=uuid_table_list_frame_index, 
-                            header='', # TODO: might remove this
-                            disable_nav_parent_back = str(dfb.model.active_is_root).lower(),
-                            disable_nav_child_forward = str(dfb.model.active_is_leaf).lower(),
-                            disable_nav_bookmark_button = str(dfb.model.active_is_bookmarked or dfb.model.active==dfb.model.root).lower(),
-                            active_name_str=active_name_str,
-                            groupable_columns_dict=dfb.model.groupable_columns_dict,
-                            disable_groupby_menu_button=str(not dfb.model.groupable_state).lower(),
-                            disable_concatenate_menu_button=str(not dfb.model.can_concatenate).lower(),
-                            all_active_columns=dfb.model.all_active_columns,
-                            mapper_list=mapper_library_dict.keys(), # TODO get from an endpoint from CORS lazy_loader service
-                            disable_fold_menu_button=str(not dfb.model.foldable_state).lower(),
-                            all_index_columns=dfb.model.all_index_columns,
-                            disable_transpose_menu_button=str(not len(dfb.model.all_index_columns)>0).lower(),
-                            session_uuid=session_uuid,
-                            version=dataframe_browser.__version__,
-                            lims_password=lims_password,
-                            upload_folder=app.config['UPLOAD_FOLDER'])
+    return render_browser(dfb_dict, session_uuid, node_uuid=node_uuid)
     
-    except Exception as e:
 
-        # TODO: Make error read, include support message:
-        flash('ERROR: %s' % str(e.message), category='warning')
-        traceback.print_exc()
-        dfb.model.set_active(dfb.model.root)
-        return render_template('browser.html', version=dataframe_browser.__version__, lims_password=lims_password)
+@app.route("/node_uuid/<session_uuid>/", methods=['GET']) 
+def node_uuid(session_uuid):
+    return dfb_dict[session_uuid].model.active.uuid
 
-# @app.route("/active/<ii>/", methods=['POST', 'GET']) 
-# def get_active_ii(ii):
-#     raise Exception('BROKEN')
-#     return dfb.active.node_frames[int(ii)].df.to_json()
 
 @app.route("/stable/<session_uuid>/<node_uuid>/<frame_index>/", methods=['GET']) 
 def stable_get(session_uuid, node_uuid, frame_index):

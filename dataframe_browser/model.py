@@ -12,8 +12,6 @@ class Model(object):
         self._root = Node(tuple()) # Not build with create_node
         self._active = self.root
 
-        self.groupable_max_unique = 250
-
     @property
     def active(self):
         return self._active
@@ -35,10 +33,14 @@ class Model(object):
                 stack.append(child)
         
         return nodes
-    
+
+    @property
+    def bookmarked_nodes(self):
+        return [n for n in self.nodes if n.name is not None]
+
     @property
     def bookmarks(self):
-        return [n.name for n in self.nodes if n.name is not None]
+        return [n.name for n in self.bookmarked_nodes]
 
     def get_filtered_node_list(self, filter_fcn):
         return [n for n in self.nodes if filter_fcn(n)]
@@ -72,99 +74,17 @@ class Model(object):
                     new_node = self.app.controller.create_node((node_frame,), parent=containing_node, name=new_key, force=False)
                     self.app.model.set_active(new_node, name=new_key)
 
-            
-
-
         else:
             self._active = node
 
         self.app.view.display_active()
 
-    @property
-    def common_active_columns(self):
-        L = [set([str(x) for x in node_frame.columns]) for node_frame in self.active.node_frames]
-        if len(L) == 0:
-            return []
-        else:
-            return sorted(set.intersection(*L))
-
-    @property
-    def all_active_columns(self):
-        if self.active is None:
-            return []
-        return self.active.all_columns
-
-    @property
-    def active_is_root(self):
-        return self.active == self.root
-
-    @property
-    def active_is_leaf(self):
-        if self.active is None:
-            return False
-        return len(self.active.children) == 0
 
     @property
     def active_is_bookmarked(self):
         if self.active is None:
             return False
         return not self.active.name is None
-
-    @property
-    def number_of_active_frames(self):
-        if self.active is None:
-            return 0
-
-        return len(self.active.node_frames)
-
-    @property
-    def groupable_state(self):
-        if self.number_of_active_frames == 1 and self.foldable_state:
-            return True
-        else:
-            return False
-
-    @property
-    def foldable_state(self):
-        if len(self.groupable_columns_dict) > 0:
-            return True
-        else:
-            return False
-
-
-    @property
-    def groupable_columns_dict(self):
-        return_dict = {}
-
-        if self.active is None or len(self.active.node_frames) == 0:
-            return return_dict
-
-        for c in self.active.node_frames[0].df.columns:
-            try:
-                n_unique = len(self.active.node_frames[0].df[c].unique())
-                if n_unique < self.groupable_max_unique:
-                    return_dict[c] = n_unique
-            except TypeError:
-                pass
-        return return_dict
-    
-    @property
-    def can_concatenate(self):
-        if self.number_of_active_frames > 1:
-            return True
-        else:
-            return False
-
-    @property
-    def all_index_columns(self):
-        if self.active is None:
-            return []
-
-        L = [set([str(x) for x in node_frame.index_cols]) for node_frame in self.active.node_frames]
-        if len(L) == 0:
-            return []
-        else:
-            return list(set.intersection(*L))
 
     @property
     def session_uuid(self):
