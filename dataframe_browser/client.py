@@ -125,7 +125,10 @@ class Cursor(object):
 
         return self._nodedata_and_uuid[0]
 
-
+    @property
+    def stable_url(self):
+        node_uuid = requests.get(self.uri(base='node_uuid', include_session_uuid=True)).content
+        return '{base}{node_uuid}/'.format(base=self.uri(base='browser', include_session_uuid=True), node_uuid=node_uuid)
 
     @property
     def help(self):

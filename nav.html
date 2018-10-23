@@ -89,6 +89,9 @@
 
         </ul>
         
+        <button class="btn btn-primary btn-sm my-2 my-sm-0 mx-1 pr-2" id="nav-permalink-btn" type="button" data-toggle="collapse" data-target="#permalink-collapse">
+            <span class="oi oi-link-intact"></span>
+        </button>
 
         <button class="btn btn-primary btn-sm my-2 my-sm-0 mx-1 pr-2 disabled" id="nav-create-bookmark-btn" type="button" data-toggle="modal" data-target="#create-bookmark-modal">
             <span class="oi oi-bookmark"></span>
@@ -139,10 +142,6 @@
                     }
                 });
             </script>
-
-            <button type="button" class="btn btn-secondary btn-sm my-2 mr-sm-2 ml-sm-1 btn-copy js-tooltip js-copy" data-toggle="tooltip" data-placement="bottom" data-copy='data = {key:pandas.DataFrame(val) for key, val in requests.post("http://localhost:5000/active").json().items()}'>
-                <span class="oi oi-clipboard"></span>
-            </button>
 
         </div>
 
@@ -199,7 +198,7 @@
             <label class="mr-2">Drop columns:</label>
             
             <div class="btn-group btn-group-toggle" data-toggle="buttons" role="group" aria-label="First group">
-                {% for col in all_active_columns %}
+                {% for col in columns %}
                 <label class="btn btn-outline-danger btn-sm" data-toggle="tooltip" data-placement="top" title="Unique: {{num_unique_elem}}">
                     <input type="checkbox" name="columns" value={{col}}> {{col}}
                 </label>
@@ -218,7 +217,7 @@
             <label class="mr-2">Drop columns:</label>
             
             <div class="btn-group btn-group-toggle" data-toggle="buttons" role="group" aria-label="First group">
-                {% for col in all_active_columns %}
+                {% for col in columns %}
                 <label class="btn btn-outline-success btn-sm" data-toggle="tooltip" data-placement="top" title="Unique: {{num_unique_elem}}">
                     <input type="checkbox" name="columns" value={{col}}> {{col}}
                 </label>
@@ -228,6 +227,22 @@
             <button type="submit" class="btn btn-outline-success btn-sm ml-2" name="command" value="keep" data-toggle="tooltip" data-placement="top" title="Submit"><span class="oi oi-check"></span></button>
             <button type="button" class="btn btn-outline-danger btn-sm " data-toggle="collapse" data-target="#KeepColumnsByCollapse" data-toggle="tooltip" data-placement="top" title="Cancel"><span class="oi oi-x"></span></button>
         </form>
+    </div>
+</div>
+
+<div class="collapse" id="permalink-collapse">
+    <div class="card">
+        <div class="card-body">
+                
+            <div class="d-flex">
+                <button type="button" class="btn btn-secondary btn-sm mb-1 mr-sm-2 ml-sm-1 btn-copy js-tooltip js-copy" data-toggle="tooltip" data-placement="bottom" data-copy='{{permalink}}'>
+                    <span class="oi oi-clipboard"></span>
+                </button>
+                <input class="form-control" type="text" placeholder="{{permalink}}" readonly>
+                <button type="button" class="btn btn-outline-danger btn-sm ml-2" data-toggle="collapse" data-target="#permalink-collapse" data-toggle="tooltip" data-placement="top" title="Cancel"><span class="oi oi-x"></span></button>
+                
+            </div>
+        </div>        
     </div>
 </div>
 
@@ -261,7 +276,7 @@
             <div class="form-row">
                 <div class="col">
                     <div class="btn-group btn-group-toggle" data-toggle="buttons" role="group" aria-label="First group">
-                        {% for col in all_active_columns %}
+                        {% for col in columns %}
                         <label class="btn btn-outline-success btn-sm">
                             <input type="checkbox" name="columns" value={{col}}> {{col}}
                         </label>

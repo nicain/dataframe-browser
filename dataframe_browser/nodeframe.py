@@ -111,7 +111,7 @@ class NodeFrame(object):
 
         return D
 
-    def to_html(self, frame_index, columns=None, max_size=5000000):
+    def to_html(self, frame_index=None, columns=None, max_size=5000000, interactive=True):
 
         if columns is None:
             columns = self.df.columns
@@ -133,29 +133,33 @@ class NodeFrame(object):
         
         table_html = df_to_render.to_html(classes=[table_class], index=False, escape=False, justify='center', formatters=self.formatters)
 
-        button_load = '''
-        <td><div class="dropdown">
-            <button data-toggle="dropdown" class="dropdown-toggle btn btn-light btn-sm py-1 ml-1 col-btn"><span class="oi oi-menu"></span></button>
-            <div class="dropdown-menu">
-                <form class="form-inline my-2 my-lg-0" action="/command/{session_uuid}/" method="POST">
-                    <input type="hidden" name='columns' value='{column_string}'>
-                    <input type="hidden" name='frames' value='{frame_index}'>
-                    <input type="hidden" name='command' value='drop'>
-                    <button type="submit" class="btn btn-danger btn-sm ml-3"><span class="oi oi-x"></span> Drop</button>
-                </form>
-            </div>
-        </div></td>
-        '''
+        if interactive == True:
 
-        bs = BeautifulSoup(table_html)
-        table_bs = bs.table
-        head = table_bs.thead
-        head_row = head.tr
-        head_row.insert_after(copy.copy(head_row))
-        for x in head_row.find_all('th'):
-            column_string = x.string
-            x.replace_with(BeautifulSoup(button_load.format(session_uuid='{{session_uuid}}', column_string=column_string, frame_index=frame_index)))
-        table_html = str(table_bs)
+            # Add interactive buttons
+
+            button_load = '''
+            <td><div class="dropdown">
+                <button data-toggle="dropdown" class="dropdown-toggle btn btn-light btn-sm py-1 ml-1 col-btn"><span class="oi oi-menu"></span></button>
+                <div class="dropdown-menu">
+                    <form class="form-inline my-2 my-lg-0" action="/command/{session_uuid}/" method="POST">
+                        <input type="hidden" name='columns' value='{column_string}'>
+                        <input type="hidden" name='frames' value='{frame_index}'>
+                        <input type="hidden" name='command' value='drop'>
+                        <button type="submit" class="btn btn-danger btn-sm ml-3"><span class="oi oi-x"></span> Drop</button>
+                    </form>
+                </div>
+            </div></td>
+            '''
+
+            bs = BeautifulSoup(table_html)
+            table_bs = bs.table
+            head = table_bs.thead
+            head_row = head.tr
+            head_row.insert_after(copy.copy(head_row))
+            for x in head_row.find_all('th'):
+                column_string = x.string
+                x.replace_with(BeautifulSoup(button_load.format(session_uuid='{{session_uuid}}', column_string=column_string, frame_index=frame_index)))
+            table_html = str(table_bs)
 
 
         pd.set_option('display.max_colwidth', old_width)
