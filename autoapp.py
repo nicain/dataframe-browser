@@ -180,15 +180,14 @@ def cmd_post(session_uuid):
         if not request.json:
             data = dict(request.form)
             command = one(data.pop('command'))
-            reload_bool = False
             redirect_to_main = True
 
         else:
             data = json.loads(request.json)
             command = data.pop('command')
-            reload_bool = data.pop('reload', True)
             redirect_to_main = False
 
+        reload_bool = data.pop('reload', True)
         if command == 'read':
             dfb.read(**data)
         elif command == 'open':
