@@ -41,6 +41,10 @@ def render_node(curr_node, session_uuid, disable_nav_bookmark_button):
     else:
         permalink = urlparse.urljoin(request.url, curr_node.uuid)
 
+    if not curr_node.name in (None, ''):
+        permalink = permalink.replace(curr_node.uuid, curr_node.name_safe)
+
+
     return render_template('browser.html', 
                         uuid_table_list=uuid_table_list, 
                         disable_nav_parent_back = str(curr_node.parent is None).lower(),

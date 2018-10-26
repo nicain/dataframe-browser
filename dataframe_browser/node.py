@@ -3,6 +3,7 @@ import dataframe_browser as dfb
 from utilities import one, generate_uuid, BeautifulSoup
 from collections import OrderedDict as OD
 import pandas as pd
+import six.moves.urllib as urllib
 
 class Node(object):
 
@@ -58,6 +59,10 @@ class Node(object):
     @property
     def name(self):
         return self._name
+
+    @property
+    def name_safe(self):
+        return urllib.parse.quote(self.name)
 
     @property
     def node_frames(self):

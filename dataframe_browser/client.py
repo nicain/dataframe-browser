@@ -148,7 +148,8 @@ class Cursor(object):
 
     @property
     def help(self):
-        print 'HALP' # TODO: rework CLI argparse to print meaningful help
+        pass
+        # print 'HALP' # TODO: rework CLI argparse to print meaningful help
 
 
 if __name__ == "__main__":
