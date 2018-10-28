@@ -45,28 +45,23 @@ def get_permalink(node, incoming_request, session_uuid):
         else:
             return incoming_request.url
 
-<<<<<<< HEAD
-    # if node.uuid in incoming_request.url:
+def get_embed_cursor_text(incoming_request):
 
-    #     # Session only:
-    #     if not node.name in (None, ''):
-    #         permalink = urlparse.urljoin(incoming_request.url, node.uuid)
-    #     else:
-    #         permalink = urlparse.urljoin(incoming_request.url, node.name_safe)
+    text = '''
+import dill
+import requests
+
+x = requests.get('{url}')
+c = dill.loads(x.content)
+c.cell_width('90%')
+c.display(height=800)
+    '''.format(url=incoming_request.url.replace('browser', 'cursor'))
     
-    # elif (not node.name_safe is None) and node.name_safe in incoming_request.url:
+    return text.strip()
 
-    #     # bookmarked url
-    #     permalink = urlparse.urljoin(incoming_request.url, node.name_safe)
-    # else:
-
-    #     # non-bookmarked, specific node
-    #     permalink = urlparse.urljoin(incoming_request.url, node.uuid)
 
 def render_node(curr_node, session_uuid, disable_nav_bookmark_button, dropdown_menu_link_dict, freeze=False):
-=======
-def render_node(curr_node, session_uuid, disable_nav_bookmark_button, dropdown_menu_link_dict):
->>>>>>> 36215b6... removing cruft
+
 
     uuid_table_list = curr_node.get_table_list(page_length=None, session_uuid=session_uuid)
     active_name_str = curr_node.name if curr_node.name is not None else ''

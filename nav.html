@@ -77,6 +77,9 @@
                     <button class="dropdown-item" data-toggle="collapse" data-target="#ApplyCollapse">Apply</button>
                     <button class="dropdown-item" data-toggle="collapse" data-target="#TransposeColumnsByCollapse" id="transpose-menu-item-button">Transpose</button>
                     
+                    <div class="dropdown-divider"></div>
+
+                    <button class="dropdown-item" data-toggle="collapse" data-target="#EmbedCollapse">Embed</button>
 
                     <div class="dropdown-divider"></div>
 
@@ -315,6 +318,21 @@
             <input type="text" class="form-control mt-2" placeholder="New column" name="new_column" required>
 
         </form>
+    </div>
+</div>
+
+<div class="collapse" id="EmbedCollapse">
+    <div class="card">
+        <div class="card-body">
+                
+            <div class="d-flex">
+                <button type="button" class="btn btn-secondary btn-sm mb-1 mr-sm-2 ml-sm-1 btn-copy js-tooltip js-copy" data-toggle="tooltip" data-placement="bottom" data-copy='{{embed_cursor_text}}'>
+                    <span class="oi oi-clipboard"></span>
+                </button>
+                <button type="button" class="btn btn-outline-danger btn-sm ml-2" data-toggle="collapse" data-target="#EmbedCollapse" data-toggle="tooltip" data-placement="top" title="Cancel"><span class="oi oi-x"></span></button>
+            </div>
+            <pre><code class="language-python">{{embed_cursor_text}}</code></pre>
+        </div>        
     </div>
 </div>
 
