@@ -145,10 +145,30 @@
 
         </div>
 
-        <form class="form-inline my-2 my-lg-0" action="/bookmarks" method="POST">
-            <input class="form-control mr-sm-2" type="search" name='q'  placeholder="Search" aria-label="Search">
-            <button class="btn btn-primary my-2" type="submit">Search</button>
-        </form>
+        <div class="dropdown">
+            <button class="btn-sm btn btn-primary dropdown-toggle disabled" type="button" id="bookmark-menu-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Search
+            </button>
+
+            <script>
+                $(function(){
+                    if(!{{disable_nav_bookmark_dropdown|default("true", false)}}){
+                        $('#bookmark-menu-button').removeClass('disabled');
+                    } else {
+                        $('#bookmark-menu-button').prop('disabled',"disabled");
+                    }
+                });
+            </script>
+
+            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
+                {% for name, url in dropdown_menu_link_dict.items() %}
+                    <a class="dropdown-item" href="{{url}}">{{name}}</a>
+                {% endfor %}
+            </div>
+        </div>
+
+
+
     </div>
 </nav>
 

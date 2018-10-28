@@ -31,25 +31,58 @@ dfb_dict = {}
 
 lims_password = pgpasslib.getpass('limsdb2', 5432, 'lims2', 'limsreader')
 
-def render_node(curr_node, session_uuid, disable_nav_bookmark_button):
+def get_permalink(node, incoming_request, session_uuid):
+
+    if node.name_safe is None:
+        if node.uuid in incoming_request.url:
+            return incoming_request.url
+        else:
+            return urlparse.urljoin(incoming_request.url, node.uuid)
+
+    else:
+        if [x for x in urlparse.urlsplit(incoming_request.url).path.split('/') if len(x)>0][-1] == session_uuid:
+            return urlparse.urljoin(incoming_request.url, node.name_safe)
+        else:
+            return incoming_request.url
+
+    # if node.uuid in incoming_request.url:
+
+    #     # Session only:
+    #     if not node.name in (None, ''):
+    #         permalink = urlparse.urljoin(incoming_request.url, node.uuid)
+    #     else:
+    #         permalink = urlparse.urljoin(incoming_request.url, node.name_safe)
+    
+    # elif (not node.name_safe is None) and node.name_safe in incoming_request.url:
+
+    #     # bookmarked url
+    #     permalink = urlparse.urljoin(incoming_request.url, node.name_safe)
+    # else:
+
+    #     # non-bookmarked, specific node
+    #     permalink = urlparse.urljoin(incoming_request.url, node.uuid)
+
+
+    # return permalink
+
+def render_node(curr_node, session_uuid, disable_nav_bookmark_button, dropdown_menu_link_dict):
 
     uuid_table_list = curr_node.get_table_list(page_length=None, session_uuid=session_uuid)
     active_name_str = curr_node.name if curr_node.name is not None else ''
 
-    if curr_node.uuid in request.url:
-        permalink = request.url
+    permalink = get_permalink(curr_node, request, session_uuid)
+
+    if len(dropdown_menu_link_dict) == 0:
+        disable_nav_bookmark_dropdown = True
     else:
-        permalink = urlparse.urljoin(request.url, curr_node.uuid)
-
-    if not curr_node.name in (None, ''):
-        permalink = permalink.replace(curr_node.uuid, curr_node.name_safe)
-
+        disable_nav_bookmark_dropdown = False
 
     return render_template('browser.html', 
                         uuid_table_list=uuid_table_list, 
                         disable_nav_parent_back = str(curr_node.parent is None).lower(),
                         disable_nav_child_forward = str(len(curr_node.children) == 0).lower(),
                         disable_nav_bookmark_button = disable_nav_bookmark_button,
+                        disable_nav_bookmark_dropdown = str(disable_nav_bookmark_dropdown).lower(),
                         active_name_str=active_name_str,
                         groupable_columns_dict=curr_node.groupable_columns_dict,
                         disable_groupby_menu_button=str(not curr_node.groupable_state).lower(),
@@ -63,11 +96,13 @@ def render_node(curr_node, session_uuid, disable_nav_bookmark_button):
                         version=dataframe_browser.__version__,
                         lims_password=lims_password,
                         upload_folder=app.config['UPLOAD_FOLDER'],
-                        permalink=permalink)
+                        permalink=permalink,
+                        dropdown_menu_link_dict=dropdown_menu_link_dict)
 
 def render_browser(dfb_dict, session_uuid, node_uuid_or_bookmark=None):
 
     dfb = dfb_dict[session_uuid]
+    dropdown_menu_link_dict = {name:get_permalink(node, request, session_uuid) for name, node in dfb.model.bookmark_dict.items() if not name in (None, '')}
 
     if node_uuid_or_bookmark is None:
         curr_node = dfb.model.active
@@ -80,7 +115,7 @@ def render_browser(dfb_dict, session_uuid, node_uuid_or_bookmark=None):
     disable_nav_bookmark_button = str(curr_node in dfb.model.bookmarked_nodes or curr_node == dfb.model.root).lower()
     try:
         
-        return render_node(curr_node, session_uuid, disable_nav_bookmark_button)
+        return render_node(curr_node, session_uuid, disable_nav_bookmark_button, dropdown_menu_link_dict)
     
     except Exception as e:
 
@@ -88,11 +123,11 @@ def render_browser(dfb_dict, session_uuid, node_uuid_or_bookmark=None):
         flash('ERROR: %s' % str(e.message), category='warning')
         traceback.print_exc()
         dfb.model.set_active(dfb.model.root)
-        return render_template('browser.html', version=dataframe_browser.__version__, lims_password=lims_password)
+        return render_template('browser.html', version=dataframe_browser.__version__, lims_password=lims_password, dropdown_menu_link_dict={})
 
 @app.route('/')
 def index():
-    return render_template('index.html', version=dataframe_browser.__version__, lims_password=lims_password)
+    return render_template('index.html', version=dataframe_browser.__version__, lims_password=lims_password, dropdown_menu_link_dict={})
 
 @app.route("/browser/") 
 def browser_base():
@@ -298,7 +333,7 @@ def upload_file(session_uuid):
             flash('Filename not allowed: {filename}'.format(filename=file.filename), category='danger')
             return redirect(request.url)
 
-    return render_template('browser.html') 
+    return render_template('browser.html', dropdown_menu_link_dict={}) 
 
 @app.route('/cursor/')
 def cursor():
