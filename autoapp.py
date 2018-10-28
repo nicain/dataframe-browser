@@ -45,6 +45,7 @@ def get_permalink(node, incoming_request, session_uuid):
         else:
             return incoming_request.url
 
+<<<<<<< HEAD
     # if node.uuid in incoming_request.url:
 
     #     # Session only:
@@ -63,6 +64,9 @@ def get_permalink(node, incoming_request, session_uuid):
     #     permalink = urlparse.urljoin(incoming_request.url, node.uuid)
 
 def render_node(curr_node, session_uuid, disable_nav_bookmark_button, dropdown_menu_link_dict, freeze=False):
+=======
+def render_node(curr_node, session_uuid, disable_nav_bookmark_button, dropdown_menu_link_dict):
+>>>>>>> 36215b6... removing cruft
 
     uuid_table_list = curr_node.get_table_list(page_length=None, session_uuid=session_uuid)
     active_name_str = curr_node.name if curr_node.name is not None else ''
