@@ -62,7 +62,10 @@ class Node(object):
 
     @property
     def name_safe(self):
-        return urllib.parse.quote(self.name)
+        if self.name is None:
+            return None
+        else:
+            return urllib.parse.quote(self.name)
 
     @property
     def node_frames(self):
