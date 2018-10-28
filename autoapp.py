@@ -65,7 +65,7 @@ def get_permalink(node, incoming_request, session_uuid):
 
     # return permalink
 
-def render_node(curr_node, session_uuid, disable_nav_bookmark_button, dropdown_menu_link_dict):
+def render_node(curr_node, session_uuid, disable_nav_bookmark_button, dropdown_menu_link_dict, freeze=False):
 
     uuid_table_list = curr_node.get_table_list(page_length=None, session_uuid=session_uuid)
     active_name_str = curr_node.name if curr_node.name is not None else ''
@@ -97,7 +97,8 @@ def render_node(curr_node, session_uuid, disable_nav_bookmark_button, dropdown_m
                         lims_password=lims_password,
                         upload_folder=app.config['UPLOAD_FOLDER'],
                         permalink=permalink,
-                        dropdown_menu_link_dict=dropdown_menu_link_dict)
+                        dropdown_menu_link_dict=dropdown_menu_link_dict,
+                        freeze=str(freeze).lower())
 
 def render_browser(dfb_dict, session_uuid, node_uuid_or_bookmark=None):
 
@@ -106,7 +107,9 @@ def render_browser(dfb_dict, session_uuid, node_uuid_or_bookmark=None):
 
     if node_uuid_or_bookmark is None:
         curr_node = dfb.model.active
+        freeze=False
     else:
+        freeze=True
         if node_uuid_or_bookmark in dfb.model.bookmarks:
             curr_node = dfb.model.bookmark_dict[node_uuid_or_bookmark]
         else:
@@ -115,7 +118,7 @@ def render_browser(dfb_dict, session_uuid, node_uuid_or_bookmark=None):
     disable_nav_bookmark_button = str(curr_node in dfb.model.bookmarked_nodes or curr_node == dfb.model.root).lower()
     try:
         
-        return render_node(curr_node, session_uuid, disable_nav_bookmark_button, dropdown_menu_link_dict)
+        return render_node(curr_node, session_uuid, disable_nav_bookmark_button, dropdown_menu_link_dict, freeze=freeze)
     
     except Exception as e:
 
