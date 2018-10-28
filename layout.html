@@ -58,10 +58,12 @@
         $(document).ready(function(){
             var socket = io.connect('http://' + document.domain + ':' + location.port);
             console.log('reload script');
-            socket.on('reload', function() {
-                window.location.reload(true);
-                console.log('reload request received');
-                });
+            if (!{{freeze}}) {
+                                socket.on('reload', function() {
+                                    window.location.reload(true);
+                                    console.log('reload request received');
+                                    });
+                            };
         }); 
     </script>
 
