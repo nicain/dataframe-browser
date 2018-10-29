@@ -177,12 +177,22 @@ def stable_get(session_uuid, node_uuid, frame_index):
 
     return render_template('stable.html', table_html=table_html)
 
-@app.route("/active/<session_uuid>/", methods=['POST', 'GET']) 
-def get_active(session_uuid):
+@app.route("/data/<session_uuid>/", methods=['POST', 'GET']) 
+def get_data(session_uuid):
 
     dfb = dfb_dict[session_uuid]
+    node_uuid = dfb.model.active.uuid
 
-    return json.dumps({str(ii):dfb.active.node_frames[int(ii)].df.to_dict() for ii in range(len(dfb.active.node_frames))})
+    return redirect('/data/{session_uuid}/{node_uuid}/'.format(session_uuid=session_uuid, node_uuid=node_uuid))
+
+@app.route("/data/<session_uuid>/<node_uuid>/", methods=['POST', 'GET']) 
+def get_data_node(session_uuid, node_uuid):
+    
+    dfb = dfb_dict[session_uuid]
+    curr_node =  one([n for n in dfb.model.nodes if n.uuid == node_uuid])
+    print [curr_node]
+
+    return json.dumps({str(ii):curr_node.node_frames[int(ii)].df.to_dict() for ii in range(len(curr_node.node_frames))})
 
 @app.route("/active_uuid/", methods=['POST', 'GET']) 
 def get_active_uuid():

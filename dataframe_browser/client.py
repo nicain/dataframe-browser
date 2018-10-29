@@ -8,7 +8,7 @@ class Cursor(object):
         uuid_length = 32
         return uuid.uuid4().hex[:uuid_length]
 
-    def __init__(self, port=5000, hostname='nicholasc-ubuntu', session_uuid=None):
+    def __init__(self, port=5000, hostname='nicholasc-ubuntu', session_uuid=None, node_uuid=None):
 
         if session_uuid is None:
             session_uuid = self.get_new_uuid()
@@ -16,8 +16,25 @@ class Cursor(object):
         self.port = port
         self.hostname = hostname
         self.session_uuid = session_uuid
-        self._nodedata_and_uuid = None
+        self._node_uuid = node_uuid
+
+
+    @property
+    def node_uuid(self):
+        return self._node_uuid
     
+    @property
+    def frozen(self):
+        if self.node_uuid is None:
+            return False
+        else:
+            return True
+
+    def freeze(self):
+        self._node_uuid = self.active_uuid
+
+    def unfreeze(self):
+        self._node_uuid = None
 
     
     def uri_template(self, include_session_uuid=True):
@@ -131,18 +148,23 @@ class Cursor(object):
         import json
         import pandas as pd
 
-        if self._nodedata_and_uuid is None or self._nodedata_and_uuid[1] != self.active_uuid:
-            node_dict = {key:pd.DataFrame(val) for key, val in requests.post(self.uri(base='active')).json().items()}
-            if len(node_dict) == 1:
-                nodedata = node_dict.values()[0]
-            else:
-                nodedata = node_dict
-            self._nodedata_and_uuid = nodedata, self.active_uuid
+        if self.node_uuid is None:
+            data_endpoint = self.uri(base='data', include_session_uuid=True)
+        else:
+            node_uuid = requests.get(self.uri(base='node_uuid', include_session_uuid=True)).content
+            data_endpoint = '{base}{node_uuid}/'.format(base=self.uri(base='data', include_session_uuid=True), node_uuid=node_uuid)
+        
+        node_dict = {key:pd.DataFrame(val) for key, val in requests.post(data_endpoint).json().items()}
 
-        return self._nodedata_and_uuid[0]
+        if len(node_dict) == 1:
+            nodedata = node_dict.values()[0]
+        else:
+            nodedata = node_dict
+
+        return nodedata
 
     @property
-    def stable_url(self):
+    def permalink(self):
         node_uuid = requests.get(self.uri(base='node_uuid', include_session_uuid=True)).content
         return '{base}{node_uuid}/'.format(base=self.uri(base='browser', include_session_uuid=True), node_uuid=node_uuid)
 
