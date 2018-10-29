@@ -45,27 +45,23 @@ def get_permalink(node, incoming_request, session_uuid):
         else:
             return incoming_request.url
 
-    # if node.uuid in incoming_request.url:
+def get_embed_cursor_text(incoming_request):
 
-    #     # Session only:
-    #     if not node.name in (None, ''):
-    #         permalink = urlparse.urljoin(incoming_request.url, node.uuid)
-    #     else:
-    #         permalink = urlparse.urljoin(incoming_request.url, node.name_safe)
+    text = '''
+import dill
+import requests
+
+x = requests.get('{url}')
+c = dill.loads(x.content)
+c.cell_width('90%')
+c.display(height=800)
+    '''.format(url=incoming_request.url.replace('browser', 'cursor'))
     
-    # elif (not node.name_safe is None) and node.name_safe in incoming_request.url:
+    return text.strip()
 
-    #     # bookmarked url
-    #     permalink = urlparse.urljoin(incoming_request.url, node.name_safe)
-    # else:
-
-    #     # non-bookmarked, specific node
-    #     permalink = urlparse.urljoin(incoming_request.url, node.uuid)
-
-
-    # return permalink
 
 def render_node(curr_node, session_uuid, disable_nav_bookmark_button, dropdown_menu_link_dict, freeze=False):
+
 
     uuid_table_list = curr_node.get_table_list(page_length=None, session_uuid=session_uuid)
     active_name_str = curr_node.name if curr_node.name is not None else ''
@@ -98,6 +94,7 @@ def render_node(curr_node, session_uuid, disable_nav_bookmark_button, dropdown_m
                         upload_folder=app.config['UPLOAD_FOLDER'],
                         permalink=permalink,
                         dropdown_menu_link_dict=dropdown_menu_link_dict,
+                        embed_cursor_text=get_embed_cursor_text(request),
                         freeze=str(freeze).lower())
 
 def render_browser(dfb_dict, session_uuid, node_uuid_or_bookmark=None):
@@ -180,12 +177,21 @@ def stable_get(session_uuid, node_uuid, frame_index):
 
     return render_template('stable.html', table_html=table_html)
 
-@app.route("/active/<session_uuid>/", methods=['POST', 'GET']) 
-def get_active(session_uuid):
+@app.route("/data/<session_uuid>/", methods=['POST', 'GET']) 
+def get_data(session_uuid):
 
     dfb = dfb_dict[session_uuid]
+    node_uuid = dfb.model.active.uuid
 
-    return json.dumps({str(ii):dfb.active.node_frames[int(ii)].df.to_dict() for ii in range(len(dfb.active.node_frames))})
+    return redirect('/data/{session_uuid}/{node_uuid}/'.format(session_uuid=session_uuid, node_uuid=node_uuid))
+
+@app.route("/data/<session_uuid>/<node_uuid>/", methods=['POST', 'GET']) 
+def get_data_node(session_uuid, node_uuid):
+    
+    dfb = dfb_dict[session_uuid]
+    curr_node =  one([n for n in dfb.model.nodes if n.uuid == node_uuid])
+
+    return json.dumps({str(ii):curr_node.node_frames[int(ii)].df.to_dict() for ii in range(len(curr_node.node_frames))})
 
 @app.route("/active_uuid/", methods=['POST', 'GET']) 
 def get_active_uuid():
@@ -346,22 +352,41 @@ def cursor():
 
     return redirect(urlparse.urljoin(request.url, session_uuid))
 
-@app.route('/cursor/<session_uuid>/')
-def cursor_uuid(session_uuid):
-
-    url_obj = urlparse.urlparse(request.url_root)
-
-    cursor_file_name = os.path.join(os.path.dirname(__file__),'dataframe_browser', 'data', 'cursor.p')
+def get_cursor(current_request, python_version=2, session_uuid=None, node_uuid=None):
+    
+    if python_version == 2:
+        cursor_file_name = os.path.join(os.path.dirname(__file__),'dataframe_browser', 'data', 'cursor.p')
+    else:
+        raise NotImplementedError
+    
+    url_obj = urlparse.urlparse(current_request.url_root)
 
     c = dill.load(open(cursor_file_name, 'r'))
     c.port = url_obj.port
     c.hostname = url_obj.hostname
-    c.session_uuid = session_uuid=session_uuid
+    c._session_uuid = session_uuid
+    c._node_uuid = node_uuid
 
     buf = io.BytesIO()
     dill.dump(c, buf)
 
     return buf.getvalue()
+
+
+
+@app.route('/cursor/<session_uuid>/')
+def cursor_session(session_uuid):
+
+    python_version = 2
+
+    return get_cursor(request, python_version=python_version, session_uuid=session_uuid)
+
+@app.route('/cursor/<session_uuid>/<node_uuid>/')
+def cursor_session_node(session_uuid, node_uuid):
+
+    python_version = 2
+
+    return get_cursor(request, python_version=python_version, session_uuid=session_uuid, node_uuid=node_uuid)
 
 
 if __name__ == "__main__":

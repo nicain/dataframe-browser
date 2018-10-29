@@ -8,52 +8,71 @@ class Cursor(object):
         uuid_length = 32
         return uuid.uuid4().hex[:uuid_length]
 
-    def __init__(self, port=5000, hostname='nicholasc-ubuntu', session_uuid=None):
+    def __init__(self, port=5000, hostname='nicholasc-ubuntu', session_uuid=None, node_uuid=None):
 
         if session_uuid is None:
             session_uuid = self.get_new_uuid()
 
         self.port = port
         self.hostname = hostname
-        self.session_uuid = session_uuid
-        self._nodedata_and_uuid = None
-    
+        self._session_uuid = session_uuid
+        self._node_uuid = node_uuid
 
+
+    @property
+    def node_uuid(self):
+        return self._node_uuid
+
+    @property
+    def session_uuid(self):
+        return self._session_uuid
     
-    def uri_template(self, include_session_uuid=True):
-        if include_session_uuid == True:
-            return 'http://{hostname}:{port}/{base}/{session_uuid}/'.format(base='{base}', hostname=self.hostname, port=self.port, session_uuid=self.session_uuid)
+    @property
+    def frozen(self):
+        if self.node_uuid is None:
+            return False
         else:
-            return 'http://{hostname}:{port}/{base}/'.format(base='{base}', hostname=self.hostname, port=self.port)
+            return True
 
-    def uri(self, base='active', include_session_uuid=True):
-        return self.uri_template(include_session_uuid=include_session_uuid).format(base=base)
+    def freeze(self):
+        self._node_uuid = self.active_uuid
+
+    def unfreeze(self):
+        self._node_uuid = None
+
+    def uri(self, base, session_uuid=None, node_uuid=None):
+
+        uri = 'http://{hostname}:{port}/{base}/'.format(base=base, hostname=self.hostname, port=self.port)
+        if session_uuid is not None:
+            uri += '{session_uuid}/'.format(session_uuid=session_uuid)
+            if node_uuid is not None:
+                uri += '{node_uuid}/'.format(node_uuid=node_uuid)
+
+        return uri
 
     @staticmethod
     def cell_width(width='90%'):
         from IPython.display import HTML, display
         return display(HTML("<style>.container {{ width:{width} !important; }}</style>".format(width=width)))
 
-    def get_iframe(self, base='browser', height=350, width=None):
+    def get_iframe(self, base='browser', height=350, width=None, session_uuid=None, node_uuid=None):
         if width is None:
-            return '''<iframe  style="width: 100%; border: none" src={uri} height={height}></iframe>'''.format(uri=self.uri_template().format(base=base), height=height)
+            template = '<iframe  style="width: 100%; border: none" src={uri} height={height}></iframe>'
         else:
-            return '''<iframe  style="border: none" src={uri} width={width} height={height}></iframe>'''.format(uri=self.uri_template().format(base=base), width=width, height=height)
+            template = '<iframe  style="border: none" src={uri} width={width} height={height}></iframe>'
 
+        return template.format(uri=self.uri(base, session_uuid=session_uuid, node_uuid=node_uuid), height=height)
 
     def display(self, base='browser', width=None, height=500):
         from IPython.display import HTML
-        return HTML(self.get_iframe(base=base, width=width, height=height))
+        return HTML(self.get_iframe(base=base, width=width, height=height, session_uuid=self.session_uuid, node_uuid=self.node_uuid))
 
     def run(self, **kwargs):
         import json
-        result = requests.post(self.uri(base='command'), json=json.dumps(kwargs))
+        result = requests.post(self.uri(base='command', session_uuid=self.session_uuid), json=json.dumps(kwargs))
         if result.status_code != 200:
             result.raise_for_status()
-        # if reload and kwargs['command'] != 'reload':
-        #     self.reload()
 
-        # print kwargs['command'], kwargs['reload']
         return self
 
     def open(self, filename=None, index_col=None, reload=True):
@@ -116,35 +135,40 @@ class Cursor(object):
         df.to_pickle(buf)
         buf.seek(0)
         fname = 'file.p'
-        upload_folder = requests.post(self.uri(base='upload_folder', include_session_uuid=False)).json()['upload_folder']
+        upload_folder = requests.post(self.uri(base='upload_folder')).json()['upload_folder']
         server_file_name = "{folder}/{file}".format(folder=upload_folder, file=fname) # dont use os.path because this is a path on the server not client
-        requests.post(self.uri(base='upload'), files={'file':(fname, buf)}, data={'filename':[server_file_name], 'command':['open']})
+        requests.post(self.uri(base='upload', session_uuid=self.session_uuid), files={'file':(fname, buf)}, data={'filename':[server_file_name], 'command':['open']})
         self.reload()
 
     @property
     def active_uuid(self):
         import json
-        return requests.post(self.uri(base='active_uuid', include_session_uuid=False), json=json.dumps({'session_uuid':self.session_uuid})).json()['active_uuid']
+        return requests.post(self.uri(base='active_uuid'), json=json.dumps({'session_uuid':self.session_uuid})).json()['active_uuid']
 
     @property
     def data(self):
         import json
         import pandas as pd
 
-        if self._nodedata_and_uuid is None or self._nodedata_and_uuid[1] != self.active_uuid:
-            node_dict = {key:pd.DataFrame(val) for key, val in requests.post(self.uri(base='active')).json().items()}
-            if len(node_dict) == 1:
-                nodedata = node_dict.values()[0]
-            else:
-                nodedata = node_dict
-            self._nodedata_and_uuid = nodedata, self.active_uuid
+        if self.node_uuid is None:
+            data_endpoint = self.uri(base='data', session_uuid=self.session_uuid)
+        else:
+            node_uuid = requests.get(self.uri(base='node_uuid', session_uuid=self.session_uuid)).content
+            data_endpoint = '{base}{node_uuid}/'.format(base=self.uri(base='data', session_uuid=self.session_uuid), node_uuid=node_uuid)
+        
+        node_dict = {key:pd.DataFrame(val) for key, val in requests.post(data_endpoint).json().items()}
 
-        return self._nodedata_and_uuid[0]
+        if len(node_dict) == 1:
+            nodedata = node_dict.values()[0]
+        else:
+            nodedata = node_dict
+
+        return nodedata
 
     @property
-    def stable_url(self):
-        node_uuid = requests.get(self.uri(base='node_uuid', include_session_uuid=True)).content
-        return '{base}{node_uuid}/'.format(base=self.uri(base='browser', include_session_uuid=True), node_uuid=node_uuid)
+    def permalink(self):
+        node_uuid = requests.get(self.uri(base='node_uuid', session_uuid=self.session_uuid)).content
+        return '{base}{node_uuid}/'.format(base=self.uri(base='browser', session_uuid=self.session_uuid), node_uuid=node_uuid)
 
     @property
     def help(self):
