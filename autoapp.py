@@ -364,7 +364,7 @@ def get_cursor(current_request, python_version=2, session_uuid=None, node_uuid=N
     c = dill.load(open(cursor_file_name, 'r'))
     c.port = url_obj.port
     c.hostname = url_obj.hostname
-    c.session_uuid = session_uuid
+    c._session_uuid = session_uuid
     c._node_uuid = node_uuid
 
     buf = io.BytesIO()
