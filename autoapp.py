@@ -190,7 +190,6 @@ def get_data_node(session_uuid, node_uuid):
     
     dfb = dfb_dict[session_uuid]
     curr_node =  one([n for n in dfb.model.nodes if n.uuid == node_uuid])
-    print [curr_node]
 
     return json.dumps({str(ii):curr_node.node_frames[int(ii)].df.to_dict() for ii in range(len(curr_node.node_frames))})
 
@@ -353,22 +352,41 @@ def cursor():
 
     return redirect(urlparse.urljoin(request.url, session_uuid))
 
-@app.route('/cursor/<session_uuid>/')
-def cursor_uuid(session_uuid):
-
-    url_obj = urlparse.urlparse(request.url_root)
-
-    cursor_file_name = os.path.join(os.path.dirname(__file__),'dataframe_browser', 'data', 'cursor.p')
+def get_cursor(current_request, python_version=2, session_uuid=None, node_uuid=None):
+    
+    if python_version == 2:
+        cursor_file_name = os.path.join(os.path.dirname(__file__),'dataframe_browser', 'data', 'cursor.p')
+    else:
+        raise NotImplementedError
+    
+    url_obj = urlparse.urlparse(current_request.url_root)
 
     c = dill.load(open(cursor_file_name, 'r'))
     c.port = url_obj.port
     c.hostname = url_obj.hostname
-    c.session_uuid = session_uuid=session_uuid
+    c.session_uuid = session_uuid
+    c._node_uuid = node_uuid
 
     buf = io.BytesIO()
     dill.dump(c, buf)
 
     return buf.getvalue()
+
+
+
+@app.route('/cursor/<session_uuid>/')
+def cursor_session(session_uuid):
+
+    python_version = 2
+
+    return get_cursor(request, python_version=python_version, session_uuid=session_uuid)
+
+@app.route('/cursor/<session_uuid>/<node_uuid>/')
+def cursor_session_node(session_uuid, node_uuid):
+
+    python_version = 2
+
+    return get_cursor(request, python_version=python_version, session_uuid=session_uuid, node_uuid=node_uuid)
 
 
 if __name__ == "__main__":
