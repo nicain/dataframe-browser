@@ -62,9 +62,6 @@ def get_permalink(node, incoming_request, session_uuid):
     #     # non-bookmarked, specific node
     #     permalink = urlparse.urljoin(incoming_request.url, node.uuid)
 
-
-    # return permalink
-
 def render_node(curr_node, session_uuid, disable_nav_bookmark_button, dropdown_menu_link_dict, freeze=False):
 
     uuid_table_list = curr_node.get_table_list(page_length=None, session_uuid=session_uuid)
@@ -98,6 +95,7 @@ def render_node(curr_node, session_uuid, disable_nav_bookmark_button, dropdown_m
                         upload_folder=app.config['UPLOAD_FOLDER'],
                         permalink=permalink,
                         dropdown_menu_link_dict=dropdown_menu_link_dict,
+                        embed_cursor_text=get_embed_cursor_text(request),
                         freeze=str(freeze).lower())
 
 def render_browser(dfb_dict, session_uuid, node_uuid_or_bookmark=None):
