@@ -33,17 +33,10 @@ lims_password = pgpasslib.getpass('limsdb2', 5432, 'lims2', 'limsreader')
 
 def get_permalink(node, incoming_request, session_uuid):
 
-    if node.name_safe is None:
-        if node.uuid in incoming_request.url:
-            return incoming_request.url
-        else:
-            return urlparse.urljoin(incoming_request.url, node.uuid)
-
+    if node.uuid in incoming_request.url:
+        return incoming_request.url
     else:
-        if [x for x in urlparse.urlsplit(incoming_request.url).path.split('/') if len(x)>0][-1] == session_uuid:
-            return urlparse.urljoin(incoming_request.url, node.name_safe)
-        else:
-            return incoming_request.url
+        return urlparse.urljoin(incoming_request.url, node.uuid)
 
 def get_embed_cursor_text(incoming_request):
 
@@ -97,20 +90,17 @@ def render_node(curr_node, session_uuid, disable_nav_bookmark_button, dropdown_m
                         embed_cursor_text=get_embed_cursor_text(request),
                         freeze=str(freeze).lower())
 
-def render_browser(dfb_dict, session_uuid, node_uuid_or_bookmark=None):
+def render_browser(dfb_dict, session_uuid, node_uuid=None):
 
     dfb = dfb_dict[session_uuid]
     dropdown_menu_link_dict = {name:get_permalink(node, request, session_uuid) for name, node in dfb.model.bookmark_dict.items() if not name in (None, '')}
 
-    if node_uuid_or_bookmark is None:
+    if node_uuid is None:
         curr_node = dfb.model.active
         freeze=False
     else:
         freeze=True
-        if node_uuid_or_bookmark in dfb.model.bookmarks:
-            curr_node = dfb.model.bookmark_dict[node_uuid_or_bookmark]
-        else:
-            curr_node =  one([n for n in dfb.model.nodes if n.uuid == node_uuid_or_bookmark])
+        curr_node = one([n for n in dfb.model.nodes if n.uuid == node_uuid])
 
     disable_nav_bookmark_button = str(curr_node in dfb.model.bookmarked_nodes or curr_node == dfb.model.root).lower()
     try:
@@ -143,18 +133,15 @@ def browser_get(session_uuid):
 
     return render_browser(dfb_dict, session_uuid)
 
-@app.route("/browser/<session_uuid>/<node_uuid_or_bookmark>/", methods=['GET']) 
-def browser_get_node(session_uuid, node_uuid_or_bookmark): 
+@app.route("/browser/<session_uuid>/<node_uuid>/", methods=['GET']) 
+def browser_get_node(session_uuid, node_uuid): 
 
-    return render_browser(dfb_dict, session_uuid, node_uuid_or_bookmark=node_uuid_or_bookmark)
+    return render_browser(dfb_dict, session_uuid, node_uuid=node_uuid)
     
 
 @app.route("/node_uuid/<session_uuid>/", methods=['GET']) 
 def node_uuid(session_uuid):
-    if dfb_dict[session_uuid].model.active.name is not None:
-        return dfb_dict[session_uuid].model.active.name
-    else:
-        return dfb_dict[session_uuid].model.active.uuid
+    return dfb_dict[session_uuid].model.active.uuid
 
 
 @app.route("/stable/<session_uuid>/<node_uuid>/<frame_index>/", methods=['GET']) 
@@ -205,14 +192,6 @@ def get_active_uuid():
 def get_upload_folder():
 
     return json.dumps({'upload_folder':app.config['UPLOAD_FOLDER']})
-
-@app.route("/bookmarks/", methods=['POST'])
-def bookmarks():
-
-    print dict(request.form)
-    print dfb.model.bookmarks
-
-    return redirect('/sandbox')
 
 @app.route("/command/<session_uuid>/", methods=['POST'])
 def cmd_post(session_uuid):
