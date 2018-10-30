@@ -183,10 +183,13 @@ if __name__ == "__main__":
 
     c = Cursor(session_uuid=False)
     
-    import dill, os
-    save_file_name = os.path.join(os.path.dirname(__file__), 'data', 'cursor.p')
-
-    dill.dump(c, open(save_file_name, 'w'))
-
+    import dill, os, six 
+    if six.PY3: 
+ 
+        save_file_name = os.path.join(os.path.dirname(__file__), 'data', 'cursor3.p') 
+        dill.dump(c, open(save_file_name, 'wb')) 
+    else: 
+        save_file_name = os.path.join(os.path.dirname(__file__), 'data', 'cursor2.p') 
+        dill.dump(c, open(save_file_name, 'wb')) 
 
  
