@@ -41,7 +41,7 @@ def get_permalink(node, incoming_request, session_uuid):
 def get_embed_cursor_text(incoming_request, node, session_uuid=None):
 
     if node.uuid in incoming_request.url:
-        node_uuid = '{node_uuid}'.format(node_uuid=node.uuid)
+        node_uuid = '"{node_uuid}"'.format(node_uuid=node.uuid)
     else:
         node_uuid = None
 
@@ -348,7 +348,7 @@ def upload_file(session_uuid):
 @app.route('/cursor/')
 def cursor():
 
-    python_version = 'python%s' % request.args.get('python', 3)
+    python_version = request.args.get('python', 'python3')
 
     cursor_file_name = os.path.join(os.path.dirname(__file__),'dataframe_browser', 'data', 'cursor.dill.json')
 
