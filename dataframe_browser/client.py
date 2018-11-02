@@ -99,7 +99,7 @@ class Cursor(object):
     def concat(self, how='vertical', reload=True):
         return self.run(command='concat', how=how, reload=reload)
     
-    def apply(self, columns=None, mapper=None, new_column=None, lazy=True, reload=True, drop=False):
+    def apply(self, mapper=None, columns=None, new_column=None, lazy=True, reload=True, drop=False):
         import dill
         
         if not isinstance(mapper, (str, unicode)):
@@ -110,7 +110,10 @@ class Cursor(object):
         else:
             dillify=False
 
-        return self.run(command='apply', columns=columns, mapper=mapper, new_column=new_column, lazy=lazy, reload=reload, drop=drop, dillify=dillify)
+        return self.run(command='apply', mapper=mapper, columns=columns, new_column=new_column, lazy=lazy, reload=reload, drop=drop, dillify=dillify)
+
+    def update(self, mapper=None, column=None, lazy=True, reload=True):
+        return self.apply(mapper=mapper, columns=column, new_column=column, lazy=lazy, reload=reload, drop=True)
 
     def reload(self):
         return self.run(command='reload', reload=True)

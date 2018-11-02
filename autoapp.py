@@ -53,12 +53,12 @@ def get_embed_cursor_text(incoming_request, node, session_uuid=None):
 import dill
 import requests
 
-x = requests.get('{url}?python=python2')
-Cursor = dill.loads(x.content)
 hostname="{hostname}"
 port={port}
 session_uuid = "{session_uuid}"
 node_uuid = {node_uuid}
+x = requests.get('http://{{hostname}}:{{port}}/cursor?python=python2'.format(hostname=hostname, port=port))
+Cursor = dill.loads(x.content)
 c = Cursor(port=port, hostname=hostname, session_uuid=session_uuid, node_uuid=node_uuid)
 c.cell_width('90%')
 c.display(height=800)
