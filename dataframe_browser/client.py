@@ -101,8 +101,9 @@ class Cursor(object):
     
     def apply(self, mapper=None, columns=None, new_column=None, lazy=True, reload=True, drop=False):
         import dill
+        import six
         
-        if not isinstance(mapper, (str, unicode)):
+        if not isinstance(mapper, six.string_types):
             assert callable(mapper)
             mapper = dill.dumps(mapper).decode('latin1')
             dillify=True
