@@ -233,7 +233,20 @@ class Node(object):
 
         new_nodes = []
         for node_frame in self.node_frames:
+            
+            if kwargs['new_column'] in kwargs['columns']:
+                assert kwargs['drop'] == True
+                original_new_col = kwargs['new_column']
+                new_tmp_col_name = generate_uuid()
+                kwargs['new_column'] = new_tmp_col_name
+            else:
+                original_new_col = None
+
             df, load_time = node_frame.apply(**kwargs)
+            if original_new_col is not None:
+                df[[original_new_col]] = df[[new_tmp_col_name]]
+                df.drop(new_tmp_col_name, inplace=True, axis=1)
+
             node_frame = NodeFrame(df=df, load_time=load_time)
             new_node = Node((node_frame,), name=None, parent=self, force=False) # TODO THIS SEEMS STRANGE
             new_nodes.append(new_node)
