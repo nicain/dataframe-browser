@@ -38,17 +38,36 @@ def get_permalink(node, incoming_request, session_uuid):
     else:
         return urlparse.urljoin(incoming_request.url, node.uuid)
 
-def get_embed_cursor_text(incoming_request):
+def get_embed_cursor_text(incoming_request, node, session_uuid=None):
+
+    if node.uuid in incoming_request.url:
+        node_uuid = '{node_uuid}'.format(node_uuid=node.uuid)
+    else:
+        node_uuid = None
+
+    url_obj = urlparse.urlparse(incoming_request.url_root)
+    hostname=url_obj.hostname
+    port=url_obj.port
 
     text = '''
 import dill
 import requests
 
-x = requests.get('{url}')
-c = dill.loads(x.content)
+x = requests.get('{url}?python=python2')
+Cursor = dill.loads(x.content)
+hostname="{hostname}"
+port={port}
+session_uuid = "{session_uuid}"
+node_uuid = {node_uuid}
+c = Cursor(port=port, hostname=hostname, session_uuid=session_uuid, node_uuid=node_uuid)
 c.cell_width('90%')
 c.display(height=800)
-    '''.format(url=incoming_request.url.replace('browser', 'cursor'))
+
+    '''.format(url=urlparse.urljoin(incoming_request.url_root, 'cursor'), 
+               hostname=hostname,
+               port=port,
+               session_uuid=session_uuid, 
+               node_uuid=node_uuid)
     
     return text.strip()
 
@@ -87,10 +106,13 @@ def render_node(curr_node, session_uuid, disable_nav_bookmark_button, dropdown_m
                         upload_folder=app.config['UPLOAD_FOLDER'],
                         permalink=permalink,
                         dropdown_menu_link_dict=dropdown_menu_link_dict,
-                        embed_cursor_text=get_embed_cursor_text(request),
+                        embed_cursor_text=get_embed_cursor_text(request, curr_node, session_uuid=session_uuid),
                         freeze=str(freeze).lower())
 
 def render_browser(dfb_dict, session_uuid, node_uuid=None):
+
+    if not session_uuid in dfb_dict:
+        dfb_dict[session_uuid] = DataFrameBrowser(session_uuid=session_uuid)
 
     dfb = dfb_dict[session_uuid]
     dropdown_menu_link_dict = {name:get_permalink(node, request, session_uuid) for name, node in dfb.model.bookmark_dict.items() if not name in (None, '')}
@@ -326,47 +348,11 @@ def upload_file(session_uuid):
 @app.route('/cursor/')
 def cursor():
 
-    session_uuid = generate_uuid()
-    dfb_dict[session_uuid] = DataFrameBrowser(session_uuid=session_uuid)
+    python_version = 'python%s' % request.args.get('python', 3)
 
-    return redirect(urlparse.urljoin(request.url, session_uuid))
+    cursor_file_name = os.path.join(os.path.dirname(__file__),'dataframe_browser', 'data', 'cursor.dill.json')
 
-def get_cursor(current_request, python_version=2, session_uuid=None, node_uuid=None):
-    
-    if python_version == 2:
-        cursor_file_name = os.path.join(os.path.dirname(__file__),'dataframe_browser', 'data', 'cursor.p')
-    else:
-        raise NotImplementedError
-    
-    url_obj = urlparse.urlparse(current_request.url_root)
-
-    c = dill.load(open(cursor_file_name, 'r'))
-    c.port = url_obj.port
-    c.hostname = url_obj.hostname
-    c._session_uuid = session_uuid
-    c._node_uuid = node_uuid
-
-    buf = io.BytesIO()
-    dill.dump(c, buf)
-
-    return buf.getvalue()
-
-
-
-@app.route('/cursor/<session_uuid>/')
-def cursor_session(session_uuid):
-
-    python_version = 2
-
-    return get_cursor(request, python_version=python_version, session_uuid=session_uuid)
-
-@app.route('/cursor/<session_uuid>/<node_uuid>/')
-def cursor_session_node(session_uuid, node_uuid):
-
-    python_version = 2
-
-    return get_cursor(request, python_version=python_version, session_uuid=session_uuid, node_uuid=node_uuid)
-
+    return json.load(open(cursor_file_name, 'rb'))[python_version].encode('latin1')
 
 if __name__ == "__main__":
     
@@ -375,10 +361,3 @@ if __name__ == "__main__":
     webbrowser.open('http://localhost:5000/browser')
     
     app.run(debug=True)
-
-
-
-
-    # {'mapper':'nwb_file_to_max_projection', 
-    # 'mapper_library':'dataframe_browser.mappers.brain_observatory', 
-    # 'args':['/allen/programs/braintv/production/neuralcoding/prod31/specimen_602810529/ophys_session_617204394/ophys_experiment_617388117/617388117.nwb']}

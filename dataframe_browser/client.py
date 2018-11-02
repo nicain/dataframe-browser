@@ -180,16 +180,20 @@ if __name__ == "__main__":
 
     # This generates a cursor that can be served from the /cursor/<session_uuid>/
     #  out of the save folder, with only basic dependencies on the client environment
+    import dill, os, six, json
 
-    c = Cursor(session_uuid=False)
+    c = Cursor
+    save_file_name = os.path.join(os.path.dirname(__file__), 'data', 'cursor.dill.json') 
     
-    import dill, os, six 
+    if os.path.exists(save_file_name):
+        data_dict = json.load(open(save_file_name, 'r'))
+    else:
+        data_dict = {}
+        
     if six.PY3: 
- 
-        save_file_name = os.path.join(os.path.dirname(__file__), 'data', 'cursor3.p') 
-        dill.dump(c, open(save_file_name, 'wb')) 
+        data_dict['python3'] = dill.dumps(c).decode("latin1") 
     else: 
-        save_file_name = os.path.join(os.path.dirname(__file__), 'data', 'cursor2.p') 
-        dill.dump(c, open(save_file_name, 'wb')) 
+        data_dict['python2'] = dill.dumps(c).decode("latin1") 
 
- 
+    json.dump(data_dict, open(save_file_name, 'w'))
+

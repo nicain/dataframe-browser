@@ -326,12 +326,40 @@
         <div class="card-body">
                 
             <div class="d-flex">
-                <button type="button" class="btn btn-secondary btn-sm mb-1 mr-sm-2 ml-sm-1 btn-copy js-tooltip js-copy" data-toggle="tooltip" data-placement="bottom" data-copy='{{embed_cursor_text}}'>
+                <button id='embed-cursor-copy-button' type="button" class="btn btn-secondary btn-sm mb-1 mr-sm-2 ml-sm-1 btn-copy js-tooltip js-copy" data-toggle="tooltip" data-placement="bottom" data-copy='{{embed_cursor_text}}'>
                     <span class="oi oi-clipboard"></span>
                 </button>
+                <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-outline-primary active" id=python2-embed-select>
+                        <input type="radio" name="options" id="python2" autocomplete="off" checked> python2
+                    </label>
+                    <label class="btn btn-outline-primary" id=python3-embed-select>
+                        <input type="radio" name="options" id="python3" autocomplete="off"> python3
+                    </label>
+                </div>
                 <button type="button" class="btn btn-outline-danger btn-sm ml-2" data-toggle="collapse" data-target="#EmbedCollapse" data-toggle="tooltip" data-placement="top" title="Cancel"><span class="oi oi-x"></span></button>
             </div>
-            <pre><code class="language-python">{{embed_cursor_text}}</code></pre>
+
+            <pre><code class="language-python" id="embed-cursor-displayed">{{embed_cursor_text}}</code></pre>
+
+            <script>
+                $( "#python3-embed-select" ).click(function() {
+                    var copy_paste_code = $( "#embed-cursor-copy-button" ).attr("data-copy")
+                    var displayed_code=$( "#embed-cursor-displayed" ).html();
+                    $( "#embed-cursor-displayed" ).html(displayed_code.replace('python2', "python3"));
+                    $( "#embed-cursor-copy-button" ).attr("data-copy", copy_paste_code.replace('python2', "python3"))
+                });
+            </script>
+
+            <script>
+                $( "#python2-embed-select" ).click(function() {
+                    var copy_paste_code = $( "#embed-cursor-copy-button" ).attr("data-copy")
+                    var displayed_code=$( "#embed-cursor-displayed" ).html();
+                    $( "#embed-cursor-displayed" ).html(displayed_code.replace('python3', "python2"));
+                    $( "#embed-cursor-copy-button" ).attr("data-copy", copy_paste_code.replace('python3', "python2"))
+                });
+            </script>
+
         </div>        
     </div>
 </div>
