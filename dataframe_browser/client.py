@@ -102,7 +102,10 @@ class Cursor(object):
     def apply(self, mapper=None, columns=None, new_column=None, lazy=True, reload=True, drop=False):
         import dill
         import six
-        
+
+        if self.__python_version__ == 3:
+            raise RuntimeError('apply and update not supported in python3')
+
         if not isinstance(mapper, six.string_types):
             assert callable(mapper)
             mapper = dill.dumps(mapper).decode('latin1')
@@ -194,9 +197,11 @@ if __name__ == "__main__":
     else:
         data_dict = {}
         
-    if six.PY3: 
+    if six.PY3:
+        c.__python_version__ = 3
         data_dict['python3'] = dill.dumps(c).decode("latin1") 
     else: 
+        c.__python_version__ = 2
         data_dict['python2'] = dill.dumps(c).decode("latin1") 
 
     json.dump(data_dict, open(save_file_name, 'w'))
