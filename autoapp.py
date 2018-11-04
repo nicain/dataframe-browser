@@ -31,6 +31,55 @@ dfb_dict = {}
 
 lims_password = pgpasslib.getpass('limsdb2', 5432, 'lims2', 'limsreader')
 
+from marshmallow import Schema, fields
+
+class HingeSchema(Schema):
+    name = fields.Str()
+    uuid = fields.UUID()
+
+class Hinge(object):
+
+    schema = HingeSchema()
+
+    def __init__(self, name=None, uuid=None):
+        assert not name is None
+        self.name = name
+        self.button_html_list = []
+
+    def get_menu_html(self):
+        return '\n'.join(self.button_html_list)
+
+button_html = \
+'''<form class="form-inline" action="/command/{session_uuid}/" method="POST">
+    <input type="hidden" name='columns' value='{column_string}'>
+    <input type="hidden" name='frames' value='{frame_index}'>
+    <input type="hidden" name='command' value='drop'>
+    <button type="submit" class="w-100 btn btn-danger btn-sm mx-2 my-1"><span class="oi oi-x"></span> Drop</button>
+</form>'''.strip()
+
+
+button_html = \
+'''
+<form class="form-inline" action="/command/{session_uuid}/" method="POST">
+    <input type="hidden" name='columns' value='{column_string}'>
+    <input type="hidden" name='new_column' value='{column_string}'>
+    <input type="hidden" name='drop' value='true'>
+    <input type="hidden" name='mapper' value='brain_observatory.nwb_file_to_max_projection'>
+    <input type="hidden" name='command' value="apply">
+    <button type="submit" class="w-100 btn btn-primary btn-sm mx-2 my-1">max_projection</button>
+</form>'''.strip()
+
+master_hinge_dict = {}
+
+h_tmp = Hinge(name='BOb session')
+master_hinge_dict['7fa00718647f4ebcaf42246eb36eb6b1'] = h_tmp
+
+h_tmp.button_html_list.append(button_html)
+
+
+
+
+
 def get_permalink(node, incoming_request, session_uuid):
 
     if node.uuid in incoming_request.url:
@@ -75,7 +124,7 @@ c.display(height=800)
 def render_node(curr_node, session_uuid, disable_nav_bookmark_button, dropdown_menu_link_dict, freeze=False):
 
 
-    uuid_table_list = curr_node.get_table_list(page_length=None, session_uuid=session_uuid)
+    uuid_table_list = curr_node.get_table_list(page_length=None, session_uuid=session_uuid, master_hinge_dict=master_hinge_dict)
     active_name_str = curr_node.name if curr_node.name is not None else ''
 
     permalink = get_permalink(curr_node, request, session_uuid)

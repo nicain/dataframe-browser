@@ -48,35 +48,37 @@ class FlaskViewServer(ConsoleView):
         super(FlaskViewServer, self).__init__(**kwargs)
         self._html_cache = get_cache('basic')
 
-    def display_node(self, page_length=None):
+    # def display_node(self, page_length=None):
 
-        if self.app.model.active in self._html_cache:
-            return self._html_cache[self.app.model.active]
+    #     if self.app.model.active in self._html_cache:
+    #         return self._html_cache[self.app.model.active]
     
 
-        if self.app.model.active is None or len(self.app.model.active) < 1:
-            uuid_table_list = []
+    #     if self.app.model.active is None or len(self.app.model.active) < 1:
+    #         uuid_table_list = []
 
-        else:
-            if page_length is None:
-                page_length = 5 if len(self.app.model.active) > 1 else 20
+    #     else:
+    #         if page_length is None:
+    #             page_length = 5 if len(self.app.model.active) > 1 else 20
 
-            uuid_table_list = []
-            for frame_index, frame in enumerate(self.app.model.active.node_frames):
+    #         uuid_table_list = []
+    #         for frame_index, frame in enumerate(self.app.model.active.node_frames):
 
-                # common_col_list = self.app.model.common_active_columns
-                # print common_col_list, [c for c in frame.columns if c not in common_col_list]
-                # print frame.columns
-                table_html = frame.to_html(frame_index)#columns=common_col_list + [str(c) for c in frame.columns if c not in common_col_list])
-                table_html = table_html.replace('{{session_uuid}}', self.app.session_uuid)
-                table_html_bs = BeautifulSoup(table_html).table
-                table_uuid = generate_uuid()
-                table_html_bs['id'] = table_uuid
-                uuid_table_list.append((table_uuid, str(table_html_bs), page_length))
+    #             # common_col_list = self.app.model.common_active_columns
+    #             # print common_col_list, [c for c in frame.columns if c not in common_col_list]
+    #             # print frame.columns
+    #             print frame.hinge_dict
 
-        self.logger.info(json.dumps(['DISPLAY_NODE'], indent=4))
-        self._html_cache[self.app.model.active] = uuid_table_list
-        return uuid_table_list
+    #             table_html = frame.to_html(frame_index)#columns=common_col_list + [str(c) for c in frame.columns if c not in common_col_list])
+    #             table_html = table_html.replace('{{session_uuid}}', self.app.session_uuid)
+    #             table_html_bs = BeautifulSoup(table_html).table
+    #             table_uuid = generate_uuid()
+    #             table_html_bs['id'] = table_uuid
+    #             uuid_table_list.append((table_uuid, str(table_html_bs), page_length))
+
+    #     self.logger.info(json.dumps(['DISPLAY_NODE'], indent=4))
+    #     self._html_cache[self.app.model.active] = uuid_table_list
+    #     return uuid_table_list
 
 # class FlaskViewClient(ConsoleView):
 

@@ -1,7 +1,7 @@
 from dataframe_browser.client import Cursor
 import pgpasslib
 
-c = Cursor()
+c = Cursor(session_uuid='example')
 
 c.read(uri='postgresql://limsreader:{password}@limsdb2:5432/lims2'.format(password=pgpasslib.getpass('limsdb2', 5432, 'lims2', 'limsreader')), 
        query='''SELECT wkfnwb.storage_directory || wkfnwb.filename AS nwb_file, oe.experiment_container_id AS experiment_container_id, oe.ophys_session_id AS ophys_session_id
@@ -12,4 +12,4 @@ c.read(uri='postgresql://limsreader:{password}@limsdb2:5432/lims2'.format(passwo
             WHERE osp.code = 'C600' AND ec.workflow_state NOT IN ('failed')
             AND ec.workflow_state = 'published';''')
 
-c.apply(columns='nwb_file', mapper='brain_observatory.nwb_file_to_max_projection', new_column='max_projection', lazy=True)
+# c.apply(columns='nwb_file', mapper='brain_observatory.nwb_file_to_max_projection', new_column='max_projection', lazy=True, drop=True)

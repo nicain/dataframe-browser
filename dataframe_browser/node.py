@@ -278,7 +278,7 @@ class Node(object):
             return {'name':str(self.name)}
 
 
-    def get_table_list(self, page_length=None, session_uuid=None):
+    def get_table_list(self, page_length=None, session_uuid=None, master_hinge_dict={}):
 
         if page_length is None:
             page_length = 5 if len(self) > 1 else 20
@@ -286,7 +286,7 @@ class Node(object):
         table_list = []
         for frame_index, frame in enumerate(self.node_frames):
 
-            table_html = frame.to_html(frame_index)
+            table_html = frame.to_html(frame_index, master_hinge_dict=master_hinge_dict)
             table_html = table_html.replace('{{session_uuid}}', session_uuid)
             table_html_bs = BeautifulSoup(table_html).table
             table_uuid = generate_uuid()

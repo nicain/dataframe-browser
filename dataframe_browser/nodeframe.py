@@ -7,6 +7,7 @@ from flask import flash
 import numpy as np
 import copy
 import dill
+import collections
 
 # TODO: Move to utilities
 def memory_usage(df, deep=True):
@@ -67,13 +68,22 @@ def series_is_index_candidate(s):
 
 class NodeFrame(object):
 
-    def __init__(self, df=None, load_time=None, metadata=None):
+    def __init__(self, df=None, load_time=None, metadata=None, hinge_dict=None):
 
         # TODO?
         # https://www.kaggle.com/arjanso/reducing-dataframe-memory-size-by-65
         self.df = df
         self.metadata = metadata
         self._load_time = load_time
+
+        if hinge_dict is None:
+            self.hinge_dict = collections.defaultdict(list)
+        else:
+            self.hinge_dict = {key:[val for val in val_list] for key, val_list in hinge_dict.items()}
+
+        # REMOVE THIS AFTER HINGE FEATURE IMPLEMENTED        
+        self.hinge_dict['nwb_file'].append('7fa00718647f4ebcaf42246eb36eb6b1')
+        # print self.df.columns,  self.hinge_dict
 
     def set_load_time(self, t):
         self._load_time = t
@@ -112,7 +122,7 @@ class NodeFrame(object):
 
         return D
 
-    def to_html(self, frame_index=None, columns=None, max_size=5000000, interactive=True):
+    def to_html(self, frame_index=None, columns=None, max_size=5000000, interactive=True, master_hinge_dict={}):
 
         if columns is None:
             columns = self.df.columns
@@ -136,30 +146,40 @@ class NodeFrame(object):
 
         if interactive == True:
 
-            # Add interactive buttons
-
             button_load = '''
             <td><div class="dropdown">
-                <button data-toggle="dropdown" class="dropdown-toggle btn btn-light btn-sm py-1 ml-1 col-btn"><span class="oi oi-menu"></span></button>
+                <button data-toggle="dropdown" class="dropdown-toggle btn btn-light btn-sm py-1 ml-1 col-btn my-1"><span class="oi oi-menu"></span></button>
                 <div class="dropdown-menu">
-                    <form class="form-inline my-2 my-lg-0" action="/command/{session_uuid}/" method="POST">
+                    {menu_items}
+                    <form class="form-inline" action="/command/{session_uuid}/" method="POST">
                         <input type="hidden" name='columns' value='{column_string}'>
                         <input type="hidden" name='frames' value='{frame_index}'>
                         <input type="hidden" name='command' value='drop'>
-                        <button type="submit" class="btn btn-danger btn-sm ml-3"><span class="oi oi-x"></span> Drop</button>
+                        <button type="submit" class="w-100 btn btn-danger btn-sm mx-2 my-1"><span class="oi oi-x"></span> Drop</button>
                     </form>
                 </div>
             </div></td>
             '''
-
+            
             bs = BeautifulSoup(table_html)
             table_bs = bs.table
             head = table_bs.thead
             head_row = head.tr
             head_row.insert_after(copy.copy(head_row))
             for x in head_row.find_all('th'):
-                column_string = x.string
-                x.replace_with(BeautifulSoup(button_load.format(session_uuid='{{session_uuid}}', column_string=column_string, frame_index=frame_index)))
+                column_string = str(x.string)
+                menu_item_list = []
+                if column_string in self.hinge_dict:
+                    for hing_uuid in self.hinge_dict[column_string]:
+                        hinge = master_hinge_dict.get(hing_uuid, None)
+                        if hinge is not None:
+                            menu_item_list.append(hinge.get_menu_html())
+                    
+                button_load_menu = button_load.format(menu_items='/n'.join(menu_item_list),session_uuid='{{session_uuid}}', column_string='{{column_string}}', frame_index='{{frame_index}}')
+                x.replace_with(BeautifulSoup(button_load_menu.format(session_uuid='{{session_uuid}}', 
+                                                                column_string=column_string, 
+                                                                frame_index=frame_index,
+                                                                )))
             table_html = str(table_bs)
 
 
