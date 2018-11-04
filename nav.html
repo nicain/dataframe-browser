@@ -77,6 +77,9 @@
                     <button class="dropdown-item" data-toggle="collapse" data-target="#ApplyCollapse">Apply</button>
                     <button class="dropdown-item" data-toggle="collapse" data-target="#TransposeColumnsByCollapse" id="transpose-menu-item-button">Transpose</button>
                     
+                    <div class="dropdown-divider"></div>
+
+                    <button class="dropdown-item" data-toggle="collapse" data-target="#EmbedCollapse">Embed</button>
 
                     <div class="dropdown-divider"></div>
 
@@ -145,10 +148,30 @@
 
         </div>
 
-        <form class="form-inline my-2 my-lg-0" action="/bookmarks" method="POST">
-            <input class="form-control mr-sm-2" type="search" name='q'  placeholder="Search" aria-label="Search">
-            <button class="btn btn-primary my-2" type="submit">Search</button>
-        </form>
+        <div class="dropdown">
+            <button class="btn-sm btn btn-primary dropdown-toggle disabled" type="button" id="bookmark-menu-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Search
+            </button>
+
+            <script>
+                $(function(){
+                    if(!{{disable_nav_bookmark_dropdown|default("true", false)}}){
+                        $('#bookmark-menu-button').removeClass('disabled');
+                    } else {
+                        $('#bookmark-menu-button').prop('disabled',"disabled");
+                    }
+                });
+            </script>
+
+            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
+                {% for name, url in dropdown_menu_link_dict.items() %}
+                    <a class="dropdown-item" href="{{url}}">{{name}}</a>
+                {% endfor %}
+            </div>
+        </div>
+
+
+
     </div>
 </nav>
 
@@ -295,6 +318,49 @@
             <input type="text" class="form-control mt-2" placeholder="New column" name="new_column" required>
 
         </form>
+    </div>
+</div>
+
+<div class="collapse" id="EmbedCollapse">
+    <div class="card">
+        <div class="card-body">
+                
+            <div class="d-flex">
+                <button id='embed-cursor-copy-button' type="button" class="btn btn-secondary btn-sm mb-1 mr-sm-2 ml-sm-1 btn-copy js-tooltip js-copy" data-toggle="tooltip" data-placement="bottom" data-copy='{{embed_cursor_text}}'>
+                    <span class="oi oi-clipboard"></span>
+                </button>
+                <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-outline-primary active" id=python2-embed-select>
+                        <input type="radio" name="options" id="python2" autocomplete="off" checked> python2
+                    </label>
+                    <label class="btn btn-outline-primary" id=python3-embed-select>
+                        <input type="radio" name="options" id="python3" autocomplete="off"> python3
+                    </label>
+                </div>
+                <button type="button" class="btn btn-outline-danger btn-sm ml-2" data-toggle="collapse" data-target="#EmbedCollapse" data-toggle="tooltip" data-placement="top" title="Cancel"><span class="oi oi-x"></span></button>
+            </div>
+
+            <pre><code class="language-python" id="embed-cursor-displayed">{{embed_cursor_text}}</code></pre>
+
+            <script>
+                $( "#python3-embed-select" ).click(function() {
+                    var copy_paste_code = $( "#embed-cursor-copy-button" ).attr("data-copy")
+                    var displayed_code=$( "#embed-cursor-displayed" ).html();
+                    $( "#embed-cursor-displayed" ).html(displayed_code.replace('python2', "python3"));
+                    $( "#embed-cursor-copy-button" ).attr("data-copy", copy_paste_code.replace('python2', "python3"))
+                });
+            </script>
+
+            <script>
+                $( "#python2-embed-select" ).click(function() {
+                    var copy_paste_code = $( "#embed-cursor-copy-button" ).attr("data-copy")
+                    var displayed_code=$( "#embed-cursor-displayed" ).html();
+                    $( "#embed-cursor-displayed" ).html(displayed_code.replace('python3', "python2"));
+                    $( "#embed-cursor-copy-button" ).attr("data-copy", copy_paste_code.replace('python3', "python2"))
+                });
+            </script>
+
+        </div>        
     </div>
 </div>
 
