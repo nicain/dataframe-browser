@@ -175,7 +175,18 @@ class DataFrameBrowser(object):
             mapper = one(mapper)
 
         if isinstance(drop, (list, tuple)):
-            drop = bool(one(drop))
+            drop = one(drop)
+        
+        if isinstance(drop, (str, unicode)):
+            drop = drop.lower()
+            if drop == 'true':
+                drop = True
+            elif drop == 'false':
+                drop = False
+            else:
+                raise RuntimeError('drop string not recognized as book')
+        else: 
+            assert isinstance(drop, bool)
 
         new_node_list = self.active.apply(columns=columns, mapper=mapper, new_column=new_column, lazy=lazy, drop=drop, dillify=dillify)
         self.model.set_active(new_node_list[0])
