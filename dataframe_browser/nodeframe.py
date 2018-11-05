@@ -174,7 +174,8 @@ class NodeFrame(object):
                         if hinge is not None:
                             menu_item_list.append(hinge.get_menu_html())
                     
-                button_load_menu = button_load.format(menu_items='/n'.join(menu_item_list),session_uuid='{{session_uuid}}', column_string='{{column_string}}', frame_index='{{frame_index}}')
+                button_load_menu = button_load.format(menu_items='/n'.join(menu_item_list),session_uuid='{session_uuid}', column_string='{column_string}', frame_index='{frame_index}')
+                print button_load_menu
                 x.replace_with(BeautifulSoup(button_load_menu.format(session_uuid='{{session_uuid}}', 
                                                                 column_string=column_string, 
                                                                 frame_index=frame_index,
