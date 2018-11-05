@@ -240,7 +240,23 @@ class DataFrameBrowser(object):
         new_node = self.active.transpose(index=index)
         self.model.set_active(new_node)
 
-
+    def hinge(self, column=None, uuid=None, frames=None, nodes=None):
+        assert column is not None
+        assert uuid is not None
+ 
+        if nodes is None:
+            nodes = [self.active]
+        else:
+            raise NotImplementedError('get node list by uuid')
+ 
+        for node in nodes:
+            if frames is None:
+                frames = range(len(self.active.node_frames))
+            frames = [int(ii) for ii in frames]
+ 
+            for fi, frame in enumerate(node.node_frames):
+                if fi in frames:
+                    frame.add_hinge(column=column, uuid=uuid)
 
 if __name__ == "__main__":    
     

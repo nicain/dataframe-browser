@@ -62,8 +62,8 @@ button_html = \
 '''
 <form class="form-inline" action="/command/{session_uuid}/" method="POST">
     <input type="hidden" name='columns' value='{column_string}'>
-    <input type="hidden" name='new_column' value='{column_string}'>
-    <input type="hidden" name='drop' value='true'>
+    <input type="hidden" name='new_column' value='max_projection_image'>
+    <input type="hidden" name='drop' value='false'>
     <input type="hidden" name='mapper' value='brain_observatory.nwb_file_to_max_projection'>
     <input type="hidden" name='command' value="apply">
     <button type="submit" class="w-100 btn btn-primary btn-sm mx-2 my-1">max_projection</button>
@@ -316,6 +316,8 @@ def cmd_post(session_uuid):
             dfb.transpose(**data)
         elif command == 'mapper':
             dfb.mapper(**data)
+        elif command == 'hinge': 
+            dfb.hinge(**data) 
         elif command == 'reload':
             reload_bool = True
         else:

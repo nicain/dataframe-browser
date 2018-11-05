@@ -177,6 +177,9 @@ class Cursor(object):
         node_uuid = requests.get(self.uri(base='node_uuid', session_uuid=self.session_uuid)).content
         return '{base}{node_uuid}/'.format(base=self.uri(base='browser', session_uuid=self.session_uuid), node_uuid=node_uuid)
 
+    def hinge(self, column=None, uuid=None, frames=None, nodes=None, reload=True): 
+        return self.run(command='hinge', column=column, uuid=uuid, frames=frames, nodes=nodes, reload=reload) 
+
     @property
     def help(self):
         pass

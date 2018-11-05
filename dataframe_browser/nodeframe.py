@@ -79,11 +79,10 @@ class NodeFrame(object):
         if hinge_dict is None:
             self.hinge_dict = collections.defaultdict(list)
         else:
-            self.hinge_dict = {key:[val for val in val_list] for key, val_list in hinge_dict.items()}
+            self.hinge_dict = {key:[val for val in val_list] for key, val_list in hinge_dict.items()}        
 
-        # REMOVE THIS AFTER HINGE FEATURE IMPLEMENTED        
-        self.hinge_dict['nwb_file'].append('7fa00718647f4ebcaf42246eb36eb6b1')
-        # print self.df.columns,  self.hinge_dict
+    def add_hinge(self, column=None, uuid=None):
+        self.hinge_dict[column].append(uuid)
 
     def set_load_time(self, t):
         self._load_time = t
