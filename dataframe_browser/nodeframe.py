@@ -8,6 +8,7 @@ import numpy as np
 import copy
 import dill
 import collections
+import requests
 
 # TODO: Move to utilities
 def memory_usage(df, deep=True):
@@ -130,7 +131,7 @@ class NodeFrame(object):
 
         return D
 
-    def to_html(self, frame_index=None, columns=None, max_size=5000000, interactive=True, master_hinge_dict={}):
+    def to_html(self, frame_index=None, columns=None, max_size=5000000, interactive=True):
 
         if columns is None:
             columns = self.df.columns
@@ -179,9 +180,7 @@ class NodeFrame(object):
                 menu_item_list = []
                 if column_string in self.hinge_dict:
                     for hing_uuid in self.hinge_dict[column_string]:
-                        hinge = master_hinge_dict.get(hing_uuid, None)
-                        if hinge is not None:
-                            menu_item_list.append(hinge.get_menu_html())
+                        menu_item_list.append(requests.get('http://nicholasc-ubuntu:5100/{hing_uuid}/'.format(hing_uuid=hing_uuid)).text)
                     
                 button_load_menu = button_load.format(menu_items='/n'.join(menu_item_list),session_uuid='{session_uuid}', column_string='{column_string}', frame_index='{frame_index}')
                 x.replace_with(BeautifulSoup(button_load_menu.format(session_uuid='{{session_uuid}}', 
