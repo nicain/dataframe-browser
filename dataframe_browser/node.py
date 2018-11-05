@@ -116,7 +116,9 @@ class Node(object):
             key_list, nodeframe_list = [], []
             for key, df in df_dict.items():
                 key_list.append(key)
-                nodeframe_list.append(NodeFrame(df=df, load_time=load_time))
+                new_node_frame = NodeFrame(df=df, load_time=load_time)
+                new_node_frame.transfer_hinges(node_frame)
+                nodeframe_list.append(new_node_frame)
             
             curr_node = Node(tuple(nodeframe_list), name=None, parent=self, force=False) # Not built using create node
             new_nodes.append(curr_node)
@@ -146,8 +148,9 @@ class Node(object):
                     cc = None
 
                 df, load_time = node_frame.drop(columns=cc)
-                node_frame = NodeFrame(df=df, load_time=load_time)
-                node_frame_list.append(node_frame)
+                new_node_frame = NodeFrame(df=df, load_time=load_time)
+                new_node_frame.transfer_hinges(node_frame)
+                node_frame_list.append(new_node_frame)
             new_node = Node(tuple(node_frame_list), name=None, parent=self, force=False)
 
             return new_node
@@ -163,8 +166,9 @@ class Node(object):
             for frame_index, node_frame in enumerate(self.node_frames):
                 if frame_index not in frames_to_drop:
                     df, load_time = node_frame.drop(columns=columns)
-                    node_frame = NodeFrame(df=df, load_time=load_time)
-                    node_frame_list.append(node_frame)
+                    new_node_frame = NodeFrame(df=df, load_time=load_time)
+                    new_node_frame.transfer_hinges(node_frame)
+                    node_frame_list.append(new_node_frame)
             new_node = Node(tuple(node_frame_list), name=None, parent=self, force=False)
 
             return new_node
@@ -180,8 +184,9 @@ class Node(object):
         for frame_index, node_frame in enumerate(self.node_frames):
             if frame_index in frames_to_keep:
                 df, load_time = node_frame.keep(columns=columns)
-                node_frame = NodeFrame(df=df, load_time=load_time)
-                node_frame_list.append(node_frame)
+                new_node_frame = NodeFrame(df=df, load_time=load_time)
+                new_node_frame.transfer_hinges(node_frame)
+                node_frame_list.append(new_node_frame)
         new_node = Node(tuple(node_frame_list), name=None, parent=self, force=False)
 
         return new_node
@@ -222,8 +227,9 @@ class Node(object):
         for node_frame in self.node_frames:
             df, load_time = node_frame.query(**kwargs)
             if len(df) > 0:
-                node_frame = NodeFrame(df=df, load_time=load_time)
-                node_frame_list.append(node_frame)
+                new_node_frame = NodeFrame(df=df, load_time=load_time)
+                new_node_frame.transfer_hinges(node_frame)
+                node_frame_list.append(new_node_frame)
 
         new_node = Node(tuple(node_frame_list), name=None, parent=self)
 
@@ -231,8 +237,15 @@ class Node(object):
 
     def apply(self, **kwargs):
 
-        new_nodes = []
+        print
+        print kwargs
+        print
+
+        new_node_frames = []
         for node_frame in self.node_frames:
+
+            if kwargs['new_column'] in node_frame.columns:
+                raise RuntimeError('New column name {new_column} already exists'.format(new_column=kwargs['new_column']))
             
             if kwargs['new_column'] in kwargs['columns']:
                 assert kwargs['drop'] == True
@@ -247,11 +260,12 @@ class Node(object):
                 df[[original_new_col]] = df[[new_tmp_col_name]]
                 df.drop(new_tmp_col_name, inplace=True, axis=1)
 
-            node_frame = NodeFrame(df=df, load_time=load_time)
-            new_node = Node((node_frame,), name=None, parent=self, force=False) # TODO THIS SEEMS STRANGE
-            new_nodes.append(new_node)
+            new_node_frame = NodeFrame(df=df, load_time=load_time)
+            new_node_frame.transfer_hinges(node_frame)
+            new_node_frames.append(new_node_frame)
 
-        return new_nodes
+        new_node = Node(tuple(new_node_frames), name=None, parent=self, force=False)
+        return new_node
 
     def transpose(self, **kwargs):
 
@@ -263,8 +277,9 @@ class Node(object):
         for node_frame in self.node_frames:
             df, load_time = node_frame.transpose(**kwargs)
             if len(df) > 0:
-                node_frame = NodeFrame(df=df, load_time=load_time)
-                node_frame_list.append(node_frame)
+                new_node_frame = NodeFrame(df=df, load_time=load_time)
+                new_node_frame.transfer_hinges(node_frame)
+                node_frame_list.append(new_node_frame)
 
         new_node = Node(tuple(node_frame_list), name=None, parent=self)
         return new_node

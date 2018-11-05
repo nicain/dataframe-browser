@@ -188,9 +188,8 @@ class DataFrameBrowser(object):
         else: 
             assert isinstance(drop, bool)
 
-        new_node_list = self.active.apply(columns=columns, mapper=mapper, new_column=new_column, lazy=lazy, drop=drop, dillify=dillify)
-        self.model.set_active(new_node_list[0])
-        # THIS IS BUSTED, should not arbitratily pick node 0
+        new_node = self.active.apply(columns=columns, mapper=mapper, new_column=new_column, lazy=lazy, drop=drop, dillify=dillify)
+        self.model.set_active(new_node)
 
     def back(self, N=1):
 

@@ -84,6 +84,15 @@ class NodeFrame(object):
     def add_hinge(self, column=None, uuid=None):
         self.hinge_dict[column].append(uuid)
 
+    def transfer_hinges(self, other, col_map=None):
+        for col_other, val_list in other.hinge_dict.items():
+            if not col_map is None:
+                col_other = col_map.get(col_map, col_map)
+            for val in val_list:
+                if not val in self.hinge_dict[col_other]:
+                    self.hinge_dict[col_other].append(val)
+            
+
     def set_load_time(self, t):
         self._load_time = t
     
@@ -175,7 +184,6 @@ class NodeFrame(object):
                             menu_item_list.append(hinge.get_menu_html())
                     
                 button_load_menu = button_load.format(menu_items='/n'.join(menu_item_list),session_uuid='{session_uuid}', column_string='{column_string}', frame_index='{frame_index}')
-                print button_load_menu
                 x.replace_with(BeautifulSoup(button_load_menu.format(session_uuid='{{session_uuid}}', 
                                                                 column_string=column_string, 
                                                                 frame_index=frame_index,
