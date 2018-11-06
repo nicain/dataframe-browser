@@ -93,6 +93,16 @@ class NodeFrame(object):
                 if not val in self.hinge_dict[col_other]:
                     self.hinge_dict[col_other].append(val)
             
+    def hinge_to_col_list(self, hinge):
+
+        col_list = []
+        for curr_col, hinge_list in self.hinge_dict.items():
+            for h in hinge_list:
+                if str(h) == str(hinge):
+                    col_list.append(curr_col)
+                
+        return col_list
+
 
     def set_load_time(self, t):
         self._load_time = t
@@ -159,6 +169,9 @@ class NodeFrame(object):
             <td><div class="dropdown">
                 <button data-toggle="dropdown" class="dropdown-toggle btn btn-light btn-sm py-1 ml-1 col-btn my-1"><span class="oi oi-menu"></span></button>
                 <div class="dropdown-menu">
+                    <form class="form-inline">
+                        <button type="button" class="w-100 btn btn-secondary btn-sm mx-2 my-1" data-toggle="modal" data-target="#set-hinge-modal">Set Hinge</button>
+                    </form>
                     {menu_items}
                     <form class="form-inline" action="/command/{session_uuid}/" method="POST">
                         <input type="hidden" name='columns' value='{column_string}'>
@@ -179,8 +192,8 @@ class NodeFrame(object):
                 column_string = str(x.string)
                 menu_item_list = []
                 if column_string in self.hinge_dict:
-                    for hing_uuid in self.hinge_dict[column_string]:
-                        menu_item_list.append(requests.get('http://nicholasc-ubuntu:5100/{hing_uuid}/'.format(hing_uuid=hing_uuid)).text)
+                    for hinge_uuid in self.hinge_dict[column_string]:
+                        menu_item_list.append(requests.get('http://nicholasc-ubuntu:5100/{hinge_uuid}/'.format(hinge_uuid=hinge_uuid)).text)
                     
                 button_load_menu = button_load.format(menu_items='/n'.join(menu_item_list),session_uuid='{session_uuid}', column_string='{column_string}', frame_index='{frame_index}')
                 x.replace_with(BeautifulSoup(button_load_menu.format(session_uuid='{{session_uuid}}', 

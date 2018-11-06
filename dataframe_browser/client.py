@@ -180,6 +180,34 @@ class Cursor(object):
     def hinge(self, column=None, uuid=None, frames=None, nodes=None, reload=True): 
         return self.run(command='hinge', column=column, uuid=uuid, frames=frames, nodes=nodes, reload=reload) 
 
+    def merge(self, against=None, hinge_uuid=None, reload=True):
+        return self.run(command='merge', against=against, hinge_uuid=hinge_uuid, reload=reload) 
+
+    def set_hinge_table(self, uuid=None, frame_index=0, name=None):
+        import json
+
+        if not self.frozen:
+            self.freeze()
+        base_uri = self.uri(base='hinge_table', session_uuid=self.session_uuid, node_uuid=self.node_uuid)
+        uri = '{base_uri}{frame_index}/'.format(base_uri=base_uri, frame_index=frame_index)
+        hinge_table_data = {'name':name}
+        json_data = json.dumps(hinge_table_data)
+        self.unfreeze()
+        return requests.post(uri, json=json_data)
+
+    def set_hinge_mapper(self, uuid=None, frame_index=0, name=None):
+        import json
+
+        name='max_projection'
+        button_data_list=[{'title':'max_projection', 
+                            'hidden_name_value_dict':{'columns':"{column_string}",
+                                                    "new_column":"max_projection_image",
+                                                    "drop":"false",
+                                                    "mapper":"brain_observatory.nwb_file_to_max_projection",
+                                                    "command":"apply"}}]
+        raise NotImplementedError
+        # return requests.post(uri, json=json_data)
+
     @property
     def help(self):
         pass

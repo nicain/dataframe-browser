@@ -213,13 +213,20 @@ class Node(object):
     def merge(self, **kwargs):
 
         total_time = 0
-        left_node_frame = self.node_frames[0]
-        for right_node_frame in self.node_frames[1:]:
-            df, load_time = left_node_frame.merge(right_node_frame, **kwargs)
-            total_time += load_time
-            left_node_frame = NodeFrame(df=df, load_time=total_time)
 
-        return Node((left_node_frame,), name=None, parent=self, force=False)
+        new_node_frames = []
+        right_node_frame = kwargs.pop('against')
+        hinge_uuid = kwargs.pop('hinge_uuid')
+        on = right_node_frame.hinge_to_col_list(hinge_uuid)
+        for left_node_frame in self.node_frames:
+            df, load_time = left_node_frame.merge(right_node_frame, on=on, **kwargs)
+            total_time += load_time
+            new_node_frame = NodeFrame(df=df, load_time=total_time)
+            new_node_frame.transfer_hinges(left_node_frame)
+            new_node_frame.transfer_hinges(right_node_frame)
+            new_node_frames.append(new_node_frame)
+
+        return Node(tuple(new_node_frames), name=None, parent=self, force=False)
 
     def query(self, **kwargs):
 

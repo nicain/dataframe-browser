@@ -103,11 +103,12 @@ class DataFrameBrowser(object):
         self.model.active.rename(str(name))
         # self.view.display_active()
 
-    def merge(self, on=None, how='inner'):
+    def merge(self, against=None, hinge_uuid=None, how='inner'):
+        if isinstance(hinge_uuid, (list, tuple)):
+            hinge_uuid = one(hinge_uuid)
 
-        new_node = self.active.merge(on=on, how=how)
+        new_node = self.active.merge(against=against, hinge_uuid=hinge_uuid, how=how)
         self.model.set_active(new_node)
-        self.view.display_active()
 
     def query(self, query=None):
     

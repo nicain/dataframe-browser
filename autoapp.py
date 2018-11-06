@@ -13,6 +13,7 @@ import pgpasslib
 import io
 import dill
 import urlparse
+import requests
 
 
 ALLOWED_EXTENSIONS = ['csv', 'p', 'pkl', 'xls', 'xlsx']
@@ -140,6 +141,41 @@ def render_browser(dfb_dict, session_uuid, node_uuid=None):
 @app.route('/')
 def index():
     return render_template('index.html', version=dataframe_browser.__version__, lims_password=lims_password, dropdown_menu_link_dict={})
+
+@app.route("/hinge_table/<session_uuid>/<node_uuid>/<frame_index>/", methods=['POST']) 
+def set_hinge_table(session_uuid, node_uuid, frame_index):
+
+    against = "/{session_uuid}/{node_uuid}/{frame_index}/".format(session_uuid=session_uuid, 
+                                                                  node_uuid=node_uuid, 
+                                                                  frame_index=frame_index)
+
+    dfb = dfb_dict[session_uuid]
+    curr_node =  one([n for n in dfb.model.nodes if n.uuid == node_uuid])
+    name = json.loads(request.json).get('name', None)
+    if name is not None and  curr_node.name is not None:
+        raise RuntimeError('Bookmark already assigned (%s, %s)' % (name, curr_node.name))
+    elif name is None and  curr_node.name is None:
+        raise RuntimeError('Hinge table must have bookmark name')
+    elif name is None:
+        name = curr_node.name
+    else:
+        curr_node.rename(str(name))
+
+    curr_nodeframe = curr_node.node_frames[int(frame_index)]
+    hinge_set = set()
+    for curr_hinge_list in curr_nodeframe.hinge_dict.values():
+        for curr_hinge_uuid in curr_hinge_list:
+            hinge_set.add(curr_hinge_uuid)
+
+    for hinge_uuid in hinge_set:
+
+        button_data = {'title':'Merge: %s' % name,'hidden_name_value_dict':{"against":against,
+                                                                "hinge_uuid":hinge_uuid, 
+                                                                "command":"merge"}}
+        result = requests.post('http://nicholasc-ubuntu:5100/%s/' % hinge_uuid, json=json.dumps({'name':name, 'button_data':button_data}))
+        assert result.status_code == 200
+
+    return 'true'
 
 @app.route("/browser/") 
 def browser_base():
@@ -269,6 +305,13 @@ def cmd_post(session_uuid):
             dfb.mapper(**data)
         elif command == 'hinge': 
             dfb.hinge(**data) 
+        elif command == 'merge':
+            against = data.pop('against')
+            against_tuple = one(against).strip('/').split('/')
+            against_dfb = dfb_dict[against_tuple[0]]
+            against_node =  one([n for n in against_dfb.model.nodes if n.uuid == against_tuple[1]])
+            against_frame = against_node.node_frames[int(against_tuple[2])]
+            dfb.merge(against=against_frame, **data) 
         elif command == 'reload':
             reload_bool = True
         else:
